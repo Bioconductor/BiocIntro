@@ -1,10 +1,11 @@
 # Introduction to _R_ / _Bioconductor_
 
-This package contains material for a two-day course introducing _[R][]_
-and _[Bioconductor][]_. There are no pre-requisites. The course will be
-offered January 7 and 8, and again on January 21 and 22; it is open
-and free of charge to students, staff, and faculty at Roswell Park
-Cancer Institute or SUNY at Buffalo.
+This is a two-day course introducing _[R][]_ and _[Bioconductor][]_
+for the analysis and comprehension of high-throughput genomic
+(sequencing, microarray, ...) data. There are no pre-requisites. The
+course will be offered January 7 and 8, and again on January 21 and
+22; it is open and free of charge to students, staff, and faculty at
+Roswell Park Cancer Institute or SUNY at Buffalo.
 
 You must [REGISTER][] for this course; space is strictly limited.
 
