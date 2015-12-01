@@ -70,7 +70,7 @@ Where to now?
 
 [R]: https://r-project.org
 [Bioconductor]: https://bioconductor.org
-[REGISTER]: https://docs.google.com/forms/d/1ECNHQHGsEf7n4vavF2QHEbPAN8zDpg6b3hQx0bxg_tU/viewform
+[REGISTER]: https://www.surveymonkey.com/r/6J9QZ3R
 [ggplot2]: https://cran.r-project.org/package=ggplot2
 [GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
 [DESeq2]: https://bioconductor.org/packages/DESeq2
