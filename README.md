@@ -6,7 +6,7 @@ offered January 7 and 8, and again on January 21 and 22; it is open
 and free of charge to students, staff, and faculty at Roswell Park
 Cancer Institute or SUNY at Buffalo.
 
-You must [register][] for this course; space is strictly limited.
+You must [REGISTER][] for this course; space is strictly limited.
 
 An approximate agenda is:
 
@@ -69,7 +69,7 @@ Where to now?
 
 [R]: https://r-project.org
 [Bioconductor]: https://bioconductor.org
-[register]: http://goo.gl/forms/rXL2rKYFDM
+[REGISTER]: http://goo.gl/forms/rXL2rKYFDM
 [ggplot2]: https://cran.r-project.org/package=ggplot2
 [GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
 [DESeq2]: https://bioconductor.org/packages/DESeq2
