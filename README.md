@@ -7,7 +7,9 @@ course will be offered January 21 and 22; it is open and free of charge
 to students, staff, and faculty at Roswell Park Cancer Institute or
 SUNY at Buffalo.
 
-You must [REGISTER][] for this course; space is strictly limited.
+UNFORTUNATELY, the original course dates are FULL. Please [REGISTER][]
+anyway, we are working to identify additional times. Registrants will
+be updated early next week, e.g., December 16.
 
 An approximate agenda is:
 
