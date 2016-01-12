@@ -7,9 +7,8 @@ course will be offered January 21 and 22; it is open and free of charge
 to students, staff, and faculty at Roswell Park Cancer Institute or
 SUNY at Buffalo.
 
-UNFORTUNATELY, the original course dates are FULL. Please [REGISTER][]
-anyway, we are working to identify additional times. Registrants will
-be updated early next week, e.g., December 16.
+UNFORTUNATELY, the original course dates are FULL and registrations
+are no longer being accepted.
 
 An approximate agenda is:
 
@@ -72,7 +71,6 @@ Where to now?
 
 [R]: https://r-project.org
 [Bioconductor]: https://bioconductor.org
-[REGISTER]: https://www.surveymonkey.com/r/6J9QZ3R
 [ggplot2]: https://cran.r-project.org/package=ggplot2
 [GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
 [DESeq2]: https://bioconductor.org/packages/DESeq2
