@@ -1,0 +1,41 @@
+---
+title: "B.3 -- An RNA-seq Work Flow"
+author: Martin Morgan <martin.morgan@roswellpark.org>
+date: "21 - 22 January, 2016"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{B.3 -- An RNA-seq Work Flow}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+options(width=100)
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
+# Overall Work Flow
+
+# Upstream Analysis -- Alignment
+
+## Classic Workflows
+
+Known Gene
+
+Known Transcript
+
+_de novo_ Discovery
+
+## _kallisto_ 
+
+# Annotation Resources
+
+## Gene Models
+
+## Gene and Other Identifiers
+
+## Internet Resources

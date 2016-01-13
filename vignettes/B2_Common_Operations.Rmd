@@ -1,0 +1,29 @@
+---
+title: "B.2 -- _Bioconductor_ Building Blocks"
+author: Martin Morgan <martin.morgan@roswellpark.org>
+date: "21 - 22 January, 2016"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{B.2 -- Bioconductor Building Blocks}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+options(width=100)
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
+# Genomic Ranges
+
+# Annotation Resources
+
+## Gene Models
+
+## Gene and Other Identifiers
+
+## Internet Resources
