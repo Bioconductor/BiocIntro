@@ -1,5 +1,5 @@
 ---
-title: "B.1 -- Introduction to Bioconductor"
+title: "B.1 -- Introduction to _Bioconductor_"
 author: Martin Morgan <martin.morgan@roswellpark.org>
 date: "21 - 22 January, 2016"
 output:
