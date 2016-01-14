@@ -8,7 +8,7 @@ SOURCES = $(shell ls *Rmd)
 	@echo "KNITR_CACHE=FALSE Stangle $<"
 	@KNITR_CACHE=FALSE && "$(R_HOME)"/bin/R --vanilla CMD Stangle $<
 
-all: $(SOURCES:.Rmd=.html) $(LTXSOURCES:.Rnw=.pdf)
+all: $(SOURCES:.Rmd=.html)
 
 clean:
 	rm -rf *html *R *.md *_cache/ *_files/ figure/

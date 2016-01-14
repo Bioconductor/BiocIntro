@@ -98,5 +98,5 @@ at a subset of the data.
 
 # Extended Exercise 2: ALL Phenotypic Data
 
-This data comes from an (old) Acute Lymphoid Leukemia‎ microarray data
+This data comes from an (old) Acute Lymphoid Leukemia microarray data
 set.

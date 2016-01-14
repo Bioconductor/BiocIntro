@@ -77,7 +77,7 @@ y
   logical, character, raw (bytes)
 
     ```{r atomic-vectors}
-    people = c("Brian", "Jim", "Herve", "Dan", "Val", "Martin")
+    people <- c("Brian", "Jim", "Herve", "Dan", "Val", "Martin")
     people
     ```
 
