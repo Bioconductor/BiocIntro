@@ -20,4 +20,83 @@ knitr::opts_chunk$set(
 
 # Extended Exercise 1: BRFSS Survey Data
 
+We will explore a subset of data collected by the CDC through its
+extensive Behavioral Risk Factor Surveillance System ([BRFSS][])
+telephone survey. Check out the link for more information. We'll look
+at a subset of the data.
+
+1. Use `file.choose()` to find the path to the file 'BRFSS-subset.csv'
+
+    ```{r file.choose, eval=FALSE}
+    path <- file.choose()
+    ```
+    
+    ```{r system.file, echo=FALSE}
+    path <- system.file(package="BiocIntroRPCI", "extdata", "BRFSS-subset.csv")
+    ```
+
+2. Input the data using `read.csv()`, assigning to a variable `brfss`
+
+    ```{r read.csv}
+    brfss <- read.csv(path)
+    ```
+
+3. Use command like `class()`, `head()`, `dim()`, `colnames()`,
+   `summary()` to explore the data.
+
+    - What variables have been measured?
+
+    - Can you guess at the units used for, e.g., Weight and Height?
+
+4. Use the `$` operator to extract the 'Sex' column, and summarize the
+   number of males and females in the survey using `table()`. Do the
+   same for 'Year'.
+
+    ```{r brfss-sex}
+    table(brfss$Sex)
+    ```
+
+5. The `xtabs()` function performs cross-tabulation using a
+   formula-like interface; summarize the number of males and female in
+   each year of the study.
+
+    ```{r brfss-xtabs}
+    xtabs(~ Year + Sex, brfss)
+    ```
+
+6. Use `aggregate()` to summarize the mean weight of each group. What
+   about the median weight of each group?
+
+    ```{r brfss-aggregate}
+    aggregate(Weight ~ Year + Sex, brfss, mean)
+    ```
+
+7. Create a subset of the data consisting of only the 1990
+   observations. Perform a t-test comparing the weight of males and
+   females ("'Weight' as a function of 'Sex'", `Weight ~ Sex`)
+
+    ```{r t-test-1990}
+    brfss_1990 = brfss[brfss$Year == 1990,]
+    t.test(Weight ~ Sex, brfss_1990)
+    ```
+   What about differences between weights of males (or females) in
+   1990 versus 2010? Check out the help page `?t.test.formula`. Is
+   there a way of performing a t-test on `brfss` without explicitly
+   creating the object `brfss_1990`?
+
+8. Use `boxplot()` to plot a histogram of weights of the 1990 Female
+   individuals. Can you transform weight, e.g., `sqrt(Weight) ~ Year`?
+   Interpret the results. Do similar boxplots for the t-tests of the
+   previous question.
+
+    ```{r brfss-boxplot, fig.width=5, fig.height=5}
+    boxplot(Weight ~ Year, brfss, subset = (Sex == "Male"),
+            main="Males")
+    ```
+
+[BRFSS]: http://www.cdc.gov/brfss/about/index.htm
+
 # Extended Exercise 2: ALL Phenotypic Data
+
+This data comes from an (old) Acute Lymphoid Leukemia‎ microarray data
+set.
