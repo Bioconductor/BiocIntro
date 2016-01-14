@@ -11,4 +11,4 @@ SOURCES = $(shell ls *Rmd)
 all: $(SOURCES:.Rmd=.html) $(LTXSOURCES:.Rnw=.pdf)
 
 clean:
-	rm -rf *html *R *.md cache/ figure/
+	rm -rf *html *R *.md *_cache/ *_files/ figure/
