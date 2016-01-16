@@ -1,0 +1,5 @@
+vignettes/*html
+vignettes/*R
+vignettes/*_cache/
+vignettes/*_files/
+vignettes/Rplots.pdf
