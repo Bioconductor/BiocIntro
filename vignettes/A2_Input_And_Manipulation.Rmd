@@ -100,3 +100,120 @@ at a subset of the data.
 
 This data comes from an (old) Acute Lymphoid Leukemia microarray data
 set.
+
+Choose the file that contains ALL (acute lymphoblastic leukemia)
+patient information
+
+```{r echo=FALSE}
+path <- system.file(package="BiocIntroRPCI", "extdata", "ALLphenoData.tsv")
+```
+
+```{r ALL-choose, eval=FALSE}
+path <- file.choose()    # look for ALLphenoData.tsv
+```
+
+```{r ALL-input}
+stopifnot(file.exists(path))
+pdata <- read.delim(path)
+```
+
+Check out the help page `?read.delim` for input options, and explore
+basic properties of the object you've created, for instance...
+
+```{r ALL-properties}
+class(pdata)
+colnames(pdata)
+dim(pdata)
+head(pdata)
+summary(pdata$sex)
+summary(pdata$cyto.normal)
+```
+
+Remind yourselves about various ways to subset and access columns of a
+data.frame
+
+```{r ALL-subset}
+pdata[1:5, 3:4]
+pdata[1:5, ]
+head(pdata[, 3:5])
+tail(pdata[, 3:5], 3)
+head(pdata$age)
+head(pdata$sex)
+head(pdata[pdata$age > 21,])
+```
+
+It seems from below that there are 17 females over 40 in the data
+set. However, some individuals have `NA` for the age and / or sex, and
+these `NA` values propagate through some computations. Use `table()`
+to summarize the number of females over 40, and the number of samples
+for which this classification cannot be determined. When _R_
+encounters an `NA` value in a subscript index, it introduces an `NA`
+into the result. Observe this behavior (rows of `NA` values introduced
+into the result) when subsetting using
+`[` with the behavior of the `subset()` function.
+
+```{r ALL-subset-NA}
+idx <- pdata$sex == "F" & pdata$age > 40
+table(idx, useNA="ifany")
+dim(pdata[idx,])
+dim(subset(pdata, idx))
+```
+
+Use the `mol.biol` column to subset the data to contain just
+individuals with 'BCR/ABL' or 'NEG', e.g.,
+
+```{r ALL-BCR/ABL-subset}
+bcrabl <- pdata[pdata$mol.biol %in% c("BCR/ABL", "NEG"),]
+```
+
+The `mol.biol` column is a factor, and retains all levels even after
+subsetting. It is sometimes convenient to retain factor levels, but in
+our case we use `droplevels()` to removed unused levels
+
+```{r ALL-BCR/ABL-drop-unused}
+bcrabl$mol.biol <- droplevels(bcrabl$mol.biol)
+```
+
+The `BT` column is a factor describing B- and T-cell subtypes
+
+```{r ALL-BT}
+levels(bcrabl$BT)
+```
+
+How might one collapse B1, B2, ... to a single type B, and likewise
+for T1, T2, ..., so there are only two subtypes, B and T? One strategy
+is to replace two-letter level (e.g., `B1`) with the single-letter
+level (e.g., `B`). Do this using `substring()` to select the first
+letter of level, and update the previous levels with the new value
+using `levels<-`.
+
+```{r ALL-BT-recode}
+table(bcrabl$BT)
+levels(bcrabl$BT) <- substring(levels(bcrabl$BT), 1, 1)
+table(bcrabl$BT)
+```
+
+Use `xtabs()` (cross-tabulation) to count the number of samples with
+B- and T-cell types in each of the BCR/ABL and NEG groups
+
+```{r ALL-BCR/ABL-BT}
+xtabs(~ BT + mol.biol, bcrabl)
+```
+
+Use `aggregate()` to calculate the average age of males and females in
+the BCR/ABL and NEG treatment groups.
+
+```{r ALL-aggregate}
+aggregate(age ~ mol.biol + sex, bcrabl, mean)
+```
+
+Use `t.test()` to compare the age of individuals in the BCR/ABL versus
+NEG groups; visualize the results using `boxplot()`. In both cases,
+use the `formula` interface. Consult the help page `?t.test` and re-do
+the test assuming that variance of ages in the two groups is
+identical. What parts of the test output change?
+
+```{r ALL-age}
+t.test(age ~ mol.biol, bcrabl)
+boxplot(age ~ mol.biol, bcrabl)
+```
