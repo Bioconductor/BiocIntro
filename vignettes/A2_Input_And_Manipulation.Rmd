@@ -30,7 +30,7 @@ at a subset of the data.
     ```{r file.choose, eval=FALSE}
     path <- file.choose()
     ```
-    
+
     ```{r system.file, echo=FALSE}
     path <- system.file(package="BiocIntroRPCI", "extdata", "BRFSS-subset.csv")
     ```
@@ -105,11 +105,11 @@ Choose the file that contains ALL (acute lymphoblastic leukemia)
 patient information
 
 ```{r echo=FALSE}
-path <- system.file(package="BiocIntroRPCI", "extdata", "ALLphenoData.tsv")
+path <- system.file(package="BiocIntroRPCI", "extdata", "ALL-phenoData.csv")
 ```
 
 ```{r ALL-choose, eval=FALSE}
-path <- file.choose()    # look for ALLphenoData.tsv
+path <- file.choose()    # look for ALL-phenoData.csv
 ```
 
 ```{r ALL-input}
@@ -148,15 +148,19 @@ these `NA` values propagate through some computations. Use `table()`
 to summarize the number of females over 40, and the number of samples
 for which this classification cannot be determined. When _R_
 encounters an `NA` value in a subscript index, it introduces an `NA`
-into the result. Observe this behavior (rows of `NA` values introduced
-into the result) when subsetting using
-`[` with the behavior of the `subset()` function.
+into the result. Observe this (rows of `NA` values introduced into the
+result) when subsetting using `[` versus using the `subset()`
+function.
 
 ```{r ALL-subset-NA}
 idx <- pdata$sex == "F" & pdata$age > 40
 table(idx, useNA="ifany")
+dim(pdata[idx,])           # WARNING: 'NA' rows introduced
+dim(subset(pdata, idx))    # BETTER: no NA rows
+
+## work-around for `[`: set NA values to FALSE
+idx[is.na(idx)] <- FALSE
 dim(pdata[idx,])
-dim(subset(pdata, idx))
 ```
 
 Use the `mol.biol` column to subset the data to contain just

@@ -10,6 +10,6 @@ Description: Vignettes and resources to support a two-day R /
     Bioconductor training course offered at Roswell Park Cancer Insitute,
     Buffalo, NY. January 7 and 8 or 21 and 22, 2016.
 Imports: BiocInstaller
-Suggests: BiocStyle, knitr
+Suggests: BiocStyle, knitr, RColorBrewer, class
 License: Artistic-2.0
 VignetteBuilder: knitr
