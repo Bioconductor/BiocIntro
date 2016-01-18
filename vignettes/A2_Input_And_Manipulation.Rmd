@@ -114,7 +114,7 @@ path <- file.choose()    # look for ALL-phenoData.csv
 
 ```{r ALL-input}
 stopifnot(file.exists(path))
-pdata <- read.delim(path)
+pdata <- read.csv(path)
 ```
 
 Check out the help page `?read.delim` for input options, and explore

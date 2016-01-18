@@ -32,7 +32,7 @@ The following continues to explore the 'ALL' phenotypic data from this
 earlier in the course. Start by loading the data, as before.
 
 ```{r echo=FALSE}
-path <- system.file(package="BiocIntroRPCI", "extdata", "ALLphenoData.tsv")
+path <- system.file(package="BiocIntroRPCI", "extdata", "ALL-phenoData.csv")
 ```
 
 ```{r ALL-choose, eval=FALSE}
@@ -41,7 +41,7 @@ path <- file.choose()    # look for ALLphenoData.tsv
 
 ```{r ALL-input}
 stopifnot(file.exists(path))
-pdata <- read.delim(path)
+pdata <- read.csv(path)
 ```
 
 ##  Descriptive statistics
