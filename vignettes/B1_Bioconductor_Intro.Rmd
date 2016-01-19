@@ -18,13 +18,312 @@ knitr::opts_chunk$set(
     cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
 ```
 
+```{r setup, echo=FALSE}
+suppressPackageStartupMessages({
+    library(Biostrings)
+    library(GenomicRanges)
+})
+```
+
 # Project Overview
+
+Analysis and comprehension of high-throughput genomic data
+
+- Statistical analysis: large data, technological artifacts, designed
+  experiments; rigorous
+- Comprehension: biological context, visualization, reproducibility
+- High-throughput
+    - Sequencing: RNASeq, ChIPSeq, variants, copy number, ...
+    - Microarrays: expression, SNP, ...
+    - Flow cytometry, proteomics, images, ...
+
+Packages, vignettes, work flows
+
+- 1104 software packages; also...
+    - 'Annotation' packages -- static data bases of identifier maps,
+      gene models, pathways, etc; e.g., [TxDb.Hsapiens.UCSC.hg19.knownGene][]
+    - 'Experiment packages -- data sets used to illustrate software
+      functionality, e.g., [airway][]
+- Discover and navigate via [biocViews][]
+- Package 'landing page'
+    - Title, author / maintainer, short description, citation,
+      installation instructions, ..., download statistics
+- All user-visible functions have help pages, most with runnable
+  examples
+- 'Vignettes' an important feature in Bioconductor -- narrative
+  documents illustrating how to use the package, with integrated code
+- 'Release' (every six months) and 'devel' branches
+- [Support site](https://support.bioconductor.org);
+  [videos](https://www.youtube.com/user/bioconductor), [recent
+  courses](http://bioconductor.org/help/course-materials/)
 
 # High-throughput Sequence Analysis
 
 ## Overall Work Flow
 
-## Data Types and Transformations
+1. Experimental design
+    - Keep it simple, e.g., 'control' and 'treatment' groups
+    - Replicate within treatments!
+2. Wet-lab sequence preparation (figure from http://rnaseq.uoregon.edu/)
+
+    ![](http://rnaseq.uoregon.edu/img/fig-rna-seq.png)
+    
+    - Record covariates, including processing day -- likely 'batch effects'
+
+3. (Illumina) Sequencing (Bentley et al., 2008,
+   doi:10.1038/nature07517
+
+    ![](http://www.nature.com/nature/journal/v456/n7218/images/nature07517-f1.2.jpg)
+
+    - Primary output: FASTQ files of short reads and their [quality
+      scores](http://en.wikipedia.org/wiki/FASTQ_format#Encoding)
+
+4. Alignment
+    - Choose to match task, e.g., [Rsubread][], Bowtie2 good for ChIPseq,
+      some forms of RNAseq; BWA, GMAP better for variant calling
+    - Primary output: BAM files of aligned reads
+5. Reduction
+    - e.g., RNASeq 'count table' (simple spreadsheets), DNASeq called
+      variants (VCF files), ChIPSeq peaks (BED, WIG files)
+6. Analysis
+    - Differential expression, peak identification, ...
+7. Comprehension
+    - Biological context
+
+![Alt Sequencing Ecosystem](our_figures/SequencingEcosystem_no_bioc_pkgs.png)
+
+# High-Throughput Sequence Data Types
+
+## Sequencing data types
+
+Sequenced reads: FASTQ files
+
+    @ERR127302.1703 HWI-EAS350_0441:1:1:1460:19184#0/1
+    CCTGAGTGAAGCTGATCTTGATCTACGAAGAGAGATAGATCTTGATCGTCGAGGAGATGCTGACCTTGACCT
+    +
+    HHGHHGHHHHHHHHDGG<GDGGE@GDGGD<?B8??ADAD<BE@EE8EGDGA3CB85*,77@>>CE?=896=:
+    @ERR127302.1704 HWI-EAS350_0441:1:1:1460:16861#0/1
+    GCGGTATGCTGGAAGGTGCTCGAATGGAGAGCGCCAGCGCCCCGGCGCTGAGCCGCAGCCTCAGGTCCGCCC
+    +
+    DE?DD>ED4>EEE>DE8EEEDE8B?EB<@3;BA79?,881B?@73;1?########################
+
+Aligned reads: BAM files
+
+- Header
+
+        @HD     VN:1.0  SO:coordinate
+        @SQ     SN:chr1 LN:249250621
+        @SQ     SN:chr10        LN:135534747
+        @SQ     SN:chr11        LN:135006516
+        ...
+        @SQ     SN:chrY LN:59373566
+        @PG     ID:TopHat       VN:2.0.8b       CL:/home/hpages/tophat-2.0.8b.Linux_x86_64/tophat --mate-inner-dist 150 --solexa-quals --max-multihits 5 --no-discordant --no-mixed --coverage-search --microexon-search --library-type fr-unstranded --num-threads 2 --output-dir tophat2_out/ERR127306 /home/hpages/bowtie2-2.1.0/indexes/hg19 fastq/ERR127306_1.fastq fastq/ERR127306_2.fastq
+  
+- Alignments: ID, flag, alignment and mate
+  
+        ERR127306.7941162       403     chr14   19653689        3       72M             =       19652348        -1413  ...
+        ERR127306.22648137      145     chr14   19653692        1       72M             =       19650044        -3720  ...
+        ERR127306.933914        339     chr14   19653707        1       66M120N6M       =       19653686        -213   ...
+            
+- Alignments: sequence and quality
+        
+        ... GAATTGATCAGTCTCATCTGAGAGTAACTTTGTACCCATCACTGATTCCTTCTGAGACTGCCTCCACTTCCC        *'%%%%%#&&%''#'&%%%)&&%%$%%'%%'&*****$))$)'')'%)))&)%%%%$'%%%%&"))'')%))
+        ... TTGATCAGTCTCATCTGAGAGTAACTTTGTACCCATCACTGATTCCTTCTGAGACTGCCTCCACTTCCCCAG        '**)****)*'*&*********('&)****&***(**')))())%)))&)))*')&***********)****
+        ... TGAGAGTAACTTTGTACCCATCACTGATTCCTTCTGAGACTGCCTCCACTTCCCCAGCAGCCTCTGGTTTCT        '******&%)&)))&")')'')'*((******&)&'')'))$))'')&))$)**&&****************
+        
+- Alignments: Tags
+
+        ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:0  MD:Z:72 YT:Z:UU NH:i:2  CC:Z:chr22      CP:i:16189276   HI:i:0
+        ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:0  MD:Z:72 YT:Z:UU NH:i:3  CC:Z:=  CP:i:19921600   HI:i:0
+        ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:4  MD:Z:72 YT:Z:UU XS:A:+  NH:i:3  CC:Z:=  CP:i:19921465   HI:i:0
+        ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:4  MD:Z:72 YT:Z:UU XS:A:+  NH:i:2  CC:Z:chr22      CP:i:16189138   HI:i:0
+
+Called variants: VCF files
+
+- Header
+
+          ##fileformat=VCFv4.2
+          ##fileDate=20090805
+          ##source=myImputationProgramV3.1
+          ##reference=file:///seq/references/1000GenomesPilot-NCBI36.fasta
+          ##contig=<ID=20,length=62435964,assembly=B36,md5=f126cdf8a6e0c7f379d618ff66beb2da,species="Homo sapiens",taxonomy=x>
+          ##phasing=partial
+          ##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+          ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
+          ...
+          ##FILTER=<ID=q10,Description="Quality below 10">
+          ##FILTER=<ID=s50,Description="Less than 50% of samples have data">
+          ...
+          ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+          ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+          
+- Location
+
+          #CHROM POS     ID        REF    ALT     QUAL FILTER ...
+          20     14370   rs6054257 G      A       29   PASS   ...
+          20     17330   .         T      A       3    q10    ...
+          20     1110696 rs6040355 A      G,T     67   PASS   ...
+          
+- Variant INFO
+
+          #CHROM POS     ...	INFO                              ...
+          20     14370   ...	NS=3;DP=14;AF=0.5;DB;H2           ...
+          20     17330   ...	NS=3;DP=11;AF=0.017               ...
+          20     1110696 ...	NS=2;DP=10;AF=0.333,0.667;AA=T;DB ...
+    
+- Genotype FORMAT and samples
+
+          ... POS     ...  FORMAT      NA00001        NA00002        NA00003
+          ... 14370   ...  GT:GQ:DP:HQ 0|0:48:1:51,51 1|0:48:8:51,51 1/1:43:5:.,.
+          ... 17330   ...  GT:GQ:DP:HQ 0|0:49:3:58,50 0|1:3:5:65,3   0/0:41:3
+          ... 1110696 ...  GT:GQ:DP:HQ 1|2:21:6:23,27 2|1:2:0:18,2   2/2:35:4
+
+Genome annotations: BED, WIG, GTF, etc. files. E.g., TGF:
+
+- Component coordinates
+  
+        7   protein_coding  gene        27221129    27224842    .   -   . ...
+        ...
+        7   protein_coding  transcript  27221134    27224835    .   -   . ...
+        7   protein_coding  exon        27224055    27224835    .   -   . ...
+        7   protein_coding  CDS         27224055    27224763    .   -   0 ...
+        7   protein_coding  start_codon 27224761    27224763    .   -   0 ...
+        7   protein_coding  exon        27221134    27222647    .   -   . ...
+        7   protein_coding  CDS         27222418    27222647    .   -   2 ...
+        7   protein_coding  stop_codon  27222415    27222417    .   -   0 ...
+        7   protein_coding  UTR         27224764    27224835    .   -   . ...
+        7   protein_coding  UTR         27221134    27222414    .   -   . ...
+      
+- Annotations
+
+        gene_id "ENSG00000005073"; gene_name "HOXA11"; gene_source "ensembl_havana"; gene_biotype "protein_coding";
+        ...
+        ... transcript_id "ENST00000006015"; transcript_name "HOXA11-001"; transcript_source "ensembl_havana"; tag "CCDS"; ccds_id "CCDS5411";
+        ... exon_number "1"; exon_id "ENSE00001147062";
+        ... exon_number "1"; protein_id "ENSP00000006015";
+        ... exon_number "1";
+        ... exon_number "2"; exon_id "ENSE00002099557";
+        ... exon_number "2"; protein_id "ENSP00000006015";
+        ... exon_number "2";
+        ...
+
+Derived results, e.g., 'count' tables (.csv files) for RNA-seq
+differential expressoin.
+
+## Major _Bioconductor_ Packages
+
+- [GenomicRanges][]: 'Ranges' to describe data and annotation;
+  `GRanges()`, `GRangesList()`
+- [Biostrings][]: DNA and other sequences, `DNAStringSet()`; [BSgenome][]
+- [GenomicAlignments][]: Aligned reads; `GAlignemts()` and friends
+- [GenomicFeatures][], [AnnotationDbi][]: annotation resources, `TxDb`
+  and `org` packages.
+- [SummarizedExperiment][]: coordinating experimental data
+- [rtracklayer][]: import BED, WIG, GTF, etc.
+
+_Bioconductor_ Objects
+
+- Example: [Biostrings][]
+
+    ```{r}
+    library(Biostrings)
+    data(phiX174Phage)
+    phiX174Phage
+    letterFrequency(phiX174Phage, c("A", "C", "G", "T"))
+    letterFrequency(phiX174Phage, "GC", as.prob=TRUE)
+    ```
+
+- Represent complicated data types
+- Foster interoperability
+- S4 object system
+    - Introspection: `methods()`, `getClass()`, `selectMethod()`
+    - 'accessors' and other documented functions / methods for
+      manipulation, rather than direct access to the object structure
+- Interactive help
+    - `method?"substr,<tab>"` to select help on methods,
+      `class?D<tab>` for help on classes
 
 # The _Bioconductor_ Package Ecosystem for Sequence Analysis
 
+Basics 
+
+- Bioconductor packages are listed on the [biocViews][] page. Each
+  package has 'biocViews' (tags from a controlled vocabulary)
+  associated with it; these can be searched to identify appropriately
+  tagged packages, as can the package title and author.
+- Each package has a 'landing page', e.g., for
+  [GenomicRanges][]. Visit this landing page, and note the
+  description, authors, and installation instructions. Packages are
+  often written up in the scientific literature, and if available the
+  corresponding citation is present on the landing page. Also on the
+  landing page are links to the vignettes and reference manual and, at
+  the bottom, an indication of cross-platform availability and
+  download statistics.
+-   A package needs to be installed once, using the instructions on the
+    landing page. Once installed, the package can be loaded into an R
+    session
+
+    ```{r require}
+    library(GenomicRanges)
+    ```
+    
+    and the help system queried interactively, as outlined above:
+
+    ```{r help, eval=FALSE}
+    help(package="GenomicRanges")
+    vignette(package="GenomicRanges")
+    vignette(package="GenomicRanges", "GenomicRangesHOWTOs")
+    ?GRanges
+    ```
+    
+[biocViews]: https://bioconductor.org/packages/
+
+[AnnotationDbi]: http://bioconductor.org/packages/AnnotationDbi
+[AnnotationHub]: http://bioconductor.org/packages/AnnotationHub
+[BSgenome.Hsapiens.UCSC.hg19]: http://bioconductor.org/packages/BSgenome.Hsapiens.UCSC.hg19
+[BSgenome]: http://bioconductor.org/packages/BSgenome
+[BiocParallel]: http://bioconductor.org/packages/BiocParallel
+[Biostrings]: https://bioconductor.org/packages/Biostrings
+[CNTools]: http://bioconductor.org/packages/CNTools
+[ChIPQC]: http://bioconductor.org/packages/ChIPQC
+[ChIPseeker]: http://bioconductor.org/packages/ChIPseeker
+[DESeq2]: http://bioconductor.org/packages/DESeq2
+[DiffBind]: http://bioconductor.org/packages/DiffBind
+[GenomicAlignments]: http://bioconductor.org/packages/GenomicAlignments
+[GenomicFiles]: http://bioconductor.org/packages/GenomicFiles
+[GenomicRanges]: http://bioconductor.org/packages/GenomicRanges
+[Gviz]: http://bioconductor.org/packages/Gviz
+[Homo.sapiens]: http://bioconductor.org/packages/Homo.sapiens
+[IRanges]: http://bioconductor.org/packages/IRanges
+[KEGGREST]: http://bioconductor.org/packages/KEGGREST
+[OmicCircos]: http://bioconductor.org/packages/OmicCircos
+[PSICQUIC]: http://bioconductor.org/packages/PSICQUIC
+[Rsamtools]: http://bioconductor.org/packages/Rsamtools
+[Rsubread]: http://bioconductor.org/packages/Rsubread
+[ShortRead]: http://bioconductor.org/packages/ShortRead
+[SomaticSignatures]: http://bioconductor.org/packages/SomaticSignatures
+[SummarizedExperiment]: http://bioconductor.org/packages/SummarizedExperiment
+[TxDb.Hsapiens.UCSC.hg19.knownGene]: http://bioconductor.org/packages/TxDb.Hsapiens.UCSC.hg19.knownGene
+[VariantAnnotation]: http://bioconductor.org/packages/VariantAnnotation
+[VariantFiltering]: http://bioconductor.org/packages/VariantFiltering
+[VariantTools]: http://bioconductor.org/packages/VariantTools
+[airway]: http://bioconductor.org/packages/airway
+[biomaRt]: http://bioconductor.org/packages/biomaRt
+[cn.mops]: http://bioconductor.org/packages/cn.mops
+[csaw]: http://bioconductor.org/packages/csaw
+[edgeR]: http://bioconductor.org/packages/edgeR
+[ensemblVEP]: http://bioconductor.org/packages/ensemblVEP 
+[epivizr]: http://bioconductor.org/packages/epivizr
+[ggbio]: http://bioconductor.org/packages/ggbio
+[h5vc]: http://bioconductor.org/packages/h5vc
+[limma]: http://bioconductor.org/packages/limma
+[metagenomeSeq]: http://bioconductor.org/packages/metagenomeSeq
+[org.Hs.eg.db]: http://bioconductor.org/packages/org.Hs.eg.db
+[org.Sc.sgd.db]: http://bioconductor.org/packages/org.Sc.sgd.db
+[phyloseq]: http://bioconductor.org/packages/phyloseq
+[rtracklayer]: http://bioconductor.org/packages/rtracklayer
+[snpStats]: http://bioconductor.org/packages/snpStats
+
+[dplyr]: https://cran.r-project.org/package=dplyr
+[data.table]: https://cran.r-project.org/package=data.table
+[Rcpp]: https://cran.r-project.org/package=Rcpp
