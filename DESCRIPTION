@@ -10,8 +10,7 @@ Description: Vignettes and resources to support a two-day R /
     Bioconductor training course offered at Roswell Park Cancer Insitute,
     Buffalo, NY. January 7 and 8 or 21 and 22, 2016.
 Imports: BiocInstaller
-Suggests:
-    BiocStyle, knitr, DESeq2, AnnotationHub, BiocParallel, Biostrings,
+Suggests: BiocStyle, knitr, AnnotationHub, BiocParallel, Biostrings,
     DESeq2, GenomicAlignments, GenomicRanges, RColorBrewer,
     RNAseqData.HNRNPC.bam.chr14, Rsamtools, SummarizedExperiment,
     TxDb.Hsapiens.UCSC.hg19.knownGene, airway, biomaRt, class,
