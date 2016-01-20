@@ -425,7 +425,7 @@ between each sample; we will use this as the basis for our distance
 metric in ordering rows and columns of the heatmap.
 
 ```{r ALL-sample-cor}
-cm <- cor(exprs1000)
+d <- dist(t(exprs1000))
 ```
 
 The following `heatmap()` command performs hierarchical clustering of
@@ -434,7 +434,7 @@ came from a B or T lineage sample.
 
 ```{r heatmap}
 color <- highlight[pdata$BorT]
-heatmap(cm, ColSideColor=color, col=divergent, symm=TRUE)
+heatmap(as.matrix(d), ColSideColor=color, col=divergent, symm=TRUE)
 ```
 
 
