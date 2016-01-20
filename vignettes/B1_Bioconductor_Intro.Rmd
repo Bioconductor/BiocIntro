@@ -57,6 +57,25 @@ Packages, vignettes, work flows
   [videos](https://www.youtube.com/user/bioconductor), [recent
   courses](http://bioconductor.org/help/course-materials/)
 
+Package installation and use
+
+- A package needs to be installed once, using the instructions on the
+  landing page. Once installed, the package can be loaded into an R
+  session
+
+    ```{r require}
+    library(GenomicRanges)
+    ```
+
+    and the help system queried interactively, as outlined above:
+
+    ```{r help, eval=FALSE}
+    help(package="GenomicRanges")
+    vignette(package="GenomicRanges")
+    vignette(package="GenomicRanges", "GenomicRangesHOWTOs")
+    ?GRanges
+    ```
+
 # High-throughput Sequence Analysis
 
 ## Overall Work Flow
@@ -67,11 +86,11 @@ Packages, vignettes, work flows
 2. Wet-lab sequence preparation (figure from http://rnaseq.uoregon.edu/)
 
     ![](http://rnaseq.uoregon.edu/img/fig-rna-seq.png)
-    
+
     - Record covariates, including processing day -- likely 'batch effects'
 
 3. (Illumina) Sequencing (Bentley et al., 2008,
-   doi:10.1038/nature07517
+   doi:10.1038/nature07517)
 
     ![](http://www.nature.com/nature/journal/v456/n7218/images/nature07517-f1.2.jpg)
 
@@ -82,6 +101,8 @@ Packages, vignettes, work flows
     - Choose to match task, e.g., [Rsubread][], Bowtie2 good for ChIPseq,
       some forms of RNAseq; BWA, GMAP better for variant calling
     - Primary output: BAM files of aligned reads
+    - More recently: [kallisto][] and similar programs that produce
+      tables of reads aligned to transcripts
 5. Reduction
     - e.g., RNASeq 'count table' (simple spreadsheets), DNASeq called
       variants (VCF files), ChIPSeq peaks (BED, WIG files)
@@ -118,19 +139,19 @@ Aligned reads: BAM files
         ...
         @SQ     SN:chrY LN:59373566
         @PG     ID:TopHat       VN:2.0.8b       CL:/home/hpages/tophat-2.0.8b.Linux_x86_64/tophat --mate-inner-dist 150 --solexa-quals --max-multihits 5 --no-discordant --no-mixed --coverage-search --microexon-search --library-type fr-unstranded --num-threads 2 --output-dir tophat2_out/ERR127306 /home/hpages/bowtie2-2.1.0/indexes/hg19 fastq/ERR127306_1.fastq fastq/ERR127306_2.fastq
-  
+
 - Alignments: ID, flag, alignment and mate
-  
+
         ERR127306.7941162       403     chr14   19653689        3       72M             =       19652348        -1413  ...
         ERR127306.22648137      145     chr14   19653692        1       72M             =       19650044        -3720  ...
         ERR127306.933914        339     chr14   19653707        1       66M120N6M       =       19653686        -213   ...
-            
+
 - Alignments: sequence and quality
-        
+
         ... GAATTGATCAGTCTCATCTGAGAGTAACTTTGTACCCATCACTGATTCCTTCTGAGACTGCCTCCACTTCCC        *'%%%%%#&&%''#'&%%%)&&%%$%%'%%'&*****$))$)'')'%)))&)%%%%$'%%%%&"))'')%))
         ... TTGATCAGTCTCATCTGAGAGTAACTTTGTACCCATCACTGATTCCTTCTGAGACTGCCTCCACTTCCCCAG        '**)****)*'*&*********('&)****&***(**')))())%)))&)))*')&***********)****
         ... TGAGAGTAACTTTGTACCCATCACTGATTCCTTCTGAGACTGCCTCCACTTCCCCAGCAGCCTCTGGTTTCT        '******&%)&)))&")')'')'*((******&)&'')'))$))'')&))$)**&&****************
-        
+
 - Alignments: Tags
 
         ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:0  MD:Z:72 YT:Z:UU NH:i:2  CC:Z:chr22      CP:i:16189276   HI:i:0
@@ -156,21 +177,21 @@ Called variants: VCF files
           ...
           ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
           ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
-          
+
 - Location
 
           #CHROM POS     ID        REF    ALT     QUAL FILTER ...
           20     14370   rs6054257 G      A       29   PASS   ...
           20     17330   .         T      A       3    q10    ...
           20     1110696 rs6040355 A      G,T     67   PASS   ...
-          
+
 - Variant INFO
 
           #CHROM POS     ...	INFO                              ...
           20     14370   ...	NS=3;DP=14;AF=0.5;DB;H2           ...
           20     17330   ...	NS=3;DP=11;AF=0.017               ...
           20     1110696 ...	NS=2;DP=10;AF=0.333,0.667;AA=T;DB ...
-    
+
 - Genotype FORMAT and samples
 
           ... POS     ...  FORMAT      NA00001        NA00002        NA00003
@@ -181,7 +202,7 @@ Called variants: VCF files
 Genome annotations: BED, WIG, GTF, etc. files. E.g., TGF:
 
 - Component coordinates
-  
+
         7   protein_coding  gene        27221129    27224842    .   -   . ...
         ...
         7   protein_coding  transcript  27221134    27224835    .   -   . ...
@@ -193,7 +214,7 @@ Genome annotations: BED, WIG, GTF, etc. files. E.g., TGF:
         7   protein_coding  stop_codon  27222415    27222417    .   -   0 ...
         7   protein_coding  UTR         27224764    27224835    .   -   . ...
         7   protein_coding  UTR         27221134    27222414    .   -   . ...
-      
+
 - Annotations
 
         gene_id "ENSG00000005073"; gene_name "HOXA11"; gene_source "ensembl_havana"; gene_biotype "protein_coding";
@@ -243,39 +264,7 @@ _Bioconductor_ Objects
     - `method?"substr,<tab>"` to select help on methods,
       `class?D<tab>` for help on classes
 
-# The _Bioconductor_ Package Ecosystem for Sequence Analysis
 
-Basics 
-
-- Bioconductor packages are listed on the [biocViews][] page. Each
-  package has 'biocViews' (tags from a controlled vocabulary)
-  associated with it; these can be searched to identify appropriately
-  tagged packages, as can the package title and author.
-- Each package has a 'landing page', e.g., for
-  [GenomicRanges][]. Visit this landing page, and note the
-  description, authors, and installation instructions. Packages are
-  often written up in the scientific literature, and if available the
-  corresponding citation is present on the landing page. Also on the
-  landing page are links to the vignettes and reference manual and, at
-  the bottom, an indication of cross-platform availability and
-  download statistics.
--   A package needs to be installed once, using the instructions on the
-    landing page. Once installed, the package can be loaded into an R
-    session
-
-    ```{r require}
-    library(GenomicRanges)
-    ```
-    
-    and the help system queried interactively, as outlined above:
-
-    ```{r help, eval=FALSE}
-    help(package="GenomicRanges")
-    vignette(package="GenomicRanges")
-    vignette(package="GenomicRanges", "GenomicRangesHOWTOs")
-    ?GRanges
-    ```
-    
 [biocViews]: https://bioconductor.org/packages/
 
 [AnnotationDbi]: http://bioconductor.org/packages/AnnotationDbi
@@ -312,7 +301,7 @@ Basics
 [cn.mops]: http://bioconductor.org/packages/cn.mops
 [csaw]: http://bioconductor.org/packages/csaw
 [edgeR]: http://bioconductor.org/packages/edgeR
-[ensemblVEP]: http://bioconductor.org/packages/ensemblVEP 
+[ensemblVEP]: http://bioconductor.org/packages/ensemblVEP
 [epivizr]: http://bioconductor.org/packages/epivizr
 [ggbio]: http://bioconductor.org/packages/ggbio
 [h5vc]: http://bioconductor.org/packages/h5vc
@@ -327,3 +316,4 @@ Basics
 [dplyr]: https://cran.r-project.org/package=dplyr
 [data.table]: https://cran.r-project.org/package=data.table
 [Rcpp]: https://cran.r-project.org/package=Rcpp
+[kallisto]: http://pachterlab.github.io/kallisto

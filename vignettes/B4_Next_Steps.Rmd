@@ -128,7 +128,7 @@ and efficient R code.
 
     ```{r vectorize}
     x <- 1:10
-    log(x)     ## NOT for (i in seq_along) x[i] <- log(x[i])
+    log(x)     ## NOT for (i in seq_along(x)) x[i] <- log(x[i])
     ```
 
 3. Pre-allocate memory, then fill in the result
