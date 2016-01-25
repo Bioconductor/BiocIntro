@@ -11,4 +11,4 @@ SOURCES = $(shell ls *Rmd)
 all: $(SOURCES:.Rmd=.html)
 
 clean:
-	Rplots* rm -rf *html *R *.md *_cache/ *_files/ figure/
+	rm -rf Rplots* *html *R *.md *_cache/ *_files/ figure/
