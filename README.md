@@ -7,9 +7,6 @@ course will be offered January 21 and 22; it is open and free of charge
 to students, staff, and faculty at Roswell Park Cancer Institute or
 SUNY at Buffalo.
 
-UNFORTUNATELY, the original course dates are FULL and registrations
-are no longer being accepted.
-
 An approximate agenda is:
 
 ## Day 1: Introduction to _R_
