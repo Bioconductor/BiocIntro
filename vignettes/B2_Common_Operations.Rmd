@@ -1,7 +1,7 @@
 ---
 title: "B.2 -- _Bioconductor_ Building Blocks"
 author: Martin Morgan <martin.morgan@roswellpark.org>
-date: "21 - 22 January, 2016"
+date: "16 - 17 May, 2016"
 output:
   BiocStyle::html_document:
     toc: true
