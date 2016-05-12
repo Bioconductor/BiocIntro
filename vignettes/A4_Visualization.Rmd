@@ -150,7 +150,7 @@ Plot the distribution of weights using `geom_density()`
 ggplot(brfss, aes(x=Weight)) + geom_density()
 ```
 
-Plot these separately for each year, using `fill=factor(Year)` and
+Plot the weights separately for each year, using `fill=factor(Year)` and
 `alpha=.5` arguments in the `aes()` argument
 
 ```{r brfss-density-by-year, warning=FALSE}

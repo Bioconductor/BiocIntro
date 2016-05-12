@@ -261,8 +261,8 @@ _Bioconductor_ Objects
     - 'accessors' and other documented functions / methods for
       manipulation, rather than direct access to the object structure
 - Interactive help
-    - `method?"substr,<tab>"` to select help on methods,
-      `class?D<tab>` for help on classes
+    - `?Methods` to select help on methods,
+      `?Classes` for help on classes
 
 
 [biocViews]: https://bioconductor.org/packages/
@@ -279,6 +279,7 @@ _Bioconductor_ Objects
 [DESeq2]: http://bioconductor.org/packages/DESeq2
 [DiffBind]: http://bioconductor.org/packages/DiffBind
 [GenomicAlignments]: http://bioconductor.org/packages/GenomicAlignments
+[GenomicFeatures]: http://bioconductor.org/packages/GenomicFeatures
 [GenomicFiles]: http://bioconductor.org/packages/GenomicFiles
 [GenomicRanges]: http://bioconductor.org/packages/GenomicRanges
 [Gviz]: http://bioconductor.org/packages/Gviz
