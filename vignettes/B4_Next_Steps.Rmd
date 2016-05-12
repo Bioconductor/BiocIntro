@@ -60,7 +60,7 @@ reference manuals of two or three of the following packages.
 - Metabolomics, chemoinformatics, image analysis, and many other
   high-throughput analysis domains are also represented in
   Bioconductor; explore these via biocViews and title searches.
-  
+
 Working with sequences, alignments, common web file formats, and raw
 data; these packages rely very heavily on the [IRanges][] /
 [GenomicRanges][] infrastructure.
@@ -80,14 +80,14 @@ data; these packages rely very heavily on the [IRanges][] /
   for basic usage.
 - The [ShortRead][] and [Rsamtools][] packages can be used for
   lower-level access to FASTQ and BAM files, respectively. Explore the
-  [ShortRead vignette](http://bioconductor.org/packages/release/bioc/vignettes/ShortRead/inst/doc/Overview.pdf)
+  [ShortRead vignette](https://bioconductor.org/packages/release/bioc/vignettes/ShortRead/inst/doc/Overview.pdf)
   and Scalable Genomics labs to see approaches to effectively
   processing the large files.
 
 Visualization
 
 - The [Gviz][] package provides great tools for visualizing local
-  genomic coordinates and associated data. 
+  genomic coordinates and associated data.
 - [epivizr][] drives the [epiviz](http://epiviz.cbcb.umd.edu/) genome
   browser from within R; [rtracklayer][] provides easy ways to
   transfer data to and manipulate UCSC browser sessions.
@@ -121,7 +121,7 @@ and efficient R code.
       `system.time()` or the `r CRANpkg("microbenchmark")` package.
     - _Profile_ the code with a tool that indicates how much time is
       spent in each function call or line -- the built-in `Rprof()`
-      function, or packages such as `r CRANpkg("lineprof")` or 
+      function, or packages such as `r CRANpkg("lineprof")` or
       `r CRANpkg("aprof")`
 2. Vectorize -- operate on vectors, rather than explicit loops
 
@@ -148,9 +148,9 @@ and efficient R code.
 5. Re-use existing, tested code
     - Efficient implementations of common operations -- `tabulate()`,
       `rowSums()` and friends, `%in%`, ...
-    - Efficient domain-specific implementations, e.g., 
+    - Efficient domain-specific implementations, e.g.,
       `r Biocpkg("snpStats")` for GWAS linear models; `r Biocpkg("limma")`
-      for microarray linear models; `r Biocpkg("edgeR")`, 
+      for microarray linear models; `r Biocpkg("edgeR")`,
       `r Biocpkg("DESeq2")` for negative binomial GLMs relevant to
       RNASeq.
     - Reuse others' work -- `r Biocpkg("DESeq2")`,
@@ -158,7 +158,7 @@ and efficient R code.
       `r CRANpkg("dplyr")`, `r CRANpkg("data.table")`, `r CRANpkg("Rcpp")`
 
 
-### Case Study: Pre-allocate and vectorize 
+### Case Study: Pre-allocate and vectorize
 
 Here's an obviously inefficient function:
 
@@ -262,7 +262,7 @@ Lessons learned:
 3. `*apply()` functions help avoid need for explicit pre-allocation
    and make opportunities for vectorization more apparent. This may
    come at a small performance cost, but  is generally worth it
-4. Hoisting common sub-expressions can be helpful for improving 
+4. Hoisting common sub-expressions can be helpful for improving
    performance when explicit iteration is required.
 
 ## Parallel evaluation
@@ -304,7 +304,7 @@ General ideas:
     - `MulticoreParam()`: threads on a single (non-Windows) machine
     - `SnowParam()`: processes on the same or different machines
     - `BatchJobsParam()`: resource scheduler on a cluster
-    - `DoparParam()`: parallel execution with `foreach()` 
+    - `DoparParam()`: parallel execution with `foreach()`
 
 
 ### Exercise: Sleeping serially and in parallel
@@ -313,7 +313,7 @@ This small example motivates the use of parallel execution and demonstrates how
 `bplapply()` can be a drop in for `lapply`.
 
 Use `system.time()` to explore how long this takes to execute as `n`
-increases from 1 to 10. Use `identical()` and 
+increases from 1 to 10. Use `identical()` and
 `r CRANpkg("microbenchmark")` to compare alternatives `f0()` and  `f1()`
 for both correctness and performance.
 
@@ -338,51 +338,51 @@ f1 <- function(n)
 
 [biocViews]: https://bioconductor.org/packages/
 
-[AnnotationDbi]: http://bioconductor.org/packages/AnnotationDbi
-[AnnotationHub]: http://bioconductor.org/packages/AnnotationHub
-[BSgenome.Hsapiens.UCSC.hg19]: http://bioconductor.org/packages/BSgenome.Hsapiens.UCSC.hg19
-[BSgenome]: http://bioconductor.org/packages/BSgenome
-[BiocParallel]: http://bioconductor.org/packages/BiocParallel
+[AnnotationDbi]: https://bioconductor.org/packages/AnnotationDbi
+[AnnotationHub]: https://bioconductor.org/packages/AnnotationHub
+[BSgenome.Hsapiens.UCSC.hg19]: https://bioconductor.org/packages/BSgenome.Hsapiens.UCSC.hg19
+[BSgenome]: https://bioconductor.org/packages/BSgenome
+[BiocParallel]: https://bioconductor.org/packages/BiocParallel
 [Biostrings]: https://bioconductor.org/packages/Biostrings
-[CNTools]: http://bioconductor.org/packages/CNTools
-[ChIPQC]: http://bioconductor.org/packages/ChIPQC
-[ChIPseeker]: http://bioconductor.org/packages/ChIPseeker
-[DESeq2]: http://bioconductor.org/packages/DESeq2
-[DiffBind]: http://bioconductor.org/packages/DiffBind
-[GenomicAlignments]: http://bioconductor.org/packages/GenomicAlignments
-[GenomicFiles]: http://bioconductor.org/packages/GenomicFiles
-[GenomicRanges]: http://bioconductor.org/packages/GenomicRanges
-[Gviz]: http://bioconductor.org/packages/Gviz
-[Homo.sapiens]: http://bioconductor.org/packages/Homo.sapiens
-[IRanges]: http://bioconductor.org/packages/IRanges
-[KEGGREST]: http://bioconductor.org/packages/KEGGREST
-[OmicCircos]: http://bioconductor.org/packages/OmicCircos
-[PSICQUIC]: http://bioconductor.org/packages/PSICQUIC
-[Rsamtools]: http://bioconductor.org/packages/Rsamtools
-[Rsubread]: http://bioconductor.org/packages/Rsubread
-[ShortRead]: http://bioconductor.org/packages/ShortRead
-[SomaticSignatures]: http://bioconductor.org/packages/SomaticSignatures
-[SummarizedExperiment]: http://bioconductor.org/packages/SummarizedExperiment
-[TxDb.Hsapiens.UCSC.hg19.knownGene]: http://bioconductor.org/packages/TxDb.Hsapiens.UCSC.hg19.knownGene
-[VariantAnnotation]: http://bioconductor.org/packages/VariantAnnotation
-[VariantFiltering]: http://bioconductor.org/packages/VariantFiltering
-[VariantTools]: http://bioconductor.org/packages/VariantTools
-[airway]: http://bioconductor.org/packages/airway
-[biomaRt]: http://bioconductor.org/packages/biomaRt
-[cn.mops]: http://bioconductor.org/packages/cn.mops
-[csaw]: http://bioconductor.org/packages/csaw
-[edgeR]: http://bioconductor.org/packages/edgeR
-[ensemblVEP]: http://bioconductor.org/packages/ensemblVEP 
-[epivizr]: http://bioconductor.org/packages/epivizr
-[ggbio]: http://bioconductor.org/packages/ggbio
-[h5vc]: http://bioconductor.org/packages/h5vc
-[limma]: http://bioconductor.org/packages/limma
-[metagenomeSeq]: http://bioconductor.org/packages/metagenomeSeq
-[org.Hs.eg.db]: http://bioconductor.org/packages/org.Hs.eg.db
-[org.Sc.sgd.db]: http://bioconductor.org/packages/org.Sc.sgd.db
-[phyloseq]: http://bioconductor.org/packages/phyloseq
-[rtracklayer]: http://bioconductor.org/packages/rtracklayer
-[snpStats]: http://bioconductor.org/packages/snpStats
+[CNTools]: https://bioconductor.org/packages/CNTools
+[ChIPQC]: https://bioconductor.org/packages/ChIPQC
+[ChIPseeker]: https://bioconductor.org/packages/ChIPseeker
+[DESeq2]: https://bioconductor.org/packages/DESeq2
+[DiffBind]: https://bioconductor.org/packages/DiffBind
+[GenomicAlignments]: https://bioconductor.org/packages/GenomicAlignments
+[GenomicFiles]: https://bioconductor.org/packages/GenomicFiles
+[GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
+[Gviz]: https://bioconductor.org/packages/Gviz
+[Homo.sapiens]: https://bioconductor.org/packages/Homo.sapiens
+[IRanges]: https://bioconductor.org/packages/IRanges
+[KEGGREST]: https://bioconductor.org/packages/KEGGREST
+[OmicCircos]: https://bioconductor.org/packages/OmicCircos
+[PSICQUIC]: https://bioconductor.org/packages/PSICQUIC
+[Rsamtools]: https://bioconductor.org/packages/Rsamtools
+[Rsubread]: https://bioconductor.org/packages/Rsubread
+[ShortRead]: https://bioconductor.org/packages/ShortRead
+[SomaticSignatures]: https://bioconductor.org/packages/SomaticSignatures
+[SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
+[TxDb.Hsapiens.UCSC.hg19.knownGene]: https://bioconductor.org/packages/TxDb.Hsapiens.UCSC.hg19.knownGene
+[VariantAnnotation]: https://bioconductor.org/packages/VariantAnnotation
+[VariantFiltering]: https://bioconductor.org/packages/VariantFiltering
+[VariantTools]: https://bioconductor.org/packages/VariantTools
+[airway]: https://bioconductor.org/packages/airway
+[biomaRt]: https://bioconductor.org/packages/biomaRt
+[cn.mops]: https://bioconductor.org/packages/cn.mops
+[csaw]: https://bioconductor.org/packages/csaw
+[edgeR]: https://bioconductor.org/packages/edgeR
+[ensemblVEP]: https://bioconductor.org/packages/ensemblVEP
+[epivizr]: https://bioconductor.org/packages/epivizr
+[ggbio]: https://bioconductor.org/packages/ggbio
+[h5vc]: https://bioconductor.org/packages/h5vc
+[limma]: https://bioconductor.org/packages/limma
+[metagenomeSeq]: https://bioconductor.org/packages/metagenomeSeq
+[org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
+[org.Sc.sgd.db]: https://bioconductor.org/packages/org.Sc.sgd.db
+[phyloseq]: https://bioconductor.org/packages/phyloseq
+[rtracklayer]: https://bioconductor.org/packages/rtracklayer
+[snpStats]: https://bioconductor.org/packages/snpStats
 
 [dplyr]: https://cran.r-project.org/package=dplyr
 [data.table]: https://cran.r-project.org/package=data.table

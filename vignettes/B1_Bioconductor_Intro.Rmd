@@ -55,7 +55,7 @@ Packages, vignettes, work flows
 - 'Release' (every six months) and 'devel' branches
 - [Support site](https://support.bioconductor.org);
   [videos](https://www.youtube.com/user/bioconductor), [recent
-  courses](http://bioconductor.org/help/course-materials/)
+  courses](https://bioconductor.org/help/course-materials/)
 
 Package installation and use
 
@@ -261,60 +261,64 @@ _Bioconductor_ Objects
     - 'accessors' and other documented functions / methods for
       manipulation, rather than direct access to the object structure
 - Interactive help
-    - `?Methods` to select help on methods,
-      `?Classes` for help on classes
-
+    - `method?"substr,<tab>"` to see all help pages for `substr`
+      methods, for instance `method?"letterFrequency,XStringSet"` to
+      find the documentation for the `letterFrequency` generic applied
+      to an object (derived from) the `XStringSet` class.
+    - `class?D<tab>` for help on classes whose name begins with 'D'
+       (e.g., find the help page for the DNAStringSet class with
+       `class?DNAStringSet`).
 
 [biocViews]: https://bioconductor.org/packages/
 
-[AnnotationDbi]: http://bioconductor.org/packages/AnnotationDbi
-[AnnotationHub]: http://bioconductor.org/packages/AnnotationHub
-[BSgenome.Hsapiens.UCSC.hg19]: http://bioconductor.org/packages/BSgenome.Hsapiens.UCSC.hg19
-[BSgenome]: http://bioconductor.org/packages/BSgenome
-[BiocParallel]: http://bioconductor.org/packages/BiocParallel
+[AnnotationDbi]: https://bioconductor.org/packages/AnnotationDbi
+[AnnotationHub]: https://bioconductor.org/packages/AnnotationHub
+[BSgenome.Hsapiens.UCSC.hg19]: https://bioconductor.org/packages/BSgenome.Hsapiens.UCSC.hg19
+[BSgenome]: https://bioconductor.org/packages/BSgenome
+[BiocParallel]: https://bioconductor.org/packages/BiocParallel
 [Biostrings]: https://bioconductor.org/packages/Biostrings
-[CNTools]: http://bioconductor.org/packages/CNTools
-[ChIPQC]: http://bioconductor.org/packages/ChIPQC
-[ChIPseeker]: http://bioconductor.org/packages/ChIPseeker
-[DESeq2]: http://bioconductor.org/packages/DESeq2
-[DiffBind]: http://bioconductor.org/packages/DiffBind
-[GenomicAlignments]: http://bioconductor.org/packages/GenomicAlignments
-[GenomicFeatures]: http://bioconductor.org/packages/GenomicFeatures
-[GenomicFiles]: http://bioconductor.org/packages/GenomicFiles
-[GenomicRanges]: http://bioconductor.org/packages/GenomicRanges
-[Gviz]: http://bioconductor.org/packages/Gviz
-[Homo.sapiens]: http://bioconductor.org/packages/Homo.sapiens
-[IRanges]: http://bioconductor.org/packages/IRanges
-[KEGGREST]: http://bioconductor.org/packages/KEGGREST
-[OmicCircos]: http://bioconductor.org/packages/OmicCircos
-[PSICQUIC]: http://bioconductor.org/packages/PSICQUIC
-[Rsamtools]: http://bioconductor.org/packages/Rsamtools
-[Rsubread]: http://bioconductor.org/packages/Rsubread
-[ShortRead]: http://bioconductor.org/packages/ShortRead
-[SomaticSignatures]: http://bioconductor.org/packages/SomaticSignatures
-[SummarizedExperiment]: http://bioconductor.org/packages/SummarizedExperiment
-[TxDb.Hsapiens.UCSC.hg19.knownGene]: http://bioconductor.org/packages/TxDb.Hsapiens.UCSC.hg19.knownGene
-[VariantAnnotation]: http://bioconductor.org/packages/VariantAnnotation
-[VariantFiltering]: http://bioconductor.org/packages/VariantFiltering
-[VariantTools]: http://bioconductor.org/packages/VariantTools
-[airway]: http://bioconductor.org/packages/airway
-[biomaRt]: http://bioconductor.org/packages/biomaRt
-[cn.mops]: http://bioconductor.org/packages/cn.mops
-[csaw]: http://bioconductor.org/packages/csaw
-[edgeR]: http://bioconductor.org/packages/edgeR
-[ensemblVEP]: http://bioconductor.org/packages/ensemblVEP
-[epivizr]: http://bioconductor.org/packages/epivizr
-[ggbio]: http://bioconductor.org/packages/ggbio
-[h5vc]: http://bioconductor.org/packages/h5vc
-[limma]: http://bioconductor.org/packages/limma
-[metagenomeSeq]: http://bioconductor.org/packages/metagenomeSeq
-[org.Hs.eg.db]: http://bioconductor.org/packages/org.Hs.eg.db
-[org.Sc.sgd.db]: http://bioconductor.org/packages/org.Sc.sgd.db
-[phyloseq]: http://bioconductor.org/packages/phyloseq
-[rtracklayer]: http://bioconductor.org/packages/rtracklayer
-[snpStats]: http://bioconductor.org/packages/snpStats
+[CNTools]: https://bioconductor.org/packages/CNTools
+[ChIPQC]: https://bioconductor.org/packages/ChIPQC
+[ChIPseeker]: https://bioconductor.org/packages/ChIPseeker
+[DESeq2]: https://bioconductor.org/packages/DESeq2
+[DiffBind]: https://bioconductor.org/packages/DiffBind
+[GenomicAlignments]: https://bioconductor.org/packages/GenomicAlignments
+[GenomicFeatures]: https://bioconductor.org/packages/GenomicFeatures
+[GenomicFiles]: https://bioconductor.org/packages/GenomicFiles
+[GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
+[Gviz]: https://bioconductor.org/packages/Gviz
+[Homo.sapiens]: https://bioconductor.org/packages/Homo.sapiens
+[IRanges]: https://bioconductor.org/packages/IRanges
+[KEGGREST]: https://bioconductor.org/packages/KEGGREST
+[OmicCircos]: https://bioconductor.org/packages/OmicCircos
+[PSICQUIC]: https://bioconductor.org/packages/PSICQUIC
+[Rsamtools]: https://bioconductor.org/packages/Rsamtools
+[Rsubread]: https://bioconductor.org/packages/Rsubread
+[ShortRead]: https://bioconductor.org/packages/ShortRead
+[SomaticSignatures]: https://bioconductor.org/packages/SomaticSignatures
+[SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
+[TxDb.Hsapiens.UCSC.hg19.knownGene]: https://bioconductor.org/packages/TxDb.Hsapiens.UCSC.hg19.knownGene
+[VariantAnnotation]: https://bioconductor.org/packages/VariantAnnotation
+[VariantFiltering]: https://bioconductor.org/packages/VariantFiltering
+[VariantTools]: https://bioconductor.org/packages/VariantTools
+[airway]: https://bioconductor.org/packages/airway
+[biomaRt]: https://bioconductor.org/packages/biomaRt
+[cn.mops]: https://bioconductor.org/packages/cn.mops
+[csaw]: https://bioconductor.org/packages/csaw
+[edgeR]: https://bioconductor.org/packages/edgeR
+[ensemblVEP]: https://bioconductor.org/packages/ensemblVEP
+[epivizr]: https://bioconductor.org/packages/epivizr
+[ggbio]: https://bioconductor.org/packages/ggbio
+[h5vc]: https://bioconductor.org/packages/h5vc
+[limma]: https://bioconductor.org/packages/limma
+[metagenomeSeq]: https://bioconductor.org/packages/metagenomeSeq
+[org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
+[org.Sc.sgd.db]: https://bioconductor.org/packages/org.Sc.sgd.db
+[phyloseq]: https://bioconductor.org/packages/phyloseq
+[rtracklayer]: https://bioconductor.org/packages/rtracklayer
+[snpStats]: https://bioconductor.org/packages/snpStats
 
 [dplyr]: https://cran.r-project.org/package=dplyr
 [data.table]: https://cran.r-project.org/package=data.table
 [Rcpp]: https://cran.r-project.org/package=Rcpp
-[kallisto]: http://pachterlab.github.io/kallisto
+[kallisto]: https://pachterlab.github.io/kallisto

@@ -89,7 +89,7 @@ setdiff(range(gr), gr)                  # 'introns'
 
 ## _Biostrings_
 
-See earlier example in B.1 Introduction to _Bioconductor_
+See earlier example in [B.1 Introduction to _Bioconductor_]
 
 ## _GenomicAlignments_
 
@@ -120,7 +120,7 @@ Representation of aligned reads. See exercises below.
   [Introduction to VariantAnnotation][] vignette for a brief
   introduction.
 - Take a quick look at the [annotation work
-  flow](http://bioconductor.org/help/workflows/annotation/annotation/)
+  flow](https://bioconductor.org/help/workflows/annotation/annotation/)
   on the Bioconductor web site.
 
 Static packages
@@ -429,10 +429,12 @@ res <- getBM(attributes =  myAttributes, filters =  myFilter,
              values =  myValues, mart = ensembl)
 ```
 
+
+[B.1 Introduction to _Bioconductor_]: ./B1_Bioconductor_Intro.html
 [Roadmap Epigenomics Project]: http://egg2.wustl.edu/roadmap/web_portal/
 [metadata]: https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
 [biomart website]: http://biomart.org
-[Introduction to VariantAnnotation]: http://bioconductor.org/packages/release/bioc/vignettes/ShortRead/inst/doc/Overview.pdf
+[Introduction to VariantAnnotation]: https://bioconductor.org/packages/release/bioc/vignettes/ShortRead/inst/doc/Overview.pdf
 
 [AnnotationDbi]: https://bioconductor.org/packages/AnnotationDbi
 [AnnotationHub]: https://bioconductor.org/packages/AnnotationHub
@@ -456,6 +458,6 @@ res <- getBM(attributes =  myAttributes, filters =  myFilter,
 [org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
 [rtracklayer]: https://bioconductor.org/packages/rtracklayer
 
-[AnnotationData]: http://bioconductor.org/packages/release/BiocViews.html#___AnnotationData
+[AnnotationData]: https://bioconductor.org/packages/release/BiocViews.html#___AnnotationData
 
 

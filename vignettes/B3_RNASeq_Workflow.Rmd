@@ -41,10 +41,10 @@ suppressPackageStartupMessages({
 Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
 [Huber, CSAMA, 2015][]; [Pimentel, YouTube, 2015][].
 
-[Anders, CSAMA, 2015]: http://bioconductor.org/help/course-materials/2015/CSAMA2015/lect/L05-deseq2-anders.pdf
+[Anders, CSAMA, 2015]: https://bioconductor.org/help/course-materials/2015/CSAMA2015/lect/L05-deseq2-anders.pdf
 [Pimentel, YouTube, 2015]: https://www.youtube.com/watch?v=ztyjiCCt_lM
-[Love, CSAMA, 2015]: http://bioconductor.org/help/course-materials/2015/CSAMA2015/lect/L06-rna-stats-love.pdf
-[Huber, CSAMA, 2015]: http://bioconductor.org/help/course-materials/2015/CSAMA2015/lect/L03-testing-huber.pdf
+[Love, CSAMA, 2015]: https://bioconductor.org/help/course-materials/2015/CSAMA2015/lect/L06-rna-stats-love.pdf
+[Huber, CSAMA, 2015]: https://bioconductor.org/help/course-materials/2015/CSAMA2015/lect/L03-testing-huber.pdf
 
 ## Experimental design
 
@@ -334,7 +334,7 @@ This lab is derived from:
 by Michael Love, Simon Anders, Wolfgang Huber; modified by Martin
 Morgan, October 2015.
 
-[RNA-Seq workflow]: http://bioconductor.org/help/workflows/rnaseqGene/
+[RNA-Seq workflow]: https://bioconductor.org/help/workflows/rnaseqGene/
 
 This lab will walk you through an end-to-end RNA-Seq differential
 expression workflow, using [DESeq2][] along with other _Bioconductor_
@@ -474,9 +474,10 @@ library("DESeq2")
 dds <- DESeqDataSet(se, design = ~ cell + dex)
 ```
 
-The 'design' argument is a formula which expresses how the counts for each gene 
-depend on the variables in colData. Remember you can always get information on
- method arguments with `?`,  e.g `?DESeqDataSet`
+The 'design' argument is a formula which expresses how the counts for
+each gene depend on the variables in `colData`. Remember you can
+always get information on method arguments with `?`, e.g
+`?DESeqDataSet`.
 
 ## Differential expression analysis
 

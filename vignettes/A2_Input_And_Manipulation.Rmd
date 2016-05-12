@@ -84,7 +84,7 @@ at a subset of the data.
    there a way of performing a t-test on `brfss` without explicitly
    creating the object `brfss_1990`?
 
-8. Use `boxplot()` to plot the weights of the Male individuals. 
+8. Use `boxplot()` to plot the weights of the Male individuals.
    Can you transform weight, e.g., `sqrt(Weight) ~ Year`?
    Interpret the results. Do similar boxplots for the t-tests of the
    previous question.
@@ -95,11 +95,10 @@ at a subset of the data.
     ```
 
 9. Use `hist()` to plot a histogram of weights of the 1990 Female individuals.
- 
-    ```{r brfss-hist, fig.width=5, fig.height=5}
-    hist(brfss[(brfss$Year == 1990 & brfss$Sex == "Female"), ]$Weight, 
-     main="", xlab="Female Weights in 1990" )
 
+    ```{r brfss-hist, fig.width=5, fig.height=5}
+    hist(brfss_1990[brfss_1990$Sex == "Female", "Weight"],
+         main="Females, 1990", xlab="Weight" )
     ```
 
 [BRFSS]: http://www.cdc.gov/brfss/about/index.htm
@@ -125,9 +124,9 @@ stopifnot(file.exists(path))
 pdata <- read.csv(path)
 ```
 
-Check out the help page `?read.delim` for input options. The exercises use 
-`?read.csv`; Can you guess why? Explore basic properties of the object you've 
-created, for instance...
+Check out the help page `?read.delim` for input options. The exercises
+use `?read.csv`; Can you guess why? Explore basic properties of the
+object you've created, for instance...
 
 ```{r ALL-properties}
 class(pdata)
