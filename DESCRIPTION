@@ -2,7 +2,7 @@ Package: BiocIntroRPCI
 Type: Package
 Title: Training Material for Introductory R / Bioconductor Course, Roswell
     Park Cancer Institute, Buffalo, NY, January 2016
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Martin", "Morgan", role="cre",
         email="martin.morgan@roswellpark.org"))

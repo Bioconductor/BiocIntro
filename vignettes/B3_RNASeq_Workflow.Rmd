@@ -466,13 +466,17 @@ rowRanges(se)
 
 We will use the [DESeq2][] package for assessing differential
 expression. The package uses an extended version of the
-`SummarizedExperiment` calass, called `DESeqDataSet`. It's easy to go
+`SummarizedExperiment` class, called `DESeqDataSet`. It's easy to go
 from a `SummarizedExperiment` to `DESeqDataSet`:
 
 ```{r}
 library("DESeq2")
 dds <- DESeqDataSet(se, design = ~ cell + dex)
 ```
+
+The 'design' argument is a formula which expresses how the counts for each gene 
+depend on the variables in colData. Remember you can always get information on
+ method arguments with `?`,  e.g `?DESeqDataSet`
 
 ## Differential expression analysis
 
@@ -509,7 +513,7 @@ a generalized linear model.
 
 A `DESeqDataSet` is returned which contains all the fitted
 information within it, and the following section describes how to
-extract out results tables of interest from this object.
+extract out result tables of interest from this object.
 
 ### Building the results table
 

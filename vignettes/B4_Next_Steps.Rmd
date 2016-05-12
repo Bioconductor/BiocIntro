@@ -63,8 +63,7 @@ reference manuals of two or three of the following packages.
   
 Working with sequences, alignments, common web file formats, and raw
 data; these packages rely very heavily on the [IRanges][] /
-[GenomicRanges][] infrastructure that we will encounter later in the
-course.
+[GenomicRanges][] infrastructure.
 
 - The [Biostrings][] package is used to represent DNA and other
   sequences, with many convenient sequence-related functions. Check

@@ -89,7 +89,7 @@ setdiff(range(gr), gr)                  # 'introns'
 
 ## _Biostrings_
 
-See earlier example
+See earlier example in B.1 Introduction to _Bioconductor_
 
 ## _GenomicAlignments_
 
@@ -300,7 +300,7 @@ airway
 its `assay()` (the matrix of counts of reads overlapping genomic
 regions of interest in each sample), `colData()` (a description of
 each sample), and `rowRanges()` (a description of each region of
-interest, here ENSEMBL genes.
+interest; here each region is an ENSEMBL gene).
 
 ```{r}
 x <- assay(airway)
@@ -405,7 +405,7 @@ heterochromatic states, or the genes `nearest()` each enhancer?
 Visit the [biomart website][] and figure out how to browse data to
 retreive, e.g., genes on chromosmes 21 and 22. You'll need to browse
 to the ensembl mart, _Homo spaiens_ data set, establish filters for
-chromosomes 20 and 21, and then specify that you'd like the Ensembl
+chromosomes 21 and 22, and then specify that you'd like the Ensembl
 gene id attribute returned.
 
 Now do the same process in [biomaRt][]:
@@ -451,6 +451,7 @@ res <- getBM(attributes =  myAttributes, filters =  myFilter,
 [VariantAnnotation]: https://bioconductor.org/packages/VariantAnnotation
 [airway]: https://bioconductor.org/packages/airway
 [biomaRt]: https://bioconductor.org/packages/biomaRt
+[GEOquery]: https://bioconductor.org/packages/GEOquery
 [ensemblVEP]: https://bioconductor.org/packages/ensemblVEP
 [org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
 [rtracklayer]: https://bioconductor.org/packages/rtracklayer

@@ -134,7 +134,7 @@ Check out the help page for `t.test()`
 ```
 
 What are all those additional arguments to `t.test()`? For example,
-what is the meaning of the `var.equal` argument?Why are there
+what is the meaning of the `var.equal` argument? Why are there
 `r formatC(t.test(age~sex, pdata)[["parameter"]][["df"]], 4)`
 degrees of freedom?
 
@@ -321,7 +321,10 @@ highlight <- brewer.pal(3, "Set2")[1:2]
 ```
 
 'divergent' is a vector of colors that go from red (negative) to blue
-(positive). `highlight' is a vector of length 2, light and dark green.
+(positive). `highlight' is a vector of length 2, light and dark green. 
+
+For more options see `?RColorBrewer` and to view the predefined palettes 
+`display.brewer.all()`
 
 ## Preliminary exploration and cleanup
 
