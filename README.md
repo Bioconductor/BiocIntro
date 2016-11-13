@@ -9,25 +9,17 @@ Technicon, Haifa, Isreal.
 The [course web site][] includes the following _Bioconductor_
 components covered by the material in this repository
 
-## Session 3: Introduction to _Bioconductor_
+## [Session 3][]: Introduction to _Bioconductor_
 
 Introduction to Bioconductor
 
 - Classes, methods, packages, and vignettes
-- What you can (and can't!) do: sequence analysis (RNA-seq, ChIP-seq,
-  variants, ...), microarrays, flow cytometery, ...
+- What _Bioconductor_ does (and does not!) do
 - [software][], [annotation][], and [experiment data][] pacakges
 
 Working with high-throughput sequencing data
 
-- [Biostrings][] for representing DNA (and other) sequences
-- [GenomicRanges][] for working with genomic coordinates
-- [SummarizedExperiment][] for coordinating data and metadata
-- [rtracklayer][] to import and export common formats (BED, GFF, WIG, ...)
-- [ShortRead][] for FASTQ files
-- [GenomicAlignments][] for aligned read
-- [VariantAnnotation][] for called variants
-- And... a high-level tour of domain-specific analyses
+[Session 3]: https://github.com/Bioconductor/BiocIntro/blob/Technicon-2016/vignettes/S3_Bioconductor_Intro.Rmd
 
 ## Session 4: A typical work flow
 
