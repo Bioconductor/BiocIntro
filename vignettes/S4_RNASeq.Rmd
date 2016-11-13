@@ -1,7 +1,7 @@
 ---
-title: "B.3 -- An RNA-seq Work Flow"
+title: "S.4 -- An RNA-seq Work Flow"
 author: Martin Morgan <martin.morgan@roswellpark.org>
-date: "16 - 17 May, 2016"
+date: "21 November, 2016"
 output:
   BiocStyle::html_document:
     toc: true
@@ -20,6 +20,8 @@ knitr::opts_chunk$set(
 
 ```{r setup, echo=FALSE}
 suppressPackageStartupMessages({
+    library(airway)
+    loadNamespace("matrixStats")
     library(DESeq2)
     library(gplots)
     library(ggplot2)
@@ -460,6 +462,82 @@ the genomic ranges over which counting occurred.
 
 ```{r rowRanges`}
 rowRanges(se)
+```
+
+Let's look at basic properties of the data, especially in relation to
+the statistical factors known to be important in RNAseq differential
+expression analysis.
+
+The _library size_ is the total number of reads mapped per sample. Use
+`colSums()` on the `assay()` data to summarize library size.
+
+```{r library-size}
+colSums(assay(airway))
+```
+
+1. How does library size vary between samples? 
+2. Why will it be important to incorporate library size in assessing
+   differential expression?
+3. While easy to understand, why is simple scaling by total library
+   size unsatisfactory from a statistical perspective?
+4. What different approaches might be taken to estimate library size?
+5. What statistical approaches might be taken to incorporate library
+   size?
+6. (Answer after completing the DESeq2 workflow) What approach does
+   DESeq2 take to (a) estimate library size; and (b) incorporate
+   library size into differential expression analysis?
+
+Use `rowMeans()` on the `assay()` data and either `hist()` or
+`plot(density())` to display the distribution of _average gene
+expression_ across all genes. It may be helpful to transform the data,
+and to exclude genes with very few counts in all samples.
+
+```{r gene-expression}
+means <- rowMeans(assay(airway))
+xlim <- range(log(1 + means))
+plot(density(log(1 + means)), xlim=xlim)
+plot(density(log(1 + means[means > 1])), xlim=xlim)
+```
+
+1. It's clear that a gene without any expression in any sample cannot
+   possibly be differential expressed, independent of the hypothesis
+   under investigation. How many genes are excluded by this criterion?
+   What is the advantage of excluding these genes _a priori_, before
+   any hypothesis is evaluated?
+
+2. (Answer after completing the DESeq2 workflow) By extension, it
+   seems intuitive that there is a threshold level of expression below
+   which differential gene expression cannot be detected, independent
+   of the hypothesis under investigation. How does DESeq2 address
+   this?
+
+An MDS plot attempts to represent the distance between N-dimensional
+points projected to 2 or 3 dimensions. 
+   
+```{r airway-euclidean-distance}
+d <- dist(t(log(1 + assay(airway))))
+mds <- cmdscale(d)
+plot(mds, pch=20, asp=1, cex=2)
+plot(mds, pch=20, asp=1, cex=2, col=airway$cell)
+plot(mds, pch=20, asp=1, cex=2, col=airway$dex)
+```
+
+1. Calculate the (Euclidean) distance between samples and use
+   multi-dimensional scaling to represent these distances in two
+   dimensions.  
+2. In an exploratory fashion, color points based on cell line
+   (`airway$cell`) and experimental treatment
+   (`airway$dex`). 
+3. Interpret these plots, and suggest how these might inform
+   subsequent statistical analysis.
+   
+If counts were Poisson distributed, there would be a linear
+relationship between the mean and variance of counts. Can you
+demonstrate in a straight-forward way that this is not the case?
+
+```{r mean-var}
+rowVars <- matrixStats::rowVars
+plot(rowVars(1 + assay(airway)) ~ rowMeans(1 + assay(airway)), log="xy")
 ```
 
 ## From `SummarizedExperiment` to `DESeqDataSet`
