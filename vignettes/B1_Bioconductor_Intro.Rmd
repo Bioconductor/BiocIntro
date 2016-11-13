@@ -1,7 +1,7 @@
 ---
 title: "B.1 -- Introduction to _Bioconductor_"
 author: Martin Morgan <martin.morgan@roswellpark.org>
-date: "16 - 17 May, 2016"
+date: "21 November, 2016"
 output:
   BiocStyle::html_document:
     toc: true
@@ -22,12 +22,22 @@ knitr::opts_chunk$set(
 suppressPackageStartupMessages({
     library(Biostrings)
     library(GenomicRanges)
+    library(SummarizedExperiment)
+    library(airway)
+    library(rtracklayer)
+    library(ShortRead)
+    library(GenomicAlignments)
+    library(RNAseqData.HNRNPC.bam.chr14)
+    library(VariantAnnotation)
 })
 ```
 
 # Project Overview
 
-Analysis and comprehension of high-throughput genomic data
+## About
+
+[Bioconductor][]: Analysis and comprehension of high-throughput
+genomic data
 
 - Statistical analysis: large data, technological artifacts, designed
   experiments; rigorous
@@ -39,7 +49,7 @@ Analysis and comprehension of high-throughput genomic data
 
 Packages, vignettes, work flows
 
-- 1104 software packages; also...
+- 1296 software packages; also...
     - 'Annotation' packages -- static data bases of identifier maps,
       gene models, pathways, etc; e.g., [TxDb.Hsapiens.UCSC.hg19.knownGene][]
     - 'Experiment packages -- data sets used to illustrate software
@@ -60,8 +70,16 @@ Packages, vignettes, work flows
 Package installation and use
 
 - A package needs to be installed once, using the instructions on the
-  landing page. Once installed, the package can be loaded into an R
-  session
+  package landing page (e.g., [DESeq2][]).
+
+    ```{r install, eval=FALSE}
+    source("https://bioconductor.org/biocLite.R")
+    biocLite(c("DESeq2", "org.Hs.eg.db"))
+    ```
+
+- `biocLite()` installs _Bioconductor_, [CRAN][], and github packages.
+
+- Once installed, the package can be loaded into an R session
 
     ```{r require}
     library(GenomicRanges)
@@ -69,25 +87,79 @@ Package installation and use
 
     and the help system queried interactively, as outlined above:
 
-    ```{r help, eval=FALSE}
+    ```{r help-bioc, eval=FALSE}
     help(package="GenomicRanges")
     vignette(package="GenomicRanges")
     vignette(package="GenomicRanges", "GenomicRangesHOWTOs")
     ?GRanges
     ```
 
-# High-throughput Sequence Analysis
+## Key concepts
 
-## Overall Work Flow
+Goals
+
+- Reproducibility
+- Interoperability
+- Use
+
+What a few lines of _R_ has to say
+
+```{r five-lines}
+x <- rnorm(1000)
+y <- x + rnorm(1000)
+df <- data.frame(X=x, Y=y)
+plot(Y ~ X, df)
+fit <- lm(Y ~ X, df)
+anova(fit)
+abline(fit)
+```
+
+Classes and methods -- "S3"
+
+- `data.frame()`
+  - Defines _class_ to coordinate data
+  - Creates an _instance_ or _object_
+
+- `plot()`, `lm()`, `anova()`, `abline()`: _methods_ defined on
+  _generics_ to transform instances
+
+- Discovery and help
+
+    ```{r help-r, eval=FALSE}
+    class(fit)
+    methods(class=class(fit))
+    methods(plot)
+    ?"plot"
+    ?"plot.formula"
+    ```
+
+- tab completion!
+
+_Bioconductor_ classes and methods -- "S4"
+
+- Example: working with DNA sequences
+
+    ```{r classes-and-methods}
+    library(Biostrings)
+    dna <- DNAStringSet(c("AACAT", "GGCGCCT"))
+    reverseComplement(dna)
+    ```
+
+- Discovery and help
+
+    ```{r classes-and-methods-discovery, eval=FALSE}
+    class(dna)
+    ?"DNAStringSet-class"
+    ?"reverseComplement,DNAStringSet-method"
+    ```
+
+## High-throughput sequence analysis work flows
 
 1. Experimental design
-    - Keep it simple, e.g., 'control' and 'treatment' groups
-    - Replicate within treatments!
+
 2. Wet-lab sequence preparation (figure from http://rnaseq.uoregon.edu/)
 
     ![](http://rnaseq.uoregon.edu/img/fig-rna-seq.png)
-
-    - Record covariates, including processing day -- likely 'batch effects'
 
 3. (Illumina) Sequencing (Bentley et al., 2008,
    doi:10.1038/nature07517)
@@ -111,11 +183,171 @@ Package installation and use
 7. Comprehension
     - Biological context
 
-![Alt Sequencing Ecosystem](our_figures/SequencingEcosystem_no_bioc_pkgs.png)
+## _Bioconductor_ sequencing ecosystem
 
-# High-Throughput Sequence Data Types
+![Alt Sequencing Ecosystem](our_figures/SequencingEcosystem.png)
 
-## Sequencing data types
+# High-Throughput Sequence Data
+
+## DNA (and other) sequences
+
+[Biostrings][]
+
+```{r}
+library(Biostrings)
+data(phiX174Phage)
+phiX174Phage
+letterFrequency(phiX174Phage, c("A", "C", "G", "T"))
+letterFrequency(phiX174Phage, "GC", as.prob=TRUE)
+```
+
+## Genomic ranges
+
+[GenomicRanges][]
+
+- `GRanges()`: genomic coordinates to represent annotations (exons,
+  genes, regulatory marks, ...) and data (called peaks, variants,
+  aligned reads)
+
+    ![Alt GRanges](our_figures/GRanges.png)
+
+- `GRangesList()`: genomic coordinates grouped into list elements
+  (e.g., paired-end reads; exons grouped by transcript)
+
+    ![Alt GRangesList](our_figures/GRangesList.png)
+
+Operations
+
+  ![Alt GRanges operations](our_figures/RangeOperations.png)
+
+- intra-range: act on each range independently
+    - e.g., `shift()`
+- inter-range: act on all ranges in a `GRanges` object or
+  `GRangesList` element
+      - e.g., `reduce()`; `disjoin()`
+- between-range: act on two separate `GRanges` or `GRangesList`
+  objects
+      - e.g., `findOverlaps()`, `nearest()`
+
+```{r ranges, message=FALSE}
+library(GenomicRanges)
+gr <- GRanges("A", IRanges(c(10, 20, 22), width=5), "+")
+shift(gr, 1)                            # intra-range
+range(gr)                               # inter-range
+reduce(gr)                              # inter-range
+snps <- GRanges("A", IRanges(c(11, 17, 24), width=1))
+findOverlaps(snps, gr)                  # between-range
+setdiff(range(gr), gr)                  # 'introns'
+```
+
+## Summarized experiments
+
+[SummarizedExperiment][]
+
+![Alt SummarizedExperiment](our_figures/SummarizedExperiment.png)
+
+- Coordinate feature x sample 'assays' with row (feature) and column
+  (sample) descriptions.
+- 'assays' can be any matrix-like object, including very large on-disk
+  representations such as [HDF5Array][]
+
+### _SummarizedExperiment_ exercise
+
+The [airway][] experiment data package summarizes an RNA-seq
+experiment investigating human smooth-muscle airway cell lines treated
+with dexamethasone. Load the library and data set.
+
+```{r}
+library(airway)
+data(airway)
+airway
+```
+
+`airway` is an example of the _SummarizedExperiment_ class. Explore
+its `assay()` (the matrix of counts of reads overlapping genomic
+regions of interest in each sample), `colData()` (a description of
+each sample), and `rowRanges()` (a description of each region of
+interest; here each region is an ENSEMBL gene).
+
+```{r}
+x <- assay(airway)
+class(x)
+dim(x)
+head(x)
+colData(airway)
+rowRanges(airway)
+```
+
+It's easy to subset a _SummarizedExperiment_ on rows, columns and
+assays, e.g., retaining just those samples in the `trt` level of the
+`dex` factor. Accessing elements of the column data is common, so
+there is a short-cut.
+
+```{r}
+cidx <- colData(airway)$dex %in% "trt"
+airway[, cidx]
+## shortcut
+airway[, airway$dex %in% "trt"]
+```
+
+It's also easy to perform range-based operations on
+`SummarizedExperiment` objects, e.g., querying for range of chromosome
+14 and then subsetting to contain only genes on this chromosome. Range
+operations on rows are very common, so there are shortcuts here, too.
+
+```{r}
+chr14 <- as(seqinfo(rowRanges(airway)), "GRanges")["14"]
+ridx <- rowRanges(airway) %over% chr14
+airway[ridx,]
+## shortcut
+chr14 <- as(seqinfo(airway), "GRanges")["14"]
+airway[airway %over% chr14,]
+```
+
+Use the `assay()` and `rowSums()` function to remove all rows from the
+`airway` object that have 0 reads overlapping all samples. Summarize
+the library size (column sums of `assay()`) and plot a histogram of
+the distribution of reads per feature of interest.
+
+## BED, GFF, GTF, WIG import and export
+
+Genome annotations: BED, WIG, GTF, etc. files. E.g., GTF:
+
+- Component coordinates
+
+        7   protein_coding  gene        27221129    27224842    .   -   . ...
+        ...
+        7   protein_coding  transcript  27221134    27224835    .   -   . ...
+        7   protein_coding  exon        27224055    27224835    .   -   . ...
+        7   protein_coding  CDS         27224055    27224763    .   -   0 ...
+        7   protein_coding  start_codon 27224761    27224763    .   -   0 ...
+        7   protein_coding  exon        27221134    27222647    .   -   . ...
+        7   protein_coding  CDS         27222418    27222647    .   -   2 ...
+        7   protein_coding  stop_codon  27222415    27222417    .   -   0 ...
+        7   protein_coding  UTR         27224764    27224835    .   -   . ...
+        7   protein_coding  UTR         27221134    27222414    .   -   . ...
+
+- Annotations
+
+        gene_id "ENSG00000005073"; gene_name "HOXA11"; gene_source "ensembl_havana"; gene_biotype "protein_coding";
+        ...
+        ... transcript_id "ENST00000006015"; transcript_name "HOXA11-001"; transcript_source "ensembl_havana"; tag "CCDS"; ccds_id "CCDS5411";
+        ... exon_number "1"; exon_id "ENSE00001147062";
+        ... exon_number "1"; protein_id "ENSP00000006015";
+        ... exon_number "1";
+        ... exon_number "2"; exon_id "ENSE00002099557";
+        ... exon_number "2"; protein_id "ENSP00000006015";
+        ... exon_number "2";
+        ...
+
+[rtracklayer][]
+
+- `import()`: import various formats to `GRanges` and similar instances
+- `export()`: transform from `GRanges` and similar types to BED, GTF, ...
+- Also, functions to interactively drive UCSC genome browser with data
+  from _R_ / _Bioconductor_
+
+## FASTQ files
 
 Sequenced reads: FASTQ files
 
@@ -127,6 +359,15 @@ Sequenced reads: FASTQ files
     GCGGTATGCTGGAAGGTGCTCGAATGGAGAGCGCCAGCGCCCCGGCGCTGAGCCGCAGCCTCAGGTCCGCCC
     +
     DE?DD>ED4>EEE>DE8EEEDE8B?EB<@3;BA79?,881B?@73;1?########################
+
+[ShortRead][]
+
+- `readFastq()`: input
+- `FastqStreamer()`: iterate through FASTQ files
+- `FastqSampler()`: sample from FASTQ files, e.g., for quality assessment
+- Functions for trimming and filters FASTQ files, QA assessment
+
+## Aligned reads
 
 Aligned reads: BAM files
 
@@ -159,7 +400,77 @@ Aligned reads: BAM files
         ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:4  MD:Z:72 YT:Z:UU XS:A:+  NH:i:3  CC:Z:=  CP:i:19921465   HI:i:0
         ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:4  MD:Z:72 YT:Z:UU XS:A:+  NH:i:2  CC:Z:chr22      CP:i:16189138   HI:i:0
 
-Called variants: VCF files
+[GenomicAligments][]
+
+- `readGAlignments()`: Single-end reads
+- `readGAlignmentPairs()`, `readGAlignmentsList()`: paired end reads
+
+Working with large files
+
+- `ScanBamParam()`: restrict input
+- `BamFile(, yieldSize=)`: iteration
+- [GenomicFiles][] provides useful helpers, e.g., `reduceByYield()`
+
+### _GenomicAlignments_ exercise
+
+The [RNAseqData.HNRNPC.bam.chr14][] package is an example of an
+experiment data package. It contains a subset of BAM files used in a
+gene knock-down experiment, as described in
+`?RNAseqData.HNRNPC.bam.chr14`. Load the package and get the path to
+the BAM files.
+
+```{r}
+library(RNAseqData.HNRNPC.bam.chr14)
+fls = RNAseqData.HNRNPC.bam.chr14_BAMFILES
+basename(fls)
+```
+
+Create `BamFileList()`, basically telling R that these are paths to
+BAM files rather than, say, text files from a spreadsheet.
+
+```{r}
+library(GenomicAlignments)
+bfls = BamFileList(fls)
+bfl = bfls[[1]]
+```
+
+Input and explore the aligments. See `?readGAlignments` and
+`?GAlignments` for details on how to manipulate these objects.
+
+```{r}
+ga = readGAlignments(bfl)
+ga
+table(strand(ga))
+```
+
+Many of the reads have cigar "72M". What does this mean? Can you
+create a subset of reads that do not have this cigar? Interpret some
+of the non-72M cigars. Any hint about what these cigars represent?
+
+```{r}
+tail(sort(table(cigar(ga))))
+ga[cigar(ga) != "72M"]
+```
+
+Use the function `summarizeJunctions()` to identify genomic regions
+that are spanned by reads with complicated cigars. Can you use the
+argument `with.revmap=TRUE` to extract the reads supporting a
+particular (e.g., first) junction?
+
+```{r}
+summarizeJunctions(ga)
+junctions <- summarizeJunctions(ga, with.revmap=TRUE)
+ga[ junctions$revmap[[1]] ]
+```
+
+It is possible to do other actions on BAM files, e.g., calculating the
+'coverage' (reads overlapping each base).
+
+```{r}
+coverage(bfl)$chr14
+```
+    
+## Called variants: VCF files
 
 - Header
 
@@ -199,78 +510,20 @@ Called variants: VCF files
           ... 17330   ...  GT:GQ:DP:HQ 0|0:49:3:58,50 0|1:3:5:65,3   0/0:41:3
           ... 1110696 ...  GT:GQ:DP:HQ 1|2:21:6:23,27 2|1:2:0:18,2   2/2:35:4
 
-Genome annotations: BED, WIG, GTF, etc. files. E.g., TGF:
+[VariantAnnotation][]
 
-- Component coordinates
+- `readVcf()`: VCF input
+- `ScanVcfParam()`: restrict input to necessary fields / ranges
+- `VcfFile()`: indexing and iterating through large VCF files
+- `locateVariants()`: annotate in relation to genes, etc; see also
+  [ensemblVEP][], [VariantFiltering][]
+- `filterVcf()`: flexible filtering
 
-        7   protein_coding  gene        27221129    27224842    .   -   . ...
-        ...
-        7   protein_coding  transcript  27221134    27224835    .   -   . ...
-        7   protein_coding  exon        27224055    27224835    .   -   . ...
-        7   protein_coding  CDS         27224055    27224763    .   -   0 ...
-        7   protein_coding  start_codon 27224761    27224763    .   -   0 ...
-        7   protein_coding  exon        27221134    27222647    .   -   . ...
-        7   protein_coding  CDS         27222418    27222647    .   -   2 ...
-        7   protein_coding  stop_codon  27222415    27222417    .   -   0 ...
-        7   protein_coding  UTR         27224764    27224835    .   -   . ...
-        7   protein_coding  UTR         27221134    27222414    .   -   . ...
-
-- Annotations
-
-        gene_id "ENSG00000005073"; gene_name "HOXA11"; gene_source "ensembl_havana"; gene_biotype "protein_coding";
-        ...
-        ... transcript_id "ENST00000006015"; transcript_name "HOXA11-001"; transcript_source "ensembl_havana"; tag "CCDS"; ccds_id "CCDS5411";
-        ... exon_number "1"; exon_id "ENSE00001147062";
-        ... exon_number "1"; protein_id "ENSP00000006015";
-        ... exon_number "1";
-        ... exon_number "2"; exon_id "ENSE00002099557";
-        ... exon_number "2"; protein_id "ENSP00000006015";
-        ... exon_number "2";
-        ...
-
-Derived results, e.g., 'count' tables (.csv files) for RNA-seq
-differential expressoin.
-
-## Major _Bioconductor_ Packages
-
-- [GenomicRanges][]: 'Ranges' to describe data and annotation;
-  `GRanges()`, `GRangesList()`
-- [Biostrings][]: DNA and other sequences, `DNAStringSet()`; [BSgenome][]
-- [GenomicAlignments][]: Aligned reads; `GAlignemts()` and friends
-- [GenomicFeatures][], [AnnotationDbi][]: annotation resources, `TxDb`
-  and `org` packages.
-- [SummarizedExperiment][]: coordinating experimental data
-- [rtracklayer][]: import BED, WIG, GTF, etc.
-
-_Bioconductor_ Objects
-
-- Example: [Biostrings][]
-
-    ```{r}
-    library(Biostrings)
-    data(phiX174Phage)
-    phiX174Phage
-    letterFrequency(phiX174Phage, c("A", "C", "G", "T"))
-    letterFrequency(phiX174Phage, "GC", as.prob=TRUE)
-    ```
-
-- Represent complicated data types
-- Foster interoperability
-- S4 object system
-    - Introspection: `methods()`, `getClass()`, `selectMethod()`
-    - 'accessors' and other documented functions / methods for
-      manipulation, rather than direct access to the object structure
-- Interactive help
-    - `method?"substr,<tab>"` to see all help pages for `substr`
-      methods, for instance `method?"letterFrequency,XStringSet"` to
-      find the documentation for the `letterFrequency` generic applied
-      to an object (derived from) the `XStringSet` class.
-    - `class?D<tab>` for help on classes whose name begins with 'D'
-       (e.g., find the help page for the DNAStringSet class with
-       `class?DNAStringSet`).
-
+[Bioconductor]: https://bioconductor.org
+[CRAN]: https://cran.r-project.org
 [biocViews]: https://bioconductor.org/packages/
 
+[HDF5Array]: https://bioconductor.org/packages/HDF5Array
 [AnnotationDbi]: https://bioconductor.org/packages/AnnotationDbi
 [AnnotationHub]: https://bioconductor.org/packages/AnnotationHub
 [BSgenome.Hsapiens.UCSC.hg19]: https://bioconductor.org/packages/BSgenome.Hsapiens.UCSC.hg19

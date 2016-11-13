@@ -1,73 +1,73 @@
 # Introduction to _R_ / _Bioconductor_
 
-This is a two-day course introducing _[R][]_ and _[Bioconductor][]_
-for the analysis and comprehension of high-throughput genomic
-(sequencing, microarray, ...) data. There are no pre-requisites. The
-course will be offered May 16 and 17; it is open and free of charge
-to students, staff, and faculty at Roswell Park Cancer Institute or
-SUNY at Buffalo.
+This is part of a three-day course introducing _[R][]_ and
+_[Bioconductor][]_ for the analysis and comprehension of
+high-throughput genomic (sequencing, microarray, ...) data. There are
+no pre-requisites. The course will be offered November 20 - 22 at
+Technicon, Haifa, Isreal.
 
-An approximate agenda is:
+The [course web site][] includes the following _Bioconductor_
+components covered by the material in this repository
 
-## Day 1: Introduction to _R_
+## Session 3: Introduction to _Bioconductor_
 
-Overview
+Introduction to Bioconductor
 
-- Commands, scripts, and literate documents
-- Data input, manipulation, and visualization
-- Packages
-- Introduction to example data sets
-- Getting help
-
-Data input and manipulation
-
-- Input data from text and other files
-- Vectors, `data.frame`, and other _R_ data types
-- Tidying data
-
-Analysis
-
-- Performing basic (and advanced!) statistical analyses
-- Working with _R_ classes and methods
-
-Visualization
-
-- Base graphics for quick visualizations
-- [ggplot2][] and other effective ways of visualizing data
-
-## Day 2: Introduction to _Bioconductor_
-
-Project overview
-
-- Packages, methods, and vignettes
+- Classes, methods, packages, and vignettes
 - What you can (and can't!) do: sequence analysis (RNA-seq, ChIP-seq,
   variants, ...), microarrays, flow cytometery, ...
+- [software][], [annotation][], and [experiment data][] pacakges
 
-Getting familiar with common operations
+Working with high-throughput sequencing data
 
-- [GenomicRanges][] for describing genome-scale data
-- Annotation resources for mapping between identifiers, assigning
-  pathways, describing genes, and exploring consortium and other
-  genome-scale data.
+- [Biostrings][] for representing DNA (and other) sequences
+- [GenomicRanges][] for working with genomic coordinates
+- [SummarizedExperiment][] for coordinating data and metadata
+- [rtracklayer][] to import and export common formats (BED, GFF, WIG, ...)
+- [ShortRead][] for FASTQ files
+- [GenomicAlignments][] for aligned read
+- [VariantAnnotation][] for called variants
+- And... a high-level tour of domain-specific analyses
 
-A typical work flow: RNA-seq differential expression of known genes
+## Session 4: A typical work flow
+
+RNA-seq: Analysis and important statistical issues
 
 - Introduction to RNA-seq
 - Overview of upstream processing (non-_R_)
-- From count matrix to differentially expressed genes
+- Exploring statistical issues
 
-    - Statistical issues
-    - Implementation using the [DESeq2][] package
-    - Placing results in context
+[DESeq2][] extended lab
 
-Where to now?
+Time-course and other sophisticated experimental designs
 
-- Improving _R_ skills
-- Working with large data
-- Getting involved with the community
+## Session 6: Annotation, communication, and performance
+
+Using 'annotation' resources to place results in biological context
+
+- _Bioconductor_ [annotation][] packages -- `TxDb.*`, `org.*`, ...
+- [AnnotationHub][]
+
+Strategies for effectively communicating results
+
+- visualization, report generation, and interactive applications
+
+Writing efficient R scripts
 
 [R]: https://r-project.org
 [Bioconductor]: https://bioconductor.org
-[ggplot2]: https://cran.r-project.org/package=ggplot2
+[course web site]: http://rbioc.net.technion.ac.il
+
+[software]: https://bioconductor.org/packages/release/BiocViews.html#___Softwar
+[annotation]: https://bioconductor.org/packages/release/BiocViews.html#___AnnotationData
+[experiment data]: https://bioconductor.org/packages/release/BiocViews.html#___ExperimentData
+
+[Biostrings]: https://bioconductor.org/packages/Biostrings
 [GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
+[SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
+[rtracklayer]: https://bioconductor.org/packages/rtracklayer
+[ShortRead]:  https://bioconductor.org/packages/ShortRead
+[GenomicAlignments]: https://bioconductor.org/packages/GenomicAlignments
+[VariantAnnotation]: https://bioconductor.org/packages/VariantAnnotation
+[AnnotationHub]: https://bioconductor.org/packages/AnnotationHub
 [DESeq2]: https://bioconductor.org/packages/DESeq2
