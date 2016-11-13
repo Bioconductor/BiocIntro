@@ -15,9 +15,13 @@ Introduction to Bioconductor
 
 - Classes, methods, packages, and vignettes
 - What _Bioconductor_ does (and does not!) do
-- [software][], [annotation][], and [experiment data][] pacakges
+- Software, annotation, and experiment data pacakges
 
 Working with high-throughput sequencing data
+
+- Workflow
+- Data types
+- Key _Bioconductor_ packages
 
 [Session 3]: https://github.com/Bioconductor/BiocIntro/blob/Technicon-2016/vignettes/S3_Bioconductor_intro.Rmd
 
@@ -32,6 +36,8 @@ RNA-seq: Analysis and important statistical issues
 [DESeq2][] extended lab
 
 Time-course and other sophisticated experimental designs
+
+[Session 4]: https://github.com/Bioconductor/BiocIntro/blob/Technicon-2016/vignettes/S4_RNASeq.Rmd
 
 ## Session 6: Annotation, communication, and performance
 
