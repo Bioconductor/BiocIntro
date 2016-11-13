@@ -23,7 +23,7 @@ Working with high-throughput sequencing data
 - Data types
 - Key _Bioconductor_ packages
 
-[Session 3]: https://github.com/Bioconductor/BiocIntro/blob/Technicon-2016/vignettes/S3_Bioconductor_intro.Rmd
+[Session 3]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/vignettes/S3_Bioconductor_intro.Rmd
 
 ## [Session 4][]: A typical work flow
 
@@ -37,7 +37,7 @@ RNA-seq: Analysis and important statistical issues
 
 Time-course and other sophisticated experimental designs
 
-[Session 4]: https://github.com/Bioconductor/BiocIntro/blob/Technicon-2016/vignettes/S4_RNASeq.Rmd
+[Session 4]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/vignettes/S4_RNASeq.Rmd
 
 ## Session 6: Annotation, communication, and performance
 
