@@ -19,7 +19,7 @@ Introduction to Bioconductor
 
 Working with high-throughput sequencing data
 
-[Session 3]: https://github.com/Bioconductor/BiocIntro/blob/Technicon-2016/vignettes/S3_Bioconductor_Intro.Rmd
+[Session 3]: https://github.com/Bioconductor/BiocIntro/blob/Technicon-2016/vignettes/S3_Bioconductor_intro.Rmd
 
 ## Session 4: A typical work flow
 
