@@ -7,7 +7,7 @@ output:
     toc: true
     toc_depth: 2
 vignette: >
-  % \VignetteIndexEntry{B.3 -- An RNA-seq Work Flow}
+  % \VignetteIndexEntry{S.4 -- An RNA-seq Work Flow}
   % \VignetteEngine{knitr::rmarkdown}
 ---
 

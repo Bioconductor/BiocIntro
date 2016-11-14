@@ -7,7 +7,7 @@ output:
     toc: true
     toc_depth: 2
 vignette: >
-  % \VignetteIndexEntry{B.1 -- Introduction to Bioconductor}
+  % \VignetteIndexEntry{S.3 -- Introduction to Bioconductor}
   % \VignetteEngine{knitr::rmarkdown}
 ---
 

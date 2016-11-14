@@ -7,7 +7,7 @@ output:
     toc: true
     toc_depth: 2
 vignette: >
-  % \VignetteIndexEntry{B.2 -- Bioconductor Building Blocks}
+  % \VignetteIndexEntry{S.6 -- Annotation, communication, and performance}
   % \VignetteEngine{knitr::rmarkdown}
 ---
 
