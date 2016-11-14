@@ -16,6 +16,6 @@ Suggests: BiocStyle, knitr, AnnotationHub, BiocParallel, Biostrings,
     DESeq2, GenomicAlignments, GenomicFeatures, GenomicRanges,
     RColorBrewer, RNAseqData.HNRNPC.bam.chr14, SummarizedExperiment,
     TxDb.Hsapiens.UCSC.hg19.knownGene, airway, ggplot2,
-    matrixStats, microbenchmark, org.Hs.eg.db, tximport
+    matrixStats, microbenchmark, org.Hs.eg.db, shiny, tximport
 License: Artistic-2.0
 VignetteBuilder: knitr

@@ -39,7 +39,7 @@ Time-course and other sophisticated experimental designs
 
 [Session 4]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/vignettes/S4_RNASeq.Rmd
 
-## Session 6: Annotation, communication, and performance
+## [Session 6][]: Annotation, communication, and performance
 
 Using 'annotation' resources to place results in biological context
 
@@ -51,6 +51,8 @@ Strategies for effectively communicating results
 - visualization, report generation, and interactive applications
 
 Writing efficient R scripts
+
+[Session 6]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/vignettes/S6_Annotation_and_performance.Rmd
 
 [R]: https://r-project.org
 [Bioconductor]: https://bioconductor.org

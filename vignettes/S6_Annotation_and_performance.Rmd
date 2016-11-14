@@ -1,13 +1,13 @@
 ---
-title: "B.4 -- Next Steps"
+title: "S.6 -- Annotation, Communication, and Performance"
 author: Martin Morgan <martin.morgan@roswellpark.org>
-date: "16 - 17 May, 2016"
+date: "22 November 2016"
 output:
   BiocStyle::html_document:
     toc: true
     toc_depth: 2
 vignette: >
-  % \VignetteIndexEntry{B.4 -- Next Steps}
+  % \VignetteIndexEntry{B.2 -- Bioconductor Building Blocks}
   % \VignetteEngine{knitr::rmarkdown}
 ---
 
@@ -20,89 +20,263 @@ knitr::opts_chunk$set(
 
 ```{r setup, echo=FALSE}
 suppressPackageStartupMessages({
+    library(AnnotationHub)
+    library(airway)
+    library(org.Hs.eg.db)
+    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+    library(RNAseqData.HNRNPC.bam.chr14)
+    library(GenomicAlignments)
+    library(shiny)
     library(BiocParallel)
     library(microbenchmark)
 })
 ```
 
-# Common _Bioconductor_ work flows
+# Annotation
 
-This very open-ended topic points to some of the most prominent
-Bioconductor packages for sequence analysis. Use the opportunity in
-this lab to explore the package vignettes and help pages highlighted
-below; many of the material will be covered in greater detail in
-subsequent labs and lectures.
+- _Bioconductor_ provides extensive access to 'annotation' resources
+  (see the [AnnotationData][] biocViews hierarchy); some interesting
+  examples to explore during this lab include:
+- [biomaRt][], [PSICQUIC][], [KEGGREST][] and other packages for
+  querying on-line resources; each of these have informative vignettes.
+- [AnnotationDbi][] is a cornerstone of the
+  [Annotation Data][AnnotationData] packages provided by Bioconductor.
+    - **org** packages (e.g., [org.Hs.eg.db][]) contain maps between
+      different gene identifiers, e.g., ENTREZ and SYMBOL. The basic
+      interface to these packages is described on the help page `?select`
+    - **TxDb** packages (e.g., [TxDb.Hsapiens.UCSC.hg19.knownGene][])
+      contain gene models (exon coordinates, exon / transcript
+      relationships, etc) derived from common sources such as the hg19
+      knownGene track of the UCSC genome browser. These packages can be
+      queried, e.g., as described on the `?exonsBy` page to retrieve all
+      exons grouped by gene or transcript.
+    - **BSgenome** packages (e.g., [BSgenome.Hsapiens.UCSC.hg19][])
+      contain whole genomes of model organisms.
+- [VariantAnnotation][] and [ensemblVEP][] provide access to sequence
+  annotation facilities, e.g., to identify coding variants; see the
+  [Introduction to VariantAnnotation][] vignette for a brief
+  introduction.
+- Take a quick look at the [annotation work
+  flow](https://bioconductor.org/help/workflows/annotation/annotation/)
+  on the Bioconductor web site.
 
-Domain-specific analysis -- explore the landing pages, vignettes, and
-reference manuals of two or three of the following packages.
+Static packages
 
-- Important packages for analysis of differential expression include
-  [edgeR][] and [DESeq2][]; both have excellent vignettes for
-  exploration. Additional research methods embodied in Bioconductor
-  packages can be discovered by visiting the [biocViews][] web page,
-  searching for the 'DifferentialExpression' view term, and narrowing
-  the selection by searching for 'RNA seq' and similar.
-- Popular ChIP-seq packages include [csaw][] and [DiffBind][] for
-  comparison of peaks across samples, [ChIPQC][] for quality
-  assessment, and [ChIPseeker][] for annotating results (e.g.,
-  discovering nearby genes). What other ChIP-seq packages are listed
-  on the [biocViews][] page?
-- Working with called variants (VCF files) is facilitated by packages
-  such as [VariantAnnotation][], [VariantFiltering][], [ensemblVEP][],
-  and [SomaticSignatures][]; packages for calling variants include,
-  e.g., [h5vc][] and [VariantTools][].
-- Several packages identify copy number variants from sequence data,
-  including [cn.mops][]; from the [biocViews][] page, what other copy
-  number packages are available? The [CNTools][] package provides some
-  useful facilities for comparison of segments across samples.
-- Microbiome and metagenomic analysis is facilitated by packages such
-  as [phyloseq][] and [metagenomeSeq][].
-- Metabolomics, chemoinformatics, image analysis, and many other
-  high-throughput analysis domains are also represented in
-  Bioconductor; explore these via biocViews and title searches.
+- _org.\*_: identifier mappings
+  
+    - `select()`, `columns()`, `keys()`
+    - `mapIds()`
 
-Working with sequences, alignments, common web file formats, and raw
-data; these packages rely very heavily on the [IRanges][] /
-[GenomicRanges][] infrastructure.
+    ```{r}
+    library(org.Hs.eg.db)
+    org <- org.Hs.eg.db
+    select(org, "BRCA1", c("ENSEMBL", "GENENAME"), "SYMBOL")
+    ```
 
-- The [Biostrings][] package is used to represent DNA and other
-  sequences, with many convenient sequence-related functions. Check
-  out the functions documented on the help page `?consensusMatrix`,
-  for instance. Also check out the [BSgenome][] package for working
-  with whole genome sequences, e.g., `?"getSeq,BSgenome-method"`
-- The [GenomicAlignments][] package is used to input reads aligned to
-  a reference genome. See for instance the `?readGAlignments` help
-  page and `vigentte(package="GenomicAlignments",
-  "summarizeOverlaps")`
-- [rtracklayer][]'s `import` and `export` functions can read in many
-  common file types, e.g., BED, WIG, GTF, ..., in addition to querying
-  and navigating the UCSC genome browser. Check out the `?import` page
-  for basic usage.
-- The [ShortRead][] and [Rsamtools][] packages can be used for
-  lower-level access to FASTQ and BAM files, respectively. Explore the
-  [ShortRead vignette](https://bioconductor.org/packages/release/bioc/vignettes/ShortRead/inst/doc/Overview.pdf)
-  and Scalable Genomics labs to see approaches to effectively
-  processing the large files.
+- _TxDb.\*_: gene models
+    
+    - `exons()`, `transcripts()`, `genes()`, `promoters()`, ...
+    - `exonsBy()`, `transcriptsBy()`
+    - `select()`, etc.
+    
+    ```{r}
+    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+    txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+    promoters(txdb)
+    ```
 
-Visualization
+Web-based resources, e.g., [biomaRt][], [PSICQUIC][], [GEOquery][], ...
+
+Genome-scale resources via [AnnotationHub][]
+
+```{r}
+library(AnnotationHub)
+hub = AnnotationHub()
+hub
+query(hub, c("ensembl", "81.gtf"))
+hub[["AH48004"]]
+```
+
+Load the org package for _Homo sapiens_.
+
+```{r}
+library(org.Hs.eg.db)
+```
+
+Use `select()` to annotate the HNRNPC gene symbol with its Entrez
+identifier and less formal gene name. Create a map between SYMBOL and
+ENTREZID using `mapIds()`.
+
+```{r}
+select(org.Hs.eg.db, "HNRNPC", c("ENTREZID", "GENENAME"), "SYMBOL")
+sym2eg <- mapIds(org.Hs.eg.db, "HNRNPC", "ENTREZID", "SYMBOL")
+```
+
+Load the TxDb package for the UCSC hg19 knownGene track
+
+```{r}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+```
+
+Extract coordinates of genes, and of exons grouped by gene for the
+HNRNPC gene.
+
+```{r}
+gns <- genes(txdb)
+exonsBy(txdb, "gene")[sym2eg]
+```
+
+The [RNAseqData.HNRNPC.bam.chr14][] package is an example of an
+experiment data package. It contains a subset of BAM files used in a
+gene knock-down experiment, as described in
+`?RNAseqData.HNRNPC.bam.chr14`. Load the package and get the path to
+the BAM files.
+
+```{r}
+library(RNAseqData.HNRNPC.bam.chr14)
+fls = RNAseqData.HNRNPC.bam.chr14_BAMFILES
+basename(fls)
+```
+
+Create `BamFileList()`, basically telling R that these are paths to
+BAM files rather than, say, text files from a spreadsheet.
+
+```{r}
+library(GenomicAlignments)
+bfls = BamFileList(fls)
+bfl = bfls[[1]]
+```
+
+Use the gene coordinates to query the BAM file for a specific genomic
+region; see `?ScanBamParam()` for other ways of restricting data
+input.
+
+```{r}
+library(Rsamtools)
+param <- ScanBamParam(which=gns[sym2eg])
+readGAlignments(bfl, param=param)
+```
+
+Load the [airway][] experiment data package
+
+```{r}
+library(airway)
+data(airway)
+airway
+```
+
+The row names are Ensembl gene identifiers. Use `mapIds()` to map from
+these to gene symbols.
+
+```{r}
+symid <- mapIds(org.Hs.eg.db, rownames(airway), "SYMBOL", "ENSEMBL")
+```
+
+Add the gene symbols to the summarized experiment object.
+
+```{r}
+mcols(rowRanges(airway))$symid <- symid
+```
+
+## _AnnotationHub_
+
+The [Roadmap Epigenomics Project][] generated genome-wide maps of
+regulatory marks across a number of cell lines. 
+
+Retrieve the Epigenome Roadmap table from [AnnotationHub][]...
+
+```{r}
+library(AnnotationHub)
+hub <- AnnotationHub()
+query(hub, c("epigenome", "metadata"))
+meta <- hub[["AH41830"]]
+```
+
+Explore the metadata to identify a cell line of interest to you; see
+also the [metadata][] spreadsheet version of the data made available
+by the Epigenome roadmap project.
+
+```{r}
+table(meta$ANATOMY)
+meta[meta$ANATOMY == "LIVER",]
+```
+
+Use the 'EID' to query for and retrieve the 'mnemonic' file
+summarizing chromatin state
+
+```{r}
+query(hub, c("E118", "mnemonic"))
+E118 <- hub[["AH46971"]]
+E118
+```
+
+Explore the object, e.g., tabulating the different chromatin state
+classifications (in the `name` column). Subset the object to return,
+e.g., just those regions marked as 'Heterochromatin'
+
+```{r}
+table(E118$name)
+E118[E118$name %in% "Heterochromatin"]
+```
+
+Can you, using a TxDb package and the `genes()` and
+`subsetByOverlaps()` functions, determine how many genes overlap
+heterochromatic states, or the genes `nearest()` each enhancer?
+
+## _biomaRt_
+
+Visit the [biomart website][] and figure out how to browse data to
+retreive, e.g., genes on chromosmes 21 and 22. You'll need to browse
+to the ensembl mart, _Homo spaiens_ data set, establish filters for
+chromosomes 21 and 22, and then specify that you'd like the Ensembl
+gene id attribute returned.
+
+Now do the same process in [biomaRt][]:
+
+```{r biomart, eval=FALSE}
+library(biomaRt)
+head(listMarts(), 3)                      ## list marts
+head(listDatasets(useMart("ensembl")), 3) ## mart datasets
+ensembl <-                                ## fully specified mart
+    useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+head(listFilters(ensembl), 3)             ## filters
+myFilter <- "chromosome_name"
+substr(filterOptions(myFilter, ensembl), 1, 50) ## return values
+myValues <- c("21", "22")
+head(listAttributes(ensembl), 3)          ## attributes
+myAttributes <- c("ensembl_gene_id","chromosome_name")
+
+## assemble and query the mart
+res <- getBM(attributes =  myAttributes, filters =  myFilter,
+             values =  myValues, mart = ensembl)
+```
+
+# Communicating results
+
+## Visualization
 
 - The [Gviz][] package provides great tools for visualizing local
   genomic coordinates and associated data.
 - [epivizr][] drives the [epiviz](http://epiviz.cbcb.umd.edu/) genome
   browser from within R; [rtracklayer][] provides easy ways to
   transfer data to and manipulate UCSC browser sessions.
-- Additional packages include [ggbio][], [OmicCircos][], ...
+- Additional packages include [ComplexHeatmap][], [ggbio][],
+  [OmicCircos][], ...
+  
+## Markdown
 
-![Alt Sequencing Ecosystem](our_figures/SequencingEcosystem.png)
+## Interactive applications: Shiny
 
-# Computation: Big Data
+# Performance and big data
 
 ## Efficient _R_ code
 
 The goal of this section is to highlight practices for writing correct, robust
 and efficient R code.
 
-## Priorities
+### Priorities
 
 1. Correct: consistent with hand-worked examples (`identical()`, `all.equal()`)
 2. Robust: supports realistic inputs, e.g., 0-length vectors, `NA`
@@ -111,7 +285,7 @@ and efficient R code.
    does to a colleague; easy to spot logical errors; easy to enhance.
 4. Fast, or at least reasonable given the speed of modern computers.
 
-## Strategies
+### Strategies
 
 1. Profile
     - _Look_ at the script to understand in general terms what it is doing.
@@ -336,54 +510,34 @@ f1 <- function(n)
     bplapply(seq_len(n), fun)
 ```
 
-[biocViews]: https://bioconductor.org/packages/
+[B.1 Introduction to _Bioconductor_]: ./B1_Bioconductor_Intro.html
+[Roadmap Epigenomics Project]: http://egg2.wustl.edu/roadmap/web_portal/
+[metadata]: https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
+[biomart website]: http://biomart.org
+[Introduction to VariantAnnotation]: https://bioconductor.org/packages/release/bioc/vignettes/ShortRead/inst/doc/Overview.pdf
 
 [AnnotationDbi]: https://bioconductor.org/packages/AnnotationDbi
 [AnnotationHub]: https://bioconductor.org/packages/AnnotationHub
 [BSgenome.Hsapiens.UCSC.hg19]: https://bioconductor.org/packages/BSgenome.Hsapiens.UCSC.hg19
 [BSgenome]: https://bioconductor.org/packages/BSgenome
-[BiocParallel]: https://bioconductor.org/packages/BiocParallel
 [Biostrings]: https://bioconductor.org/packages/Biostrings
-[CNTools]: https://bioconductor.org/packages/CNTools
-[ChIPQC]: https://bioconductor.org/packages/ChIPQC
-[ChIPseeker]: https://bioconductor.org/packages/ChIPseeker
-[DESeq2]: https://bioconductor.org/packages/DESeq2
-[DiffBind]: https://bioconductor.org/packages/DiffBind
 [GenomicAlignments]: https://bioconductor.org/packages/GenomicAlignments
-[GenomicFiles]: https://bioconductor.org/packages/GenomicFiles
+[GenomicFeatures]: https://bioconductor.org/packages/GenomicFeatures
 [GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
-[Gviz]: https://bioconductor.org/packages/Gviz
-[Homo.sapiens]: https://bioconductor.org/packages/Homo.sapiens
-[IRanges]: https://bioconductor.org/packages/IRanges
 [KEGGREST]: https://bioconductor.org/packages/KEGGREST
-[OmicCircos]: https://bioconductor.org/packages/OmicCircos
 [PSICQUIC]: https://bioconductor.org/packages/PSICQUIC
+[RNAseqData.HNRNPC.bam.chr14]: https://bioconductor.org/packages/RNAseqData.HNRNPC.bam.chr14
 [Rsamtools]: https://bioconductor.org/packages/Rsamtools
-[Rsubread]: https://bioconductor.org/packages/Rsubread
 [ShortRead]: https://bioconductor.org/packages/ShortRead
-[SomaticSignatures]: https://bioconductor.org/packages/SomaticSignatures
-[SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
 [TxDb.Hsapiens.UCSC.hg19.knownGene]: https://bioconductor.org/packages/TxDb.Hsapiens.UCSC.hg19.knownGene
 [VariantAnnotation]: https://bioconductor.org/packages/VariantAnnotation
-[VariantFiltering]: https://bioconductor.org/packages/VariantFiltering
-[VariantTools]: https://bioconductor.org/packages/VariantTools
 [airway]: https://bioconductor.org/packages/airway
 [biomaRt]: https://bioconductor.org/packages/biomaRt
-[cn.mops]: https://bioconductor.org/packages/cn.mops
-[csaw]: https://bioconductor.org/packages/csaw
-[edgeR]: https://bioconductor.org/packages/edgeR
+[GEOquery]: https://bioconductor.org/packages/GEOquery
 [ensemblVEP]: https://bioconductor.org/packages/ensemblVEP
-[epivizr]: https://bioconductor.org/packages/epivizr
-[ggbio]: https://bioconductor.org/packages/ggbio
-[h5vc]: https://bioconductor.org/packages/h5vc
-[limma]: https://bioconductor.org/packages/limma
-[metagenomeSeq]: https://bioconductor.org/packages/metagenomeSeq
 [org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
-[org.Sc.sgd.db]: https://bioconductor.org/packages/org.Sc.sgd.db
-[phyloseq]: https://bioconductor.org/packages/phyloseq
 [rtracklayer]: https://bioconductor.org/packages/rtracklayer
-[snpStats]: https://bioconductor.org/packages/snpStats
 
-[dplyr]: https://cran.r-project.org/package=dplyr
-[data.table]: https://cran.r-project.org/package=data.table
-[Rcpp]: https://cran.r-project.org/package=Rcpp
+[AnnotationData]: https://bioconductor.org/packages/release/BiocViews.html#___AnnotationData
+
+
