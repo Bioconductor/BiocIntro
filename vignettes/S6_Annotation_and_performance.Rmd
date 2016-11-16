@@ -420,8 +420,8 @@ microbenchmark(f0(n), f3(n), f4(n), times=10)
 `f4()` definitely seems to be the winner. How does it scale with `n`?
 (Repeat several times)
 
-```{r vectorized-scale}
-n <- 10 ^ (5:7)                         # 10x larger than f0
+```{r vectorized-scale, eval=FALSE}
+n <- 10 ^ (5:8)                         # 100x larger than f0
 t <- sapply(n, function(i) system.time(f4(i))[[3]])
 plot(t ~ n, log="xy", type="b")
 ```
