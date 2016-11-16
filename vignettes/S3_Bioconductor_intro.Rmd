@@ -159,7 +159,7 @@ _Bioconductor_ classes and methods -- "S4"
 
 2. Wet-lab sequence preparation (figure from http://rnaseq.uoregon.edu/)
 
-    ![](http://rnaseq.uoregon.edu/img/fig-rna-seq.png)
+    ![](our_figures/fig-rna-seq.png)
 
 3. (Illumina) Sequencing (Bentley et al., 2008,
    doi:10.1038/nature07517)
