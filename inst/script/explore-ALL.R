@@ -24,6 +24,9 @@ exprs[1:5, 1:5]
 hist(rowMeans(exprs))
 plot(density(rowMeans(exprs)))
 
-plot(cmdscale(dist(t(exprs[, keep]))), col=bcrabl$mol.biol, pch=20, cex=3)
-plot(cmdscale(dist(t(exprs[, keep]))), col=bcrabl$remission, pch=20, cex=3)
-plot(cmdscale(dist(t(exprs[, keep]))), col=bcrabl$BT1, pch=20, cex=3)
+cmd <- cmdscale(dist(t(exprs[, keep])))
+
+plot(cmd, pch=20, cex=3)
+plot(cmd, col=bcrabl$remission, pch=20, cex=3)
+plot(cmd, col=bcrabl$mol.biol, pch=20, cex=3)
+plot(cmd, col=bcrabl$BT1, pch=20, cex=3)
