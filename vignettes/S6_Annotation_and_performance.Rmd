@@ -536,6 +536,12 @@ f1 <- function(n)
 [GEOquery]: https://bioconductor.org/packages/GEOquery
 [ensemblVEP]: https://bioconductor.org/packages/ensemblVEP
 [org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
+[Gviz]: https://bioconductor.org/packages/Gviz
+[epivizr]: https://bioconductor.org/packages/epivizr
+[ComplexHeatmap]: https://bioconductor.org/packages/ComplexHeatmap
+[ggbio]: https://bioconductor.org/packages/ggbio
+[OmicCircos]: https://bioconductor.org/packages/OmicCircos
+[BiocParallel]: https://bioconductor.org/packages/BiocParallel
 [rtracklayer]: https://bioconductor.org/packages/rtracklayer
 
 [AnnotationData]: https://bioconductor.org/packages/release/BiocViews.html#___AnnotationData
