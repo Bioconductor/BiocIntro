@@ -1,73 +1,64 @@
-# Introduction to _R_ / _Bioconductor_
+# Introduction to _R_
 
-This is a two-day course introducing _[R][]_ and _[Bioconductor][]_
-for the analysis and comprehension of high-throughput genomic
-(sequencing, microarray, ...) data. There are no pre-requisites. The
-course will be offered May 16 and 17; it is open and free of charge
-to students, staff, and faculty at Roswell Park Cancer Institute or
-SUNY at Buffalo.
+This is a course introducing the _[R][]_ programming language.  The
+course is meant for the novice; there are no prerequisites. You MUST
+bring a laptop with WiFi access. You must be able to install software
+on your laptop. There are five one-hour sessions, from 4 to 5 pm on
+January 9, 10, 11, 12, 13. Participants are expected to attend the
+majority of sessions.
 
-An approximate agenda is:
+The instructors are Martin Morgan and Nitesh Turaga.
 
-## Day 1: Introduction to _R_
+## Day 1: Installation
 
-Overview
+Day 1 ensures that all participants have a working installation of
+_[R][]_ and _[RStudio][]_. Remember to bring your WiFi-enabled laptop.
 
-- Commands, scripts, and literate documents
-- Data input, manipulation, and visualization
+- [Installing R][]
+- [Installing RStudio][]
+
+## Day 2: Using _R_
+
+Day 2 introduces the basics of using _R_ and _RStudio_.
+
+- Using _RStudio_
+- The _R_ console
+- _R_ vectors and data.frames
+- Functions and help pages
+- Scripts
+
+## Day 3: Data import and manipulation
+
+Day 3 inputs and manipulates a small data set describing 128 patients
+from a classic microarray experiment.
+
+- `read.table()` and other _R_ functions for data input.
+- Subsetting -- `[`, `subset()`, `%in%`; `$` and `[[`.
+- Adding and updating columns.
+- Working with factors
+
+## Day 4: Statistics
+
+Day 4 introduces _R_ facilities for univariate and multivariate
+statistical analysis. We continue to use the microarray experiment
+data to illustrate these concepts.
+
+- Summarizing data -- `mean()`, `var()`, `summary()`, ...
+- Comparing groups -- `t.test()`, `chisq.test()`, `lm()`, ...
+- Clustering -- multi-dimensional scaling (`cmdscale()`); hierarchical
+  clustering (`hclust()`); heat maps
 - Packages
-- Introduction to example data sets
-- Getting help
 
-Data input and manipulation
+## Day 5: Visualization
 
-- Input data from text and other files
-- Vectors, `data.frame`, and other _R_ data types
-- Tidying data
+Day 5 introduces two approaches to visualizing data -- base _R_
+graphics, and [ggplot2][]
 
-Analysis
-
-- Performing basic (and advanced!) statistical analyses
-- Working with _R_ classes and methods
-
-Visualization
-
-- Base graphics for quick visualizations
-- [ggplot2][] and other effective ways of visualizing data
-
-## Day 2: Introduction to _Bioconductor_
-
-Project overview
-
-- Packages, methods, and vignettes
-- What you can (and can't!) do: sequence analysis (RNA-seq, ChIP-seq,
-  variants, ...), microarrays, flow cytometery, ...
-
-Getting familiar with common operations
-
-- [GenomicRanges][] for describing genome-scale data
-- Annotation resources for mapping between identifiers, assigning
-  pathways, describing genes, and exploring consortium and other
-  genome-scale data.
-
-A typical work flow: RNA-seq differential expression of known genes
-
-- Introduction to RNA-seq
-- Overview of upstream processing (non-_R_)
-- From count matrix to differentially expressed genes
-
-    - Statistical issues
-    - Implementation using the [DESeq2][] package
-    - Placing results in context
-
-Where to now?
-
-- Improving _R_ skills
-- Working with large data
-- Getting involved with the community
+- Base _R_'s `plot()` and friends
+- [ggplot2][] grammar of graphics
 
 [R]: https://r-project.org
-[Bioconductor]: https://bioconductor.org
+[RStudio]: https://rstudio.org
+[Installing R]: https://
+[Installing RStudio]: https://
 [ggplot2]: https://cran.r-project.org/package=ggplot2
-[GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
-[DESeq2]: https://bioconductor.org/packages/DESeq2
