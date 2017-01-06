@@ -11,9 +11,9 @@ the Gaylord-Cary Meeting Room.
 [Apply now][]. Space is limited. Registration closes on Friday,
 January 6 at 12:00 noon.
 
-The instructors are Martin Morgan and Nitesh Turaga.
+The instructors are Martin Morgan, Nitesh Turaga, Lori Shepherd, Yubo Cheng.
 
-[Apply now]: https://www.surveymonkey.com/r/BS6DJPW
+Registration closed.
 
 ## Day 1: Installation
 
