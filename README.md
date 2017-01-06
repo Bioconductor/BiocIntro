@@ -8,9 +8,6 @@ sessions, from 4 to 5 pm on January 9, 10, 11, 12, 13. Participants
 are expected to attend the majority of sessions. All sessions are in
 the Gaylord-Cary Meeting Room.
 
-[Apply now][]. Space is limited. Registration closes on Friday,
-January 6 at 12:00 noon.
-
 The instructors are Martin Morgan, Nitesh Turaga, Lori Shepherd, Yubo Cheng.
 
 Registration closed.
