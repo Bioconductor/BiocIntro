@@ -107,6 +107,221 @@ are:
 
 ## Mac (**NOT** required for this course)
 
+### Install Xcode and Xcode command line tools
+Make sure you have Xcode and Xcode command line tools installed on your mac. If not,
+you can run the following command on your terminal application to install Code
+
+```{bash xcode-install, eval=FALSE}
+xcode-select --install
+```
+
+For command line tools, go to http://developer.apple.com/downloads and sign in with
+your Apple ID (the same one you use for iTunes and app purchases). Look for 'Command line tools'
+through the search box, download the required file and install via the `.dmg` file on your machine.
+
+For more detailed instructions on this, please visit [this link](https://www.moncefbelyamani.com/how-to-install-xcode-homebrew-git-rvm-ruby-on-mac/#laptop-script).
+
+### Install of R and RStudio using homebrew (easy!)
+
+Open your terminal application on your mac. Follow the steps below:
+
+* Install [homebrew](http://brew.sh/) on your machine, copy and paste this in your terminal.
+
+```{bash hombrew-install, eval=FALSE}
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+* Update the "taps" on your machine and check if everything is fine.  
+
+```{bash brew-update, eval=FALSE}
+brew update && brew doctor
+```
+
+* Get brew cask and the homebrew science taps
+
+```{bash brew-cask, eval=FALSE}
+# Brew taps and requirements
+brew tap caskroom/cask
+brew tap homebrew/science
+brew install caskroom/cask/brew-cask
+```
+
+* Install Xquartz and Java
+
+```{bash xquartz-java, eval=FALSE}
+# Dependencies
+brew cask install xquartz
+brew cask install java
+```
+
+* Finally install R and Rstudio
+
+```{bash install-r, eval=FALSE}
+# Install R with X11
+brew install --with-x11 r
+
+# Install RStudio
+brew cask install --appdir=/Applications rstudio
+```
+
+Note: the inclusion of the `--appdir` option. By default, Cask formula’s will
+create aliases in `~/Applications`, but this option tells Homebrew to use
+`/Applications` instead
+
+* For more functionality with making documents with code embedded within it
+  (literate programming),you have to install `LaTeX` on your machine as well.
+
+```{bash install-latex, eval=FALSE}
+# For latex:
+brew cask install mactex
+
+brew install libsvg curl libxml2 gdal geos boost
+
+R CMD javareconf JAVA_CPPFLAGS=-I/System/Library/Frameworks/JavaVM.framework/Headers
+```
+
+### Advanced R installation i.e compile from source
+
+This step is not recommended for new users and it would be much easier installing
+R using homebrew.
+
+We assume that the users have the following software installed,
+
+1. XCode and Xcode command line tools.
+2. **gfortran**, **pcre**, and **liblzma**  
+3. XQuartz (https://www.xquartz.org/)
+4. Java JRE (jre-8u111-macosx-x64)
+
+* If `gfortran`, `pcre` or `liblzma` is not installed on your machine, you can
+  follow the steps below. These steps help you install binaries of these programs
+  without having to compile them from scratch.
+
+One thing to keep in mind is the version of OSX being run, i.e take note of the
+binaries you download from http://r.research.att.com/libs/. Most people should be
+having OS-X Snow leopard or higher.
+
+**darwin_id** | **Mac OS version**
+----------|---------------
+darwin8   | for Mac OS X 10.4 (Tiger) or higher
+darwin89  | 32-bit for Mac OS X 10.4 or higher, 64-bit for Mac OS X 10.5 or higher
+darwin9   | for Mac OS X 10.5 (Leopard) or higher
+darwin10  | for Mac OS X 10.6 (Snow Leopard) or higher
+darwin13  | for Mac OS X 10.9 (Mavericks) or higher
+
+
+```{bash install-binaries, eval=FALSE}
+#  This is for mac OS sierra
+
+##  Gfortran
+curl -O 'http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2'
+sudo tar fxvz gfortran-4.8.2-darwin13.tar.bz2 -C /
+
+## XZ library or liblzma
+curl -O 'http://r.research.att.com/libs/xz-5.2.1-darwin.13-x86_64.tar.gz'
+sudo tar fvxz xz-5.2.1-darwin.13-x86_64.tar.gz -C /
+
+## pcre
+
+curl -O 'http://r.research.att.com/libs/pcre-8.36-darwin.13-x86_64.tar.gz'
+sudo tar fvxz pcre-8.36-darwin.13-x86_64.tar.gz -C /
+```
+
+* The next step is to download R from its source, by checkout from its `svn`
+  repository.
+
+```{bash svn-r, eval=FALSE}
+# I'm making a new directory in my home called "R-stuff"
+mkdir ~/R-stuff
+
+# SVN checkouto R-devel or a specific version of R. The rest of this document
+# will show the workflow for devel version of R. But the steps are the same for
+# the release version as well.
+
+svn checkout https://svn.r-project.org/R/trunk/ ~/R-stuff/devel
+
+# or both. (if you want to have devel and release versions of R on your machine)
+
+svn checkout https://svn.r-project.org/R/branches/R-3-3-branch/ ~/R-stuff/release-3-3
+```
+
+* Download recommended packages for R, this is available after you change into your
+  `devel or release-3-3`  directory.
+
+```{bash tool-sync, eval=FALSE}
+# Download recommmended packages
+./tools/rsync-recommended
+```
+
+* Be sure to configure R in a different directory as to where it was downloaded.
+  All the libraries being installed will go into that directory.
+
+```{bash r-install, eval=FALSE}
+# make a new directory to configure R
+
+mkdir -p ~/R-stuff/bin/R-devel
+
+cd ~/R-stuff/bin/R-devel
+
+~/R-stuff/devel/configure --enable-R-shlib --enable-R-profiling --enable-memory-profiling --with-internal-tzcode=no
+```
+
+* Once the configuration goes through without any errors, run make
+
+```{bash, eval=FALSE}
+# run make
+make
+
+# Then check the built system works correctly by
+make check
+```
+
+* Install R-studio from this [link](https://www.rstudio.com/products/rstudio/download/).
+
+  Once R-studio is installed, and you have manually compiled R, you have to create an
+  alias for your R-studio in your .bashrc or whatever shell you are using on your machine.
+
+  The alias will look like,
+
+```{bash alias-r-studio, eval=FALSE}
+# R release version; i.e latest release branch, use absolute paths
+# when making aliases. This makes it accessible by just using R in the
+# terminal.
+alias R="/Users/hansolo/R-stuff/bin/R-devel/bin/R"
+
+# This tells Rstudio which R to use as default
+export RSTUDIO_WHICH_R=/Users/hansolo/R-stuff/bin/R-devel/bin/R;
+```
+
+* If you have multiple versions of R installed on your machine via source compilation,
+  one way to refer to multiple version of R and Rstudio via aliases is given below.
+
+  In your `.bashrc` you can have something like:
+
+```{bash multiple-sources, eval=FALSE}
+# R release/patched version; i.e latest release branch
+alias R-release="/Users/hansolo/R-stuff/bin/R-3-3-branch/bin/R"
+alias RStudio-release="export RSTUDIO_WHICH_R=/Users/hansolo/R-stuff/bin/R-3-3-branch/bin/R; open -a RStudio"
+
+# R devel setup
+alias R-dev="/Users/hansolo/R-stuff/bin/R-devel/bin/R"
+alias RStudio-dev="export RSTUDIO_WHICH_R=/Users/hansolo/R-Stuff/bin/R-devel/bin/R; open -a RStudio"
+```
+
+Now you can call your **R-release** version using the command `R-release` and if you use the command `RStudio-release` , Rstudio will use the release version of R. Same goes with the commands `R-dev` and `RStudio-dev`.
+
+
+**All done!!**
+
+
+Try out the installation in a new terminal or after sourcing your `.bashrc` by
+
+```{bash source-bash, eval=FALSE}
+source ~/.bashrc
+```
+
+You should be all set and ready to use R!
+
+
 ## Linux (**NOT** required for this course)
 
 NOTE: see [distribution-specific instructions][Linux-distro] and the
@@ -161,4 +376,3 @@ sudo make install
 [Rtools]: https://cran.r-project.org/bin/windows/Rtools/
 [Linux-distro]: https://cran.r-project.org/bin/linux/
 [R-admin]: https://cran.r-project.org/doc/manuals/r-release/R-admin.html)
-
