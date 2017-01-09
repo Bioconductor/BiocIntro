@@ -17,3 +17,148 @@ knitr::opts_chunk$set(
     eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
     cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
 ```
+
+# Easy installation
+
+## Windows
+
+NOTE: See [Windows installation instructions][Windows] for more detail.
+
+It may be necessary to do the following steps with an "Administrator"
+account.
+
+To install _R_, visit the [Windows base][] distribution page. Click on
+the `Download R-3.3.2 for Windows` link. Click on the installer and
+make the default selection for each option.
+
+To install _RStudio_, visit the [RStudio download][] page. Click on
+the `RStudio 1.0.136 - Windows Vista/7/8/10` link. Click on the
+installer and follow default instructions.
+
+Be sure to switch back to your regular account before starting to use
+the software that you have just installed.
+
+## Mac
+
+NOTE: See [R for Mac OS X][MacOS] for more detail.
+
+To install _R_, visit the [R for Mac OS X][MacOS]. Click on the the
+`R-3.3.2.pkg` link. Click on the installer and follow default
+instructions.
+
+To install _RStudio_, visit the [RStudio download][] page. Click on
+the `RStudio 1.0.136 - Mac OS X 10.6+ (64-bit)` link. Click on the
+installer and follow default instructions.
+
+## Linux
+
+NOTE: See [distribution-specific instructions][Linux-distro] for
+additional detail.
+
+On debian-based systems, the easiest way to install _R_ is through a
+package manager manager, run under an administrator account.  On Linux
+one usually needs to install _R_ packages from source, and _R_ package
+source often contains C, C++, or Fortran code requiring a compiler and
+`-dev` versions of various system libraries. It is therefore
+convenient to install the `-dev` version of R.
+
+```
+sudo apt-get install r-base r-base-dev
+```
+
+When installing source packages, it may be necessary to have access to
+the `-dev` version of various system libraries. Many of these are
+installed as dependencies of `r-base-dev`; other common examples
+include the xml and curl libraries
+
+```
+sudo apt-get install libxml2-dev
+sudo apt-get install libcurl-dev
+```
+
+Note in particular the use specification of libraries (the `lib`
+prefix) and the use of the `-dev` version.
+
+To install _RStudio_, visit the [RStudio download][] page. Download
+the appropriate archive by clicking on the `RStudio 1.0.136 - ` link
+for your OS. On Ubuntu, install the `.deb` installer with
+
+```
+sudo dpkg -i rstudio-1.0.136-amd64.deb
+```
+
+# Advanced Installation (**NOT** required for this course)
+
+Advanced installation is required to (a) install custom packages that
+(b) have their own C, C++, or Fortran code. In all other cases, the
+easy installation is sufficient.
+
+## Windows (**NOT** required for this course)
+
+Advanced installation requires `Rtools34.exe`, available the
+[Rtools][] web site. Download and click on the installer. Answer all
+installer questions with default values. The two most tricky parts
+are:
+
+1. Be sure to install the Rtools softare in a directory path that does
+   not include spaces.
+2. Be sure that the system enironment variable PATH contains the path
+   to the Rtools `bin` directory.
+
+## Mac (**NOT** required for this course)
+
+## Linux (**NOT** required for this course)
+
+NOTE: see [distribution-specific instructions][Linux-distro] and the
+[R Installation and Administration][R-admin] manual for definitive
+directions.
+
+For advanced Linux installation, a typical approach is 'checkout' the
+_R_ source code from its SVN version control repository and retrieve
+recommended packages.
+
+```
+mkdir ~/src
+cd ~/src
+svn checkout https://svn.r-project.org/R/branches/R-3-3-branch
+tools/rsync-recommended
+```
+
+The next step is to configure the software, typically in an indepenent
+'bin' directory
+
+```
+mkdir ~/bin
+cd ~/bin/R-3-3-branch
+~/src/R-3-3-branch/configure
+```
+
+There are a number of configure options, see
+`~/src/R-3-3-branch/configure`. Typical problems during configuration
+involve missing system libraries; the `-dev` versions of these
+libraries need to be installed by a system administrator.
+
+The final step is to build the software
+
+```
+cd ~/bin/R-3-3-branch
+make -j
+```
+
+The executable is at `~/bin/R-3-3-branch/bin/R`; it is convenient to
+add `~/bin/R-3-3-branch/bin` to the system `PATH` variable or to
+create a shell alias pointing to the executable. A system-wide installation can be made available with
+
+```
+sudo make install
+```
+
+[Windows]: https://cran.r-project.org/bin/windows/
+[Windows base]: https://cran.r-project.org/bin/windows/base/
+[MacOS]: https://cran.r-project.org/bin/macosx/
+[RStudio download]: https://www.rstudio.com/products/rstudio/download/
+
+[Rtools]: https://cran.r-project.org/bin/windows/Rtools/
+[Linux-distro]: https://cran.r-project.org/bin/linux/
+[R-admin]: https://cran.r-project.org/doc/manuals/r-release/R-admin.html)
+

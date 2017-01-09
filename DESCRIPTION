@@ -1,7 +1,7 @@
 Package: RIntro
 Type: Package
 Title: Training Material for Introductory R Courses
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
     person("Martin", "Morgan", role=c("aut", "cre"),
         email="martin.morgan@roswellpark.org"))
