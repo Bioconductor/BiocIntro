@@ -38,8 +38,9 @@ We also briefly introduces
 Day 2 introduces the basics of [using _R_ and _RStudio_][].
 
 - Using _RStudio_
-- The _R_ console
-- _R_ vectors and data.frames
+- Vectors and lists
+- Classes: data.frames and beyond
+- Help!
 
 ## Day 3: Data import and manipulation
 

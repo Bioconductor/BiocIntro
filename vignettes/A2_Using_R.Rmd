@@ -18,19 +18,17 @@ knitr::opts_chunk$set(
     cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
 ```
 
-# _RStudio_
+# _RStudio_: A Quick Tour
 
-A quick tour
+Panes
 
-## Panes
+Options
 
-## Options
+Help
 
-## Help
+Environment, History, and Files
 
-## Environment, History, and Files
-
-# _R_ First Impressions
+# _R_: First Impressions
 
 Type values and mathematical formulas into _R_'s command prompt
 
