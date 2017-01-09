@@ -27,15 +27,19 @@ need further help.
 
 [Additional instructions][] are available.
 
+We also briefly introduces
+
+- Using _RStudio_
+- Functions and help pages
+- Scripts
+
 ## Day 2: Using _R_
 
-Day 2 introduces the basics of using _R_ and _RStudio_.
+Day 2 introduces the basics of [using _R_ and _RStudio_][].
 
 - Using _RStudio_
 - The _R_ console
 - _R_ vectors and data.frames
-- Functions and help pages
-- Scripts
 
 ## Day 3: Data import and manipulation
 
@@ -73,5 +77,7 @@ graphics, and [ggplot2][]
 [Download and Install R]: https://cran.rstudio.com/
 [Download and Install RStudio]: https://www.rstudio.com/products/rstudio/download/
 [Additional instructions]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A1_Installation.Rmd
+
+[using _R_ and _RStudio_]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A2_Using_R.Rmd
 
 [ggplot2]: https://cran.r-project.org/package=ggplot2

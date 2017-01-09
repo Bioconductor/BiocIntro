@@ -17,3 +17,276 @@ knitr::opts_chunk$set(
     eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
     cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
 ```
+
+# _RStudio_
+
+A quick tour
+
+## Panes
+
+## Options
+
+## Help
+
+## Environment, History, and Files
+
+# _R_ First Impressions
+
+Type values and mathematical formulas into _R_'s command prompt
+
+```{r plus}
+1 + 1
+```
+
+Assign values to symbols (variables)
+
+```{r values-symbols}
+x = 1
+x + x
+```
+
+Invoke functions such as `c()`, which takes any number of values and
+returns a single _vector_
+
+```{r vector}
+x = c(1, 2, 3)
+x
+```
+
+_R_ functions, such as `sqrt()`, often operate efficienty on vectors
+
+```{r vectorized}
+y = sqrt(x)
+y
+```
+
+There are often several ways to accomplish a task in _R_
+
+```{r skinning-the-cat}
+x = c(1, 2, 3)
+x
+x <- c(4, 5, 6)
+x
+x <- 7:9
+x
+10:12 -> x
+x
+```
+
+Sometimes _R_ does 'surprising' things that can be fun to figure out
+
+```{r surprise}
+x <- c(1, 2, 3) -> y
+x
+y
+```
+
+## _R_ Data types: vector and list
+
+'Atomic' vectors
+
+- Types include integer, numeric (float-point; real), complex,
+  logical, character, raw (bytes)
+
+    ```{r atomic-vectors}
+    people <- c("Lori", "Yubo", "Greg", "Nitesh", "Valerie", "Herve")
+    people
+    ```
+
+- Atomic vectors can be named
+
+    ```{r named-vectors}
+    population <- c(Buffalo=259000, Rochester=210000, `New York`=8400000)
+    population
+    log10(population)
+    ```
+
+- Statistical concepts like `NA` ("not available")
+
+    ```{r NA-concept}
+    truthiness <- c(TRUE, FALSE, NA)
+    truthiness
+    ```
+- Logical concepts like 'and' (`&`), 'or' (`|`), and 'not' (`!`)
+
+    ```{r logical-concept}
+    !truthiness
+    truthiness | !truthiness
+    truthiness & !truthiness
+    ```
+
+- Numerical concepts like infinity (`Inf`) or not-a-number (`NaN`,
+  e.g., 0 / 0)
+
+    ```{r numerical-concept}
+    undefined_numeric_values <- c(NA, 0/0, NaN, Inf, -Inf)
+    undefined_numeric_values
+    sqrt(undefined_numeric_values)
+    ```
+
+- Common string manipulations
+
+    ```{r string-manipulation}
+    toupper(people)
+    substr(people, 1, 3)
+    ```
+
+- _R_ is a green consumer -- recylcing short vectors to align with
+  long vectors
+
+    ```{r greenery}
+    x <- 1:3
+    x * 2            # '2' (vector of length 1) recycled to c(2, 2, 2)
+    truthiness | NA
+    truthiness & NA
+    ```
+- It's very common to nest operations, which can be simultaneously
+  compact, confusing, and expressive (`[`: subset; `<`: less than)
+
+    ```{r nested-operations}
+    substr(tolower(people), 1, 3)
+    population[population < 1000000]
+    ```
+
+Lists
+
+- The list type can contain other vectors, including other lists
+
+    ```{r lists}
+    frenemies = list(
+        friends=c("Larry", "Richard", "Vivian"),
+        enemies=c("Dick", "Mike")
+    )
+    frenemies
+    ```
+
+- `[` subsets one list to create another list, `[[` extracts a list element
+
+    ```{r list-subset}
+    frenemies[1]
+    frenemies[c("enemies", "friends")]
+    frenemies[["enemies"]]
+    ```
+
+Factors
+
+- Character-like vectors, but with values restricted to specific levels
+
+    ```{r factors}
+    sex = factor(c("Male", "Male", "Female"),
+                 levels=c("Female", "Male", "Hermaphrodite"))
+    sex
+    sex == "Female"
+    table(sex)
+    sex[sex == "Female"]
+    ```
+
+## Classes: data.frame and beyond
+
+Variables are often related to one another in a highly structured way,
+e.g., two 'columns' of data in a spreadsheet
+
+```{r related-variables}
+x = rnorm(1000)       # 1000 random normal deviates
+y = x + rnorm(1000)   # another 1000 deviates, as a function of x
+plot(y ~ x)           # relationship bewteen x and y
+```
+
+Convenient to manipulate them together
+
+- `data.frame()`: like columns in a spreadsheet
+
+    ```{r data.frame}
+    df = data.frame(X=x, Y=y)
+    head(df)           # first 6 rows
+    plot(Y ~ X, df)    # same as above
+    ```
+
+- See all data with `View(df)`. Summarize data with `summary(df)`
+
+    ```{r data.frame-summary}
+    summary(df)
+    ```
+
+- Easy to manipulate data in a coordinated way, e.g., access column
+  `X` with `$` and subset for just those values greater than 0
+
+    ```{r data.frame-subset}
+    positiveX = df[df$X > 0,]
+    head(positiveX)
+    plot(Y ~ X, positiveX)
+    ```
+
+- _R_ is introspective -- ask it about itself
+
+    ```{r introspection}
+    class(df)
+    dim(df)
+    colnames(df)
+    ```
+
+- `matrix()` a related class, where all elements have the same type (a
+  `data.frame()` requires elements within a column to be the same
+  type, but elements between columns can be different types).
+
+A scatterplot makes one want to fit a linear model (do a regression
+analysis)
+
+- Use a _formula_ to describe the relationship between variables
+- Variables found in the second argument
+
+    ```{r lm-formula}
+    fit <- lm(Y ~ X, df)
+    ```
+
+- Visualize the points, and add the regression line
+
+    ```{r lm-plot}
+    plot(Y ~ X, df)
+    abline(fit, col="red", lwd=3)
+    ```
+
+- Summarize the fit as an ANOVA table
+
+    ```{r anova}
+    anova(fit)
+    ```
+
+- Introspection -- what class is `fit`? What _methods_ can I apply to
+  an object of that class?
+
+    ```{r class-method-introspection}
+    class(fit)
+    methods(class=class(fit))
+    ```
+
+## Help!
+
+Help available in _Rstudio_ or interactively
+
+- Check out the help page for `rnorm()`
+
+    ```{r, eval=FALSE}
+    ?rnorm
+    ```
+
+- 'Usage' section describes how the function can be used
+
+    ```
+    rnorm(n, mean = 0, sd = 1)
+    ```
+- Arguments, some with default values. Arguments matched first by
+  name, then position
+
+- 'Arguments' section describes what the arguments are supposed to be
+
+- 'Value' section describes return value
+
+- 'Examples' section illustrates use
+
+- Often include citations to relevant technical documentation,
+  reference to related functions, obscure details
+
+- Can be intimidating, but in the end actually _very_ useful
+
+
