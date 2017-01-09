@@ -6,7 +6,7 @@ prerequisites. You MUST bring a laptop with WiFi access. You must be
 able to install software on your laptop. There are five one-hour
 sessions, from 4 to 5 pm on January 9, 10, 11, 12, 13. Participants
 are expected to attend the majority of sessions. All sessions are in
-the Gaylord-Cary Meeting Room.
+the Gaylord-Cary Meeting Room of the Research Studies Center [map][].
 
 The instructors are Martin Morgan, Nitesh Turaga, Lori Shepherd, Yubo Cheng.
 
@@ -67,6 +67,7 @@ graphics, and [ggplot2][]
 - Base _R_'s `plot()` and friends
 - [ggplot2][] grammar of graphics
 
+[map]: https://www.roswellpark.org/sites/default/files/rpci-campus-map-july-15.pdf
 [R]: https://r-project.org
 [RStudio]: https://rstudio.org
 [Download and Install R]: https://cran.rstudio.com/
