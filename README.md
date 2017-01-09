@@ -25,6 +25,8 @@ need further help.
 - [Download and Install R][]
 - [Download and Install RStudio][]
 
+[Additional instructions][] are available.
+
 ## Day 2: Using _R_
 
 Day 2 introduces the basics of using _R_ and _RStudio_.
@@ -69,4 +71,6 @@ graphics, and [ggplot2][]
 [RStudio]: https://rstudio.org
 [Download and Install R]: https://cran.rstudio.com/
 [Download and Install RStudio]: https://www.rstudio.com/products/rstudio/download/
+[Additional instructions]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A1_Installation.Rmd
+
 [ggplot2]: https://cran.r-project.org/package=ggplot2
