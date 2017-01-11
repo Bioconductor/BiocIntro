@@ -90,7 +90,7 @@ graphics, and [ggplot2][]
 [Data import and manipulation]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A3_IO.Rmd
 
 [BRFSS]: http://www.cdc.gov/brfss/about/index.htm
-[BRFSS-subset.csv]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/inst/extdata/BRFSS-subset.csv
+[BRFSS-subset.csv]: https://raw.githubusercontent.com/Bioconductor/BiocIntro/master/inst/extdata/BRFSS-subset.csv
 [ALL-phenoData.csv]: https://raw.githubusercontent.com/Bioconductor/BiocIntro/R-Intro-RPCI-Jan-2017/inst/extdata/ALL-phenoData.csv
 
 [map]: https://www.roswellpark.org/sites/default/files/rpci-campus-map-july-15.pdf
