@@ -18,14 +18,19 @@ knitr::opts_chunk$set(
     cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
 ```
 
-# Extended Exercise 1: BRFSS Survey Data
+# Exercise 1: BRFSS Survey Data
 
 We will explore a subset of data collected by the CDC through its
 extensive Behavioral Risk Factor Surveillance System ([BRFSS][])
 telephone survey. Check out the link for more information. We'll look
 at a subset of the data.
 
-1. Use `file.choose()` to find the path to the file 'BRFSS-subset.csv'
+0. (Easy) Use _RStudio_'s "Import Dataset" function to find the
+   'BRFSS-subset.csv' file that you've downloaded to your local
+   disk. Skip the next two steps.
+
+1. (Alternative) Use `file.choose()` to find the path to the file
+   'BRFSS-subset.csv'
 
     ```{r file.choose, eval=FALSE}
     path <- file.choose()
@@ -37,18 +42,26 @@ at a subset of the data.
     ```
 -->
 
-2. Input the data using `read.csv()`, assigning to a variable `brfss`
+2. (Alternative, continued) Input the data using `read.csv()`,
+   assigning to a variable `brfss`
 
     ```{r read.csv}
     brfss <- read.csv(path)
     ```
 
-3. Use command like `class()`, `head()`, `dim()`, `colnames()`,
-   `summary()` to explore the data.
+3. Use command like `class()`, `head()`, `dim()`, `summary()` to
+   explore the data.
 
     - What variables have been measured?
 
     - Can you guess at the units used for, e.g., Weight and Height?
+    
+    ```
+    class(brfss)
+    head(brfss)
+    dim(brfss)
+    summary(brfss)
+    ```
 
 4. Use the `$` operator to extract the 'Sex' column, and summarize the
    number of males and females in the survey using `table()`. Do the
@@ -73,7 +86,9 @@ at a subset of the data.
 6. (advanced) Use a `formula` and the `aggregate()` function to
    describe the relationship between Year, Sex, and Weight
 
+    ```
     aggregate(Weight ~ Year + Sex, brfss, mean)  # same, but more informative
+    ```
 
 7. Create a subset of the data consisting of only the 1990
    observations. Perform a t-test comparing the weight of males and
@@ -107,13 +122,16 @@ at a subset of the data.
 
 [BRFSS]: http://www.cdc.gov/brfss/about/index.htm
 
-# Extended Exercise 2: ALL Phenotypic Data
+# Exercise 2: ALL Phenotypic Data
 
 This data comes from an (old) Acute Lymphoid Leukemia microarray data
 set.
 
-Choose the file that contains ALL (acute lymphoblastic leukemia)
-patient information
+Either use _RStudio_'s "Import dataset" (with a header, use first
+column for row names, comma-separated) or choose the file that
+contains ALL (acute lymphoblastic leukemia) patient information and
+input the date using `read.csv()`; for `read.csv()`, use the
+`row.names=1` to use the first column as row names.
 
 ```{r ALL-choose, eval=FALSE}
 path <- file.choose()    # look for ALL-phenoData.csv
@@ -127,7 +145,7 @@ path <- system.file(package="RIntro.RPCI.Jan2017", "extdata", "ALL-phenoData.csv
 
 ```{r ALL-input}
 stopifnot(file.exists(path))
-pdata <- read.csv(path)
+pdata <- read.csv(path, row.names=1)
 ```
 
 Check out the help page `?read.delim` for input options. The exercises
@@ -213,11 +231,11 @@ levels(bcrabl$BT) <- substring(levels(bcrabl$BT), 1, 1)
 table(bcrabl$BT)
 ```
 
-Use `xtabs()` (cross-tabulation) to count the number of samples with
-B- and T-cell types in each of the BCR/ABL and NEG groups
+Use `aggregate()` to count the number of samples with B- and T-cell
+types in each of the BCR/ABL and NEG groups
 
 ```{r ALL-BCR/ABL-BT}
-xtabs(~ BT + mol.biol, bcrabl)
+aggregate(rownames(bcrabl) ~ BT + mol.biol, bcrabl, length)
 ```
 
 Use `aggregate()` to calculate the average age of males and females in

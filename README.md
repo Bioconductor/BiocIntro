@@ -50,13 +50,20 @@ Download: [BRFSS-subset.csv][] and [ALL-phenoData.csv][] (e.g.,
 right-click and "Save as..."  `ALL-phenoData.csv`)
 <br />Notes: [Data import and manipulation][]
 
-Day 3 inputs and manipulates a small data set describing 128 patients
-from a classic microarray experiment.
+Day 3 inputs and manipulates two data sets. The first is a subset of
+data collected by the CDC through its extensive Behavioral Risk Factor
+Surveillance System ([BRFSS][]) telephone survey. The second is a
+small data set describing 128 patients from a classic microarray
+experiment.
 
-- `read.table()` and other _R_ functions for data input.
-- Subsetting -- `[`, `subset()`, `%in%`; `$` and `[[`.
-- Adding and updating columns.
-- Working with factors
+- `read.csv()` and other _R_ functions for data input.
+- Introspection -- `class()`, `dim()`, `head()`, `summary()`.
+- Subsetting -- `[`, `subset()`, `is.na()`, `%in%`; `$` and `[[`.
+- `table()`, `with()`, `aggregate()`, 
+- Descriptive and basic statistics: `length()`, `mean()`, `median()`, `t.test()`.
+- 'Formula' notation
+- Visualization: `plot()`, `boxplot()`, `hist()`
+- Working with factors: `levels()`, `droplevels()`.
 
 ## Day 4: Statistics
 
@@ -82,6 +89,7 @@ graphics, and [ggplot2][]
 [Using _RStudio_ and _R_]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A2_Using_R.Rmd
 [Data import and manipulation]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A3_IO.Rmd
 
+[BRFSS]: http://www.cdc.gov/brfss/about/index.htm
 [BRFSS-subset.csv]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/inst/extdata/BRFSS-subset.csv
 [ALL-phenoData.csv]: https://raw.githubusercontent.com/Bioconductor/BiocIntro/R-Intro-RPCI-Jan-2017/inst/extdata/ALL-phenoData.csv
 

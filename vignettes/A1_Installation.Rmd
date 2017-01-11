@@ -164,7 +164,7 @@ brew install --with-x11 r
 brew cask install --appdir=/Applications rstudio
 ```
 
-Note: the inclusion of the `--appdir` option. By default, Cask formula’s will
+Note: the inclusion of the `--appdir` option. By default, Cask formula's will
 create aliases in `~/Applications`, but this option tells Homebrew to use
 `/Applications` instead
 
