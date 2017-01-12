@@ -190,10 +190,10 @@ head(pdata)
 
 Some of the results below involve plots, and it's convenient to choose
 pretty and functional colors. We use the [RColorBrewer][]
-package; see [colorbrewer.com][]
+package; see [colorbrewer.org][]
 
 [RColorBrewer]: https://cran.r-project.org/?package=RColorBrewer
-[colorbrewer.com]: http://colorbrewer.com}{colorbrewer.com
+[colorbrewer.org]: http://colorbrewer.org
 
 ```{r colors}
 library(RColorBrewer)  ## not available? install package via RStudio
@@ -215,6 +215,12 @@ indicate whether the sample is B-cell or T-cell ALL.
 pdata$BorT <- factor(substr(pdata$BT, 1, 1))
 ```
 
+Microarray expression data is usually represented as a matrix of genes as rows and samples as columns. Statisticians usually think of their data as samples as rows, features as columns. So we'll transpose the expression values
+
+```{r}
+exprs <- t(exprs)
+```
+
 ## Unsupervised machine learning -- multi-dimensional scaling
 
 Reduce high-dimensional data to lower dimension for visualization.
@@ -223,7 +229,7 @@ Calculate distance between _samples_ (requires that the expression
 matrix be transposed).
 
 ```{r}
-d <- dist(t(exprs))
+d <- dist(exprs)
 ```
 
 Use the `cmdscale()` function to summarize the distance matrix into
