@@ -60,12 +60,16 @@ experiment.
 - Introspection -- `class()`, `dim()`, `head()`, `summary()`.
 - Subsetting -- `[`, `subset()`, `is.na()`, `%in%`; `$` and `[[`.
 - `table()`, `with()`, `aggregate()`, 
-- Descriptive and basic statistics: `length()`, `mean()`, `median()`, `t.test()`.
+- Descriptive and basic statistics: `length()`, `mean()`, `median()`,
+  `t.test()`.
 - 'Formula' notation
 - Visualization: `plot()`, `boxplot()`, `hist()`
 - Working with factors: `levels()`, `droplevels()`.
 
 ## Day 4: Statistics
+
+Download: [ALL-expression.csv][]
+<br />Notes: 
 
 Day 4 introduces _R_ facilities for univariate and multivariate
 statistical analysis. We continue to use the microarray experiment
@@ -92,6 +96,7 @@ graphics, and [ggplot2][]
 [BRFSS]: http://www.cdc.gov/brfss/about/index.htm
 [BRFSS-subset.csv]: https://raw.githubusercontent.com/Bioconductor/BiocIntro/master/inst/extdata/BRFSS-subset.csv
 [ALL-phenoData.csv]: https://raw.githubusercontent.com/Bioconductor/BiocIntro/R-Intro-RPCI-Jan-2017/inst/extdata/ALL-phenoData.csv
+[ALL-expression.csv]: https://raw.githubusercontent.com/Bioconductor/BiocIntro/R-Intro-RPCI-Jan-2017/inst/extdata/ALL-expression.csv
 
 [map]: https://www.roswellpark.org/sites/default/files/rpci-campus-map-july-15.pdf
 [R]: https://r-project.org
