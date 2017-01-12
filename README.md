@@ -68,8 +68,10 @@ experiment.
 
 ## Day 4: Statistics
 
-Download: [ALL-expression.csv][]
-<br />Notes: 
+Download: [BRFSS-subset.csv][], [ALL-phenoData.csv][], and
+[ALL-expression.csv][] (e.g., right-click and "Save as..."
+`ALL-phenoData.csv`)
+<br />Notes: [Statistics][]
 
 Day 4 introduces _R_ facilities for univariate and multivariate
 statistical analysis. We continue to use the microarray experiment
@@ -92,6 +94,7 @@ graphics, and [ggplot2][]
 [Installation instructions]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A1_Installation.Rmd
 [Using _RStudio_ and _R_]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A2_Using_R.Rmd
 [Data import and manipulation]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A3_IO.Rmd
+[Statistics]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A4_Statistics.Rmd
 
 [BRFSS]: http://www.cdc.gov/brfss/about/index.htm
 [BRFSS-subset.csv]: https://raw.githubusercontent.com/Bioconductor/BiocIntro/master/inst/extdata/BRFSS-subset.csv

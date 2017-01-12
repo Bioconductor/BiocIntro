@@ -12,28 +12,17 @@ vignette: >
 ---
 
 ```{r style, echo = FALSE, results = 'asis'}
-## knitr::opts_chunk$set(
-##     eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
-##     cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
 ```
 
-Today we'll cover statistical concepts and tests commonly used in
-cancer research.  The dataset we'll access is a subset of the ALL
-expression data whose patient information we worked with in the first
-day's material.  In addition to that information we'll access 1000
-associated expression microarray features that present the highest
-variance across the patient samples.  The data have been saved in a
-binary format to reduce file sizes.
-
-# Univariate Analysis
-
-The following continues to explore the 'ALL' phenotypic data from this
-earlier in the course. Start by loading the data, as before.
+# Exploration and simple univariate measures
 
 <!--
 ```{r echo=FALSE}
 path <- system.file(package="RIntro.RPCI.Jan2017", "extdata",
-    "ALL-phenoData.csv")
+    "BRFSS-subset.csv")
 ```
 -->
 ```{r ALL-choose, eval=FALSE}
@@ -42,218 +31,101 @@ path <- file.choose()    # look for ALL-phenoData.csv
 
 ```{r ALL-input}
 stopifnot(file.exists(path))
-pdata <- read.csv(path)
+brfss <- read.csv(path)
 ```
 
-##  Descriptive statistics
+## Clean data
 
-Let's look a little more closely at patient information in the
-`pdata` object:
+_R_ read `Year` is an integer value, but it's really a `factor`
 
 ```{r}
-median(pdata$age)
+brfss$Year <- factor(brfss$Year)
 ```
 
-The value `NA` shows up because some of the `pdata$age` values are
-NA. We can verify this by asking _R_ if there are any NA values
+## Weight in 1990 vs. 2010 Feamles
 
-```{r pdata-anyNA}
-any(is.na(pdata$age))
-anyNA(pdata$age)        # same, but more efficient
-```
-
-Consulting the help page for `?median` suggests a solution -- specify
-the argument `na.rm=TRUE`. Explore other aspects of age, like
-`range()` and `quantile()`.
+Create a subset of the data
 
 ```{r}
-median(pdata$age, na.rm=TRUE)
-range(pdata$age, na.rm=TRUE)
-quantile(pdata$age, na.rm=TRUE)
+brfssFemale <- brfss[brfss$Sex == "Female",]
+summary(brfssFemale)
 ```
 
-Some simple plots of patient ages -- note the nested functions!
+Visualize
+
+```{r}
+plot(Weight ~ Year, brfssFemale)
+```
+
+Statistical test
+
+```{r}
+t.test(Weight ~ Year, brfssFemale)
+```
+
+## Weight and height in 2010 Males
+
+Create a subset of the data
+
+```{r}
+brfss2010Male <- subset(brfss,  Year == 2010 & Sex == "Male")
+summary(brfss2010Male)
+```
+
+Visualize the relationship
+
+```{r}
+hist(brfss2010Male$Weight)
+hist(brfss2010Male$Height)
+plot(Weight ~ Height, brfss2010Male)
+```
+
+Fit a linear model (regression)
+
+```{r}
+fit <- lm(Weight ~ Height, brfss2010Male)
+fit
+```
+
+Summarize as ANOVA table
+
+```{r}
+anova(fit)
+
+```
+
+Plot points, superpose fitted regression line; where am I?
+
+```{r}
+plot(Weight ~ Height, brfss2010Male)
+abline(fit, col="blue", lwd=2)
+points(180, 88, col="red", cex=4, pch=20)
+```
+
+(Advanced) class and available 'methods'
 
 ```{r, eval=FALSE}
-plot(pdata$age)
-plot(sort(pdata$age))
-sortedAge = sort(pdata$age)
-?plot
+class(fit)                 # 'noun'
+methods(class=class(fit))  # 'verb'
 ```
 
-- **Exercise**: Plot the `sortedAge` with markers at each data point
-  and connect the points with red lines. You'll need to use the
-  graphics parameters `type="b"` and `col="red"`, see `?plot.default`.
+(Advanced) diagnostics
 
-- **Exercise**: Plot one variable (e.g., `age`) as a function of
-  another (e.g., `sex`). Since `sex` is a factor, _R_ chooses to
-  create a box plot; does this make sense?
-
-    ```{r boxplot, eval=FALSE}
-    plot(age ~ sex, pdata)
-    ```
-
-Histograms, and their display options:
-
-```{r eval=FALSE}
-hist(pdata$age)
-?hist
-hist(pdata$age, br=25)
-```
-
-Cross tables use `formulas` to describe the relationship between the
-data they present:
-
-```{r}
-## any variable is fine
-aggregate(age ~ sex + remission, data=pdata, length)
-aggregate(age ~ sex + remission, data=pdata, mean)
-```
-
-- **Exercise:** How many hyperdiploid (`kinet`) males (`sex`) are
-  refractory (`remission`)?
-
-## t-tests
-
-Use `plot()` to visualize the distribution of female and male ages in
-the `pdata` data set.
-
-```{r plot-ages, eval=FALSE}
-plot(age ~ sex, pdata)
-```
-
-It looks like females are on average older than males. Use `t.test()`
-to find out.
-
-```{r ttest0}
-t.test(age ~ sex, pdata)
-```
-
-Check out the help page for `t.test()`
-
-```{r t.test-help, eval=FALSE}
-?t.test
-```
-
-What are all those additional arguments to `t.test()`? For example,
-what is the meaning of the `var.equal` argument? Why are there
-`r formatC(t.test(age~sex, pdata)[["parameter"]][["df"]], 4)`
-degrees of freedom?
-
-```{r ttest1}
-t.test(age ~ sex, pdata, var.equal=TRUE)
-```
-
-## Linear models
-
-A t-test can also be viewed as an analysis of variance (ANOVA);
-analysis of variance is a form of linear model. Use `lm()` to fit a
-linear model that describes how age changes with sex; the `anova()`
-function summarizes the linear model in a perhaps more familiar ANOVA
-table.
-
-```{r lm}
-(fit <- lm(age ~ sex, pdata))
-anova(fit)
-```
-
-What kinds of assumptions are being made in the linear model, e.g.,
-about equality of variances? Try plotting `fit`; what are the figures
-trying to tell you?
-
-```{r plot-fit, eval=FALSE}
+```{r, eval=FALSE}
 plot(fit)
-```
-
-`fit` is an example of an _R_ _object_. Find out it's class
-
-```{r class}
-class(fit)
-```
-
-`plot` is an example of an _R_ _generic_; it has different _methods_
-implemented for different classes of objects. Use `methods()` to see
-available methods
-
-```{r methods}
-methods(plot)
-```
-
-Look up the help page for the `plot` generic, `lm` method with
-
-```{r eval=FALSE}
 ?plot.lm
 ```
 
-Fitted models can be used in other functions, for instance to predict
-values for new data. Construct a `data.frame` with a single column
-`sex` with values `"M"` and `"F"`. Consult the help page for the
-`predict.lm` method, and calculate the expected value of the fitted
-model for males and for females.
+# Multivariate analysis
 
-```{r predict}
-df = data.frame(sex=c("F", "M"))
-predict(fit, df)
-```
-
-What do the predicted values correspond to in the `t.test()`?
-Use `coefficients()` to extract the coefficients of the fitted
-model.
-
-```{r coef}
-coefficients(fit)
-```
-Interpret the `(Intercept)` and `sexM` coefficients in
-terms of female and male ages.
-
-## Chi-squared tests
-
-The article from which the `pdata` object is derived states that
-"Although chromosome translocations and molecular rearrangements are
-relatively infrequent in T-lineage ALL, these events occur commonly in
-B-lineage ALL and reflect distinct mechanisms of
-transformation". Let's investigate this statement.
-
-The relevant columns of data are summarized as
-
-```{r bt}
-summary(pdata[,c("BT", "cyto.normal")])
-```
-
-Simplify the number of `BT` levels by creating a new column with `B`
-or `T`. Do this by creating a `substr()`ing from the original column,
-consisting of the first letter of each entry, and turning this vector
-into a `factor()`. Assign it to a new column name
-
-```{r BT}
-pdata$BorT <- factor(substr(pdata$BT, 1, 1))
-```
-
-Cross-tabulate the data
-
-```{r map}
-xtabs(~ BorT + cyto.normal, pdata)
-```
-
-The data are qualitatively consistent with the statement that
-molecular rearrangements are more common in B-lineage ALL. Let's test
-this with a chi-squared test
-
-```{r chisq}
-chisq.test(pdata$BorT, pdata$cyto.normal)
-```
-
-Interpret the results. What about additional parameters documented on
-`?chisq.test`?
-
-# Multivariate Analysis: Machine Learning
-
-The 128 samples we've been exploring are from a micro-array
-experiment. Microarrays consist of 'probesets' that interogate genes
-for their level of expression. In the experiment we're looking at,
-there are 12625 probesets measured on each of the 128 samples. The raw
-expression levels estimated by microarray assays require considerable
+This is a classic microarray experiment. Microarrays
+consist of 'probesets' that interogate genes for their level of
+expression. In the experiment we're looking at, there are 12625
+probesets measured on each of the 128 samples. The raw expression
+levels estimated by microarray assays require considerable
 pre-processing, the data we'll work with has been pre-processed.
+
+## Input and setup
 
 Start by finding the expression data file on disk.
 
@@ -288,30 +160,32 @@ that probeset separated by a comma. Input the data using
 ```{r ALL-input-exprs}
 exprs <- read.csv(path, row.names=1, check.names=FALSE)
 exprs <- as.matrix(exprs)
+class(exprs)
+dim(exprs)
+exprs[1:6, 1:10]
+range(exprs)
 ```
 
-We'll also make use of the data describing the samples
+We'll make use of the data describing the samples
 
 <!--
-```{r ALL-phenoData.csv-clustering-lab, echo=FALSE}
+```{r echo=FALSE}
 path <- system.file(package="RIntro.RPCI.Jan2017", "extdata",
     "ALL-phenoData.csv")
 stopifnot(file.exists(path))
-pdata <- read.csv(path, row.names=1)
 ```
 -->
+
 ```{r ALL-phenoData.csv-clustering-student, eval=FALSE}
 path <- file.choose()         # look for ALL-phenoData.csv
 stopifnot(file.exists(path))
-pdata <- read.csv(path, row.names=1)
 ```
 
-We'll add a column to `pdata`, derived from the `BT` column, to
-indicate whether the sample is B-cell or T-cell ALL.
-
-```{r ALL-BorT}
-pdata$BorT <- factor(substr(pdata$BT, 1, 1))
-xtabs(~BorT + BT, pdata)
+```{r}
+pdata <- read.csv(path, row.names=1)
+class(pdata)
+dim(pdata)
+head(pdata)
 ```
 
 Some of the results below involve plots, and it's convenient to choose
@@ -322,8 +196,7 @@ package; see [colorbrewer.com][]
 [colorbrewer.com]: http://colorbrewer.com}{colorbrewer.com
 
 ```{r colors}
-library(RColorBrewer)
-divergent <- brewer.pal(11, "RdBu")
+library(RColorBrewer)  ## not available? install package via RStudio
 highlight <- brewer.pal(3, "Set2")[1:2]
 ```
 
@@ -333,328 +206,35 @@ highlight <- brewer.pal(3, "Set2")[1:2]
 For more options see `?RColorBrewer` and to view the predefined palettes 
 `display.brewer.all()`
 
-## Preliminary exploration and cleanup
+## Cleaning
 
-Verify that we have a matrix of appropriate `class()` and
-`dim()`ensions; take a peak at the first five rows and columns of
-the data.
+We'll add a column to `pdata`, derived from the `BT` column, to
+indicate whether the sample is B-cell or T-cell ALL.
 
-```{r exprs-explore}
-class(exprs)
-dim(exprs)
-exprs[1:5, 1:5]
+```{r ALL-BorT}
+pdata$BorT <- factor(substr(pdata$BT, 1, 1))
 ```
 
-We'll work with a subset of the data, specifically the 1000
-probesets that show the most variance across samples. The variance
-of a single row can be calculated as
+## Unsupervised machine learning -- multi-dimensional scaling
 
-```{r var}
-var(exprs[1,])
+Reduce high-dimensional data to lower dimension for visualization.
+
+Calculate distance between _samples_ (requires that the expression
+matrix be transposed).
+
+```{r}
+d <- dist(t(exprs))
 ```
 
-The variance across each row can be calculated using the `apply()`
-function. The first argument is the rectangular data structure that
-we'd like to summarize, the second argument is the dimension (`1`
-for rows; `2` for columns) over which we'd like to summarize, the
-third argument is the function that we'd like to apply to each row
-or column. Visualize the distribution of probeset variances using
-`hist()`, perhaps on transformed data.
+Use the `cmdscale()` function to summarize the distance matrix into
+two points in two dimensions.
 
-```{r ALL-row-vars}
-v <- apply(exprs, 1, var)
-hist(sqrt(v))
+```{r}
+cmd <- cmdscale(d)
 ```
 
-Use `order(v, decreasing=TRUE)` to determine how the elements of
-`v` should be selected so that they are ordered from highest to
-lowest, visually verify that the values are actually ordered from
-highest to lowest...
+Visualize the result, coloring points by B- or T-cell status
 
-```{r ALL-row-vars-ordered}
-o <- order(v, decreasing=TRUE)
-plot(sqrt(v[o]))
+```{r}
+plot(cmd, col=highlight[pdata$BorT])
 ```
-
-Use `head()` to select the indexes of the 1000 most variable
-probesets, and to create a subset of the `exprs` matrix containing
-these probesets
-
-```{r ALL-exprs-1000}
-exprs1000 <- exprs[head(o, 1000), ]
-```
-
-1. **Class exercise**: Use `apply()` on `exprs1000` to verify that we
-   appear to have the 1000 most variable probesets.
-
-## Clustering: `dist()` and `hclust()`
-
-We'd like to understand whether there are patterns in the data, e.g.,
-consistent differences in overall patterns of expression between
-samples. One approach is _hierarchical clustering_
-
-Calculate the Euclidean distance between samples using `dist()` on the
-`t()`ranspose of `exprs1000` (check out `?dist` for other distance
-metrics).
-
-```{r ALL-dist}
-d <- dist(t(exprs1000))
-```
-
-Use `hclust()` to cluster the data, and `plot()` to visualize the
-clusters.
-
-```{r ALL-hclust, fig.width=9}
-plot(hclust(d))
-```
-
-It's informative to label the columns of `exprs1000` with the ALL
-subtype (e.g., B1, B2, T1, etc). First, use `identical()` to verify
-that the `colnames()` of `exprs1000` are the same as the `rownames()`
-of `pdata`.
-
-```{r ALL-pdata-exprs-columns}
-identical(colnames(exprs1000), rownames(pdata))
-```
-
-Now replace the column names of `exprs1000` with `pdata$BT`, and
-repeat the clustering.
-
-```{r ALL-hclust-BT, fig.width=9}
-colnames(exprs1000) <- pdata$BT
-plot(hclust(dist(t(exprs1000))))
-colnames(exprs1000) <- rownames(pdata)
-```
-
-It's clear that overall gene expression patterns differ between B- and
-T-cell ALL.
-
-The data supporting the dendrogram produced by `hclust()` can be
-visualized as a `heatmap()`. Here we calculate a correlation matrix
-between each sample; we will use this as the basis for our distance
-metric in ordering rows and columns of the heatmap.
-
-```{r ALL-sample-cor}
-d <- dist(t(exprs1000))
-```
-
-The following `heatmap()` command performs hierarchical clustering of
-the distances, and adds a color bar to indicate whether the sample
-came from a B or T lineage sample.
-
-```{r heatmap}
-color <- highlight[pdata$BorT]
-heatmap(as.matrix(d), ColSideColor=color, col=divergent, symm=TRUE)
-```
-
-
-## Clustering: `cmdscale()` and other approaches to dimension reduction
-
-We have characterized our 128 samples in 1000 dimensions. Hierarchical
-clustering suggests that somehow there is pattern in this
-high-dimensional data. There are a number of statistical techniques
-that we can use to effectively reduce the dimensions of the data. The
-reduced-dimension representation might be used for visualization or
-downstream analysis.
-
-One method for reducing the dimension of the data is classical
-_multi-dimensional scaling_ (principle coordinates analysis). The idea
-is to take a measure of dissimilarity (like the distance matrix
-calculated above) and reduce it to a set of points (e.g., in 2
-dimensions) such that the distance between points is approximately
-equal to the dissimilarity. This is very easy to implement in _R_,
-using the `cmdscale()` function.
-
-```{r ALL-cmdscale, fig.width=5, fig.height=5}
-mds <- cmdscale(dist(t(exprs1000)))
-plot(mds, col=color)
-```
-
-`mds` is a 128 x 2 matrix, and the columns can be used as a reduced-dimension
-replacement for the 1000 expression values.
-
-Principle components analysis is a similar approach to visualization
-and down-stream analysis in reduced dimensions; see `prcomp()`.
-
-## Classification: `knn()`
-
-Classification ('supervised machine learning') assigns 'test' samples
-into a group based on some measure of similarity to a set of
-'training' samples. There are many varieties of classification. _knn_
-('k' nearest neighbors) classification assigns the test sample to the
-majority-vote of it's k nearest neighbors. `knn()` and other common
-classifiers are defined in the `class` package, so we start by adding
-that to our _R_ session.
-
-```{r class-library}
-library(class)
-```
-
-We'll start by creating a training set. We'll choose the first half of
-the 'B' individuals and the first half of the 'T' individuals as
-members. First, we can get the index of each row using `seq_along()`
-
-```{r seq_along}
-seq_along(pdata$BorT)
-```
-
-These values can be split into groups (a list-of-integers) using
-`split()`
-
-```{r split}
-idxByType <- split(seq_along(pdata$BorT), pdata$BorT)
-idxByType
-```
-
-We can ask about the number of each element of `idxByType` by
-extracting the element and using the `length()` function, e.g.,
-`length(idxByType[["B"]])`. We can then use `head()` to select the
-first half of the elements
-
-```{r head-half-B}
-Bidx <- idxByType[["B"]]
-BTrainIdx <- head(Bidx, length(Bidx) / 2)
-```
-
-Likewise for T:
-
-```{r head-half-T}
-Tidx <- idxByType[["T"]]
-TTrainIdx <- head(Tidx, length(Tidx) / 2)
-```
-
-There are two fun things to notice, and these help us expand our
-knowledge of _R_.
-
-1. Notice that we are applying the same sequence of operations to the
-   B and to the T indexes. _R_ lets us write a **function** to capture
-   this repeated operation
-
-    ```{r head-half-fun}
-    firstHalf <- function(x) {
-        head(x, length(x) / 2)
-    }
-    ```
-   and we can verify that this works
-
-    ```{r head-half-fun-T}
-    firstHalf(idxByType[["B"]])
-    firstHalf(idxByType[["T"]])
-    ```
-
-2. We'd really like to apply this to function to each element of the
-   list `idxByType`. This can be done using `lapply()`, where the
-   first argument is a vector and the second argument is the function
-   we'd like to apply
-
-    ```{r head-half-lapply}
-    trainIdx <- lapply(idxByType, firstHalf)
-    trainIdx
-    ```
-
-OK, let's compose our training set from the first half of each group
-using `cbind()` to create a single matrix of training individuals
-
-```{r BT-train}
-Bhalf <- exprs1000[, trainIdx[["B"]] ]
-Thalf <- exprs1000[, trainIdx[["T"]] ]
-train <- cbind(Bhalf, Thalf)
-```
-
-Our test set is the individuals not included in the training set. One
-way to select these individuals is to write a `secondHalf()` function;
-another way is to subset `exprs1000` to include the columns that are
-not in `train`
-
-```{r BT-test}
-test <- exprs1000[, ! colnames(exprs1000) %in% colnames(train) ]
-```
-
-We'll need to know the classification of the training and testing sets
-
-```{r BT-class}
-cl_train <- pdata[colnames(train), "BorT"]
-cl_test <- pdata[colnames(test), "BorT"]
-```
-
-`knn()` is invoked with the training and test sets, and the known
-classification of the training set. The argument `k` is the number of
-nearest neighbors to consider; the default is `k=1`. The return value
-is the estimated classification of each test sample
-
-```{r knn}
-cl_test_est  <- knn(t(train), t(test), cl_train)
-```
-
-A characterization of how well the classifier performs is the
-'confusion matrix', which summarizes the known versus estimated
-classification of the test individuals in a cross-tabulation
-
-```{r knn-xtabs}
-xtabs(~cl_test + cl_test_est)
-```
-
-Here, the classifier is performing very well -- there are no incorrect
-(off-diagonal) assignments.
-
-We've been using the known data to create a classifier and then to
-evaluate it's performance. The decisions to use half of the B and half
-of the T samples, and to include the first half of each group in the
-'training' group, were arbitrary, and it turns out that a better
-strategy is 'leave-one-out' cross-validation. This works by using all
-but one sample (e.g., the first sample) in the training group, and
-then classifying the sample that was left out. One then repeats for
-the second, third, ... samples. _R_ implements this for knn with the
-`knn.cv()` function (again with a default `k=1` nearest neighbors).
-
-```{r knn.cv}
-knn_loo <- knn.cv(t(exprs1000), pdata$BorT)
-xtabs(~pdata$BorT + knn_loo)
-```
-
-As an exercise, use `knn.cv()` to develop a classifier for T-cell
-subtypes; explore the consequences of different values of `k`. Here's
-a sketch of the approach:
-
-1. Create a subset of the expression and phenotype data with only the
-   T cell types; remember to use `factor()` to remove unused levels
-
-    ```{r knn-T-subset}
-    keep <- pdata$BorT == "T"
-    exprT <- exprs1000[, keep]
-    classT <- factor(pdata$BT[keep])
-    ```
-
-2. Use `knn.cv()` to perform the cross-validation, and `xtabs()` to
-   summarize the confusion matrix. Interpret the confusion matrix.
-
-    ```{r knn-T-confusion}
-    xtabs(~classT + knn.cv(t(exprT), classT))
-    ```
-
-3. Experiment with different values of `k`. Can you interpret the
-   consequences of `k` for the statistical principles of _precision_
-   and _accuracy_?
-
-# Lessons learned
-
-1. There are very flexible ways of working with data, e.g., 1- and
-   2-dimensional subsetting with `[`, accessing columns of a data.frame
-   with `$` or with two-dimensional subsetting, creating `factor()`s, etc.
-
-1. Univariate statistical functions, e.g., `mean()`, `median()`,
-   `t.test()`, `lm()`, `chisq.test()`.
-
-2. Multivariate statistical functions, e.g., `dist()`, `hclust()`,
-   `heatmap()`, `knn()`, `knn.cv()`.
-
-3. Packages provide specialized functionality, e.g., [RColorBrewer][],
-   [class][].
-
-4. Built-in functions can process rows or columns of a matrix
-   (`apply()`) or list elements (`lapply()`; see also `sapply()`,
-   `vapply()`, `mapply()`, `tappyl()`).
-
-5. We can write our own functions!
-
-6. The help system is our friend!
