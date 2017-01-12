@@ -77,11 +77,11 @@ Day 4 introduces _R_ facilities for univariate and multivariate
 statistical analysis. We continue to use the microarray experiment
 data to illustrate these concepts.
 
-- Summarizing data -- `mean()`, `var()`, `summary()`, ...
-- Comparing groups -- `t.test()`, `chisq.test()`, `lm()`, ...
-- Clustering -- multi-dimensional scaling (`cmdscale()`); hierarchical
-  clustering (`hclust()`); heat maps
-- Packages
+- Data cleaning -- `factor()`, `as.matrix()`, `t()`
+- Summarizing / exploration -- `summary()`, `mean()`, `plot()`, `hist()`, ...
+- Univariate -- `t.test()`, `chisq.test()`, `lm()`, ...
+- Clustering -- `dist()`, `cmdscale()` (multi-dimensional scaling)
+- Packages -- `library()`
 
 ## Day 5: Visualization
 
