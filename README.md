@@ -92,10 +92,10 @@ Day 5 starts with some real-world use tips, and then introduces two
 approaches to visualizing data -- base _R_ graphics, and [ggplot2][]
 
 - Organizing projects: scripts/, extdata/ and data/ directories;
-  `saveRDS()` / `readRDS()`.
-- Discovering, installing, and loading packages: `library()`, `search()`
-- Base _R_'s `plot()`, `hist()`, `par()`
-- [ggplot2][] grammar of graphics
+  `saveRDS()` / `readRDS()`; `setwd()`, `source()`.
+- Discovering, installing, and loading packages: `library()`, `search()`.
+- Base _R_'s `plot()`, `hist()`, `par()`.
+- [ggplot2][] grammar of graphics `ggplot()`, `aes()`, `geom*()`, `facet*()`.
 
 [Installation instructions]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A1_Installation.Rmd
 [Using _RStudio_ and _R_]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A2_Using_R.Rmd

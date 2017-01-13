@@ -151,11 +151,13 @@ Useful for quick exploration during a normal work flow.
 - Emphasis on data rather than labels
 - Convey statistical uncertainty
 
-## ggplot2
+## Grammar of Graphics: ggplot2
 
 ```{r}
 library(ggplot2)
 ```
+
+- http://docs.ggplot2.org
 
 'Grammar of graphics'
 
