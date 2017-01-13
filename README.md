@@ -85,16 +85,23 @@ data to illustrate these concepts.
 
 ## Day 5: Visualization
 
-Day 5 introduces two approaches to visualizing data -- base _R_
-graphics, and [ggplot2][]
+Download: [BRFSS-subset.csv][]
+<br />Notes: [Visualization][]
 
-- Base _R_'s `plot()` and friends
+Day 5 starts with some real-world use tips, and then introduces two
+approaches to visualizing data -- base _R_ graphics, and [ggplot2][]
+
+- Organizing projects: scripts/, extdata/ and data/ directories;
+  `saveRDS()` / `readRDS()`.
+- Discovering, installing, and loading packages: `library()`, `search()`
+- Base _R_'s `plot()`, `hist()`, `par()`
 - [ggplot2][] grammar of graphics
 
 [Installation instructions]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A1_Installation.Rmd
 [Using _RStudio_ and _R_]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A2_Using_R.Rmd
 [Data import and manipulation]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A3_IO.Rmd
 [Statistics]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A4_Statistics.Rmd
+[Visualization]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/vignettes/A5_Graphics.Rmd
 
 [BRFSS]: http://www.cdc.gov/brfss/about/index.htm
 [BRFSS-subset.csv]: https://raw.githubusercontent.com/Bioconductor/BiocIntro/master/inst/extdata/BRFSS-subset.csv
