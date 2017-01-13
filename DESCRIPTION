@@ -1,7 +1,7 @@
 Package: RIntro.RPCI.Jan2017
 Type: Package
 Title: Training Material for Introductory R Courses
-Version: 0.0.4
+Version: 0.0.5
 Authors@R: c(
     person("Martin", "Morgan", role=c("aut", "cre"),
         email="martin.morgan@roswellpark.org"))
