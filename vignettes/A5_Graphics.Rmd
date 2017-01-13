@@ -31,6 +31,8 @@ Usually, work is organized into a directory with:
   files) that represent final results or intermediate 'checkpoints'
   (`data/ALL-cleaned.rds`). Read the data into an _R_ session using
   `readRDS()`.
+- Use `setwd()` to navigate to folder containing scripts/, extdata/ folder
+- Source an entire script with `source("scripts/BRFSS-visualization.R")`.
   
 _R_ can also save the state of the current session (prompt when
 choosing to `quit()` _R_), and to view and save the `history()` of the
@@ -160,32 +162,32 @@ library(ggplot2)
 - Specify data and 'aesthetics' (`aes()`) to be plotted
 - Add layers (`geom_*()`) of information
 
-```{r, warning=FALSE}
-ggplot(brfss2010Male, aes(x=Height, y=Weight)) +
-    geom_point() +
-    geom_smooth(method="lm")
-```
-
+    ```{r, warning=FALSE}
+    ggplot(brfss2010Male, aes(x=Height, y=Weight)) +
+        geom_point() +
+        geom_smooth(method="lm")
+    ```
+    
 - Capture a plot and augment it
 
-```{r, warning=FALSE}
-plt <- ggplot(brfss2010Male, aes(x=Height, y=Weight)) +
-    geom_point() +
-    geom_smooth(method="lm")
-plt + labs(title = "2010 Male")
-```
-
+    ```{r, warning=FALSE}
+    plt <- ggplot(brfss2010Male, aes(x=Height, y=Weight)) +
+        geom_point() +
+        geom_smooth(method="lm")
+    plt + labs(title = "2010 Male")
+    ```
+    
 - Use `facet_*()` for layouts
 
-```{r, warning=FALSE}
-ggplot(brfssFemale, aes(x=Height, y=Weight)) +
-    geom_point() + geom_smooth(method="lm") +
-    facet_grid(. ~ Year)
-```
-    
+    ```{r, warning=FALSE}
+    ggplot(brfssFemale, aes(x=Height, y=Weight)) +
+        geom_point() + geom_smooth(method="lm") +
+        facet_grid(. ~ Year)
+    ```
+        
 - Choose display to emphasize relevant aspects of data
 
-```{r, warning=FALSE}
-ggplot(brfssFemale, aes(Weight, fill=Year)) +
-    geom_density(alpha=.2)
-```
+    ```{r, warning=FALSE}
+    ggplot(brfssFemale, aes(Weight, fill=Year)) +
+        geom_density(alpha=.2)
+    ```
