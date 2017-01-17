@@ -1,16 +1,10 @@
-# Introduction to _R_
+# _R_ for High-Throughput (Genomic) Analysis
 
-Recent courses:
+Date: Monday, April 10, 1:30<br />
+Presenter: Martin Morgan<br />
+Affiliation: Roswell Park Cancer Institute<br />
+Contact: Martin.Morgan at RoswellPark.org
 
-- [R.CDSE.Apr2017][] -- 1 three-hour session on high-throughput genomic analysis in
-  _R_ and _Bioconductor_.
-- [RIntro.RPCI.Jan2017][] -- 5 one-hour sessions introduction _R_ to the
-  Roswell Park community.
-- [Technion.2016][] -- 3 three-hour sessions introducing
-  _Bioconductor_ (and _R_).
-- [Bioconductor Course Archive][]
+The _R_ statistical programming language is used extensively across a broad spectrum of informatic domains; my area of expertise (see https://bioconductor.org) is the analysis and comprehension of high-throughput genomic data. This work shop takes a quickly-paced, high-level tour of high-throughput analysis in _R_. We'll start with the very basics, but move on to data representation, performance evaluation, parallel processing, and 'native' (C and C++) implementations. The work shop will be interesting to both the intermediate _R_ practitioner, as well as to data scientists exploring the diversity of approaches to modern interactive analysis. We'll have hands-on activities that are both challenging and rewarding.
 
-[R.CDSE.Apr2017]:  https://github.com/Bioconductor/BiocIntro/blob/R-HTG-CDSE-Apr-2017/README.md
-[RIntro.RPCI.Jan2017]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/README.md
-[Technion.2016]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/README.md
-[Bioconductor Course Archive]: https://bioconductor.org/help/course-materials
+Additional material will be available here shortly before the session.
