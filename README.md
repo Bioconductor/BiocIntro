@@ -1,4 +1,4 @@
-# Introduction to _R_ and _Bioconductor_
+# Moffitt Cancer Center: Introduction to _R_ and _Bioconductor_
 
 Date: Thursday and Friday, March 2-3<br />
 Instructors: Martin Morgan, Lori Shepherd<br />
