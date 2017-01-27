@@ -1,16 +1,19 @@
-# Introduction to _R_
+# UP-STAT 2017 Workshop: Exploring Data in _R_
 
-Recent courses:
+Date: Friday, April 21<br />
+Instructors: Martin Morgan<br />
+Affiliation: Roswell Park Cancer Institute<br />
+Contact: Martin.Morgan at RoswellPark.org
 
-- [R.CDSE.Apr2017][] -- 1 three-hour session on high-throughput genomic analysis in
-  _R_ and _Bioconductor_.
-- [RIntro.RPCI.Jan2017][] -- 5 one-hour sessions introduction _R_ to the
-  Roswell Park community.
-- [Technion.2016][] -- 3 three-hour sessions introducing
-  _Bioconductor_ (and _R_).
-- [Bioconductor Course Archive][]
+This workshop provides some ideas for 'looking at' data during
+statistical analysis.  During the workshop, we will look at a moderate
+sized RNA-seq gene expression data set, discovering basic problems
+with the data and exploring possible solutions. The skills explored
+are relevant in many other areas of statistical data analysis.
 
-[R.CDSE.Apr2017]:  https://github.com/Bioconductor/BiocIntro/blob/R-HTG-CDSE-Apr-2017/README.md
-[RIntro.RPCI.Jan2017]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/README.md
-[Technion.2016]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/README.md
-[Bioconductor Course Archive]: https://bioconductor.org/help/course-materials
+The workshop is designed for those with some familiarity with the _R_
+programming langauge for statistical analysis, and with the _RStudio_
+environment.
+
+For the workshop, please come with a laptop with wireless access and a
+recent version of Chrome or Firefox web browser.
