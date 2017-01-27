@@ -1,16 +1,35 @@
-# Introduction to _R_
+# Introduction to _R_ and _Bioconductor_
 
-Recent courses:
+Date: Thursday and Friday, March 2-3<br />
+Instructors: Martin Morgan, Lori Shepherd<br />
+Affiliation: Roswell Park Cancer Institute<br />
+Contact: Martin.Morgan at RoswellPark.org
 
-- [R.CDSE.Apr2017][] -- 1 three-hour session on high-throughput genomic analysis in
-  _R_ and _Bioconductor_.
-- [RIntro.RPCI.Jan2017][] -- 5 one-hour sessions introduction _R_ to the
-  Roswell Park community.
-- [Technion.2016][] -- 3 three-hour sessions introducing
-  _Bioconductor_ (and _R_).
-- [Bioconductor Course Archive][]
+This two-day workshop provides an introduction to _R_ and
+_Bioconductor_ for the analysis and comprehension of high-throughput
+genomic data. The workshop assumes only limited knowledge of _R_, but
+moves quickly. The goals are to familiarize users with common ways in
+which data, including genomic data, are explored and analyzed in _R_,
+and to provide users with tools necessary for their own continued
+self-education.
 
-[R.CDSE.Apr2017]:  https://github.com/Bioconductor/BiocIntro/blob/R-HTG-CDSE-Apr-2017/README.md
-[RIntro.RPCI.Jan2017]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/README.md
-[Technion.2016]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/README.md
-[Bioconductor Course Archive]: https://bioconductor.org/help/course-materials
+## Day 1: Introduction to _R_
+
+1. Introduction -- _RStudio_ and _R_
+
+2. Data Input and Manipulation
+
+3. Statistical Analysis
+
+4. Visualization
+
+## Day 2: Introduction to _Bioconductor_
+
+1. Working with _Bioconductor_
+
+2. Exploring Genomic Data in _Bioconductor_
+
+3. An RNASeq Workflow
+
+4. Next Steps
+
