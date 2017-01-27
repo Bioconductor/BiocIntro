@@ -15,7 +15,7 @@ with tools necessary for their own continued self-education.
 
 ## Day 1: Introduction to _R_
 
-9:00 - 10:30. Introduction -- _RStudio_ and _R_
+9:00 - 10:30. Introduction -- _[RStudio][]_ and _[R]_
 
 11:00 - 12:30. Data Input and Manipulation
 
@@ -25,7 +25,7 @@ with tools necessary for their own continued self-education.
 
 ## Day 2: Introduction to _Bioconductor_
 
-9:00 - 10:30. Working with _Bioconductor_
+9:00 - 10:30. Working with _[Bioconductor][]_
 
 11:00 - 12:30. Exploring Genomic Data in _Bioconductor_
 
@@ -33,3 +33,6 @@ with tools necessary for their own continued self-education.
 
 3:30 - 5:00. Next Steps
 
+[RStudio]: https://rstudio.com
+[R]: https://r-project.org
+[Bioconductor]: https://bioconductor.org
