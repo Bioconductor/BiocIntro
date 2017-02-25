@@ -1,13 +1,15 @@
 ---
-title: "A.4 -- Statistics"
-author: Martin Morgan <martin.morgan@roswellpark.org>
-date: "12 January 2017"
+title: "A.3 -- Statistics"
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+  Lori Shepherd <Lori.Shepherd@RoswellPark.org>
+date: "2 March 2017"
 output:
   BiocStyle::html_document:
     toc: true
     toc_depth: 2
 vignette: >
-  % \VignetteIndexEntry{A.4 -- Statistics}
+  % \VignetteIndexEntry{A.3 -- Statistics}
   % \VignetteEngine{knitr::rmarkdown}
 ---
 

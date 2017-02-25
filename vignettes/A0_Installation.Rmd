@@ -1,13 +1,15 @@
 ---
-title: "A.1 -- Installation"
-author: Martin Morgan <martin.morgan@roswellpark.org>
-date: "9 January 2017"
+title: "A.0 -- Installation"
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+  Lori Shepherd <Lori.Shepherd@RoswellPark.org>
+date: "2 March 2017"
 output:
   BiocStyle::html_document:
     toc: true
     toc_depth: 2
 vignette: >
-  % \VignetteIndexEntry{A.1 -- Installation}
+  % \VignetteIndexEntry{A.0 -- Installation}
   % \VignetteEngine{knitr::rmarkdown}
 ---
 
