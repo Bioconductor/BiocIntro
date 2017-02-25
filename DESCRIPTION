@@ -1,15 +1,15 @@
-Package: RIntro
+Package: BiocIntro
 Type: Package
 Title: Training Material for Introductory R Courses
 Version: 0.0.7
 Authors@R: c(
     person("Martin", "Morgan", role=c("aut", "cre"),
         email="Martin.Morgan@RoswellPark.org"),
-    person("Lori", "Shepherd", role=c("aut", "cre"),
+    person("Lori", "Shepherd", role=c("aut"),
         email="Lori.Shepherd@RoswellPark.org"))
 Description: Vignettes and resources to support introductory R
     training courses.
-Suggests: AnnotationHub, BiocParallel, Biostrings, DESeq2
+Suggests: AnnotationHub, BiocParallel, Biostrings, DESeq2,
     GenomicAlignments, GenomicRanges, RColorBrewer,
     RNAseqData.HNRNPC.bam.chr14, Rsamtools, ShortRead,
     SummarizedExperiment, TxDb.Hsapiens.UCSC.hg19.knownGene,
