@@ -15,13 +15,13 @@ with tools necessary for their own continued self-education.
 
 ## Day 1: Introduction to _R_
 
-9:00 - 10:30. Introduction -- _[RStudio][]_ and _[R]_
+9:00 - 10:30. [Introduction][] -- _[RStudio][]_ and _[R]_.
 
-11:00 - 12:30. Data Input and Manipulation
+11:00 - 12:30. [Data Input and Manipulation][].
 
-1:30 - 3:00. Statistical Analysis
+1:30 - 3:00. [Statistical Analysis][].
 
-3:30 - 5:00. Visualization
+3:30 - 5:00. [Visualization][].
 
 ## Day 2: Introduction to _Bioconductor_
 
@@ -36,3 +36,8 @@ with tools necessary for their own continued self-education.
 [RStudio]: https://rstudio.com
 [R]: https://r-project.org
 [Bioconductor]: https://bioconductor.org
+
+[Introduction]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A1_Using_R.Rmd
+[Data Input and Manipulation]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A2_IO.Rmd
+[Statistical Analysis]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A3_Statistics.Rmd
+[Visualization]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A4_Graphics.Rmd
