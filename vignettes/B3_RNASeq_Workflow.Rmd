@@ -1,0 +1,869 @@
+---
+title: "B.3 -- An RNA-seq Work Flow"
+author: Martin Morgan <martin.morgan@roswellpark.org>
+date: "16 - 17 May, 2016"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{B.3 -- An RNA-seq Work Flow}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+options(width=100)
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
+```{r setup, echo=FALSE}
+suppressPackageStartupMessages({
+    library(DESeq2)
+    library(gplots)
+    library(ggplot2)
+    library(RColorBrewer)
+    library(org.Hs.eg.db)
+})
+```
+
+- Bioconductor known-gene RNA-seq differential expression work flow,
+  from aligned reads to differential expression of genes. Important
+  statistical issues and their resolution. Placing results of
+  differential expression analysis into biological context. Brief
+  discussion of novel-gene and transcript-level RNAseq differential
+  expression analysis. Primary packages: [DESeq2][], [edgeR][].
+
+
+# Presentation: RNA-seq work flow
+
+Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
+[Huber, CSAMA, 2015][]; [Pimentel, YouTube, 2015][].
+
+[Anders, CSAMA, 2015]: https://bioconductor.org/help/course-materials/2015/CSAMA2015/lect/L05-deseq2-anders.pdf
+[Pimentel, YouTube, 2015]: https://www.youtube.com/watch?v=ztyjiCCt_lM
+[Love, CSAMA, 2015]: https://bioconductor.org/help/course-materials/2015/CSAMA2015/lect/L06-rna-stats-love.pdf
+[Huber, CSAMA, 2015]: https://bioconductor.org/help/course-materials/2015/CSAMA2015/lect/L03-testing-huber.pdf
+
+## Experimental design
+
+Keep it simple
+
+- Classical experimental designs
+- Time series
+- Without missing values, where possible
+- Intended analysis must be feasbile -- can the available samples and
+  hypothesis of interest be combined to formulate a testable
+  statistical hypothesis?
+
+Replicate
+
+- Extent of replication determines nuance of biological question.
+- No replication (1 sample per treatment): qualitative description
+  with limited statistical options.
+- 3-5 replicates per treatment: designed experimental manipulation
+  with cell lines or other well-defined entities; 2-fold (?)
+  change in average expression between groups.
+- 10-50 replicates per treatment: population studies, e.g., cancer
+  cell lines.
+- 1000's of replicates: prospective studies, e.g., SNP discovery
+- One resource: `r Biocpkg("RNASeqPower")`
+
+Avoid confounding experimental factors with other factors
+
+- Common problems: samples from one treatment all on the same flow
+  cell; samples from treatment 1 processed first, treatment 2
+  processed second, etc.
+
+Record co-variates
+       
+Be aware of _batch effects_
+
+- Known
+    - Phenotypic covariates, e.g., age, gender
+    - Experimental covariates, e.g., lab or date of processing
+    - Incorporate into linear model, at least approximately
+- Unknown
+    - Or just unexpected / undetected
+    - Characterize using, e.g., `r Biocpkg("sva")`.
+- Surrogate variable analysis
+    - Leek et al., 2010, Nature Reviews Genetics 11
+      [733-739](http://www.nature.com/nrg/journal/v11/n10/abs/nrg2825.html),
+      Leek & Story PLoS Genet 3(9):
+      [e161](http://dx.doi.org/10.1371/journal.pgen.0030161).
+    - Scientific finding: pervasive batch effects
+    - Statistical insights: surrogate variable analysis: identify and
+      build surrogate variables; remove known batch effects
+    - Benefits: reduce dependence, stabilize error rate estimates, and
+      improve reproducibility
+    - _combat_ software / `r Biocpkg("sva")` _Bioconductor_ package 
+    
+  ![](our_figures/nrg2825-f2.jpg) 
+  HapMap samples from one facility, ordered by date of processing.
+
+## Wet-lab
+
+Confounding factors
+
+- Record or avoid
+
+Artifacts of your _particular_ protocols
+
+- Sequence contaminants
+- Enrichment bias, e.g., non-uniform transcript representation.
+- PCR artifacts -- adapter contaminants, sequence-specific
+  amplification bias, ...
+
+## Sequencing
+
+Axes of variation
+
+- Single- versus paired-end
+- Length: 50-200nt
+- Number of reads per sample
+
+Application-specific, e.g.,
+
+- ChIP-seq: short, single-end reads are usually sufficient
+- RNA-seq, known genes: single- or  paired-end reads
+- RNA-seq, transcripts or novel variants: paired-end reads
+- Copy number: single- or paired-end reads
+- Structural variants: paired-end reads
+- Variants: depth via longer, paired-end reads
+- Microbiome: long paired-end reads (overlapping ends)
+
+## Alignment
+
+Alignment strategies
+
+- _de novo_
+    - No reference genome; considerable sequencing and computational
+      resources
+- Genome
+    - Established reference genome
+    - Splice-aware aligners
+    - Novel transcript discovery
+- Transcriptome
+    - Established reference genome; reliable gene model
+    - Simple aligners
+    - Known gene / transcript expression
+
+Splice-aware aligners (and _Bioconductor_ wrappers)
+
+- [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2) (`r Biocpkg("Rbowtie")`)
+- [STAR](http://bowtie-bio.sourceforge.net/bowtie2)
+  ([doi](http://dx.doi.org/10.1093/bioinformatics/bts635))
+- [subread](http://dx.doi.org/10.1093/nar/gkt214) (`r Biocpkg("Rsubread")`)
+- Systematic evaluation (Engstrom et al., 2013,
+  [doi](http://dx.doi.org/10.1038/nmeth.2722))
+
+## Reduction to 'count tables'
+
+- Use known gene model to count aligned reads overlapping regions of
+  interest / gene models
+- Gene model can be public (e.g., UCSC, NCBI, ENSEMBL) or _ad hoc_ (gff file)
+- `GenomicAlignments::summarizeOverlaps()`
+- `Rsubread::featureCount()`
+- [HTSeq](http://www-huber.embl.de/users/anders/HTSeq/doc/overview.html),
+  [htseq-count](http://www-huber.embl.de/users/anders/HTSeq/doc/count.html)
+
+### (Bowtie2 / tophat / Cufflinks / Cuffdiff / etc)
+
+- [tophat](http://ccb.jhu.edu/software/tophat) uses Bowtie2 to perform
+  basic single- and paired-end alignments, then uses algorithms to
+  place difficult-to-align reads near to their well-aligned mates.
+- [Cufflinks](http://cole-trapnell-lab.github.io/cufflinks/)
+  ([doi](http://dx.doi.org/10.1038/nprot.2012.016)) takes _tophat_
+  output and estimate existing and novel transcript abundance.
+  [How Cufflinks Works](http://cole-trapnell-lab.github.io/cufflinks/papers)
+- [Cuffdiff](http://cole-trapnell-lab.github.io/cufflinks/cuffdiff/)
+  assesses statistical significance of estimated abundances between
+  experimental groups
+- [RSEM](http://www.biomedcentral.com/1471-2105/12/323) includes de
+  novo assembly and quantification
+
+### (kallisto / sailfish)
+
+- 'Next generation' differential expression tools; transcriptome
+  alignment
+- E.g., [kallisto](http://pachterlab.github.io/kallisto) takes a
+  radically different approach: from FASTQ to count table without BAM
+  files.
+- Very fast, almost as accurate.
+- Hints on
+  [how it works](https://liorpachter.wordpress.com/2015/05/10/near-optimal-rna-seq-quantification-with-kallisto/);
+  [arXiv](http://arxiv.org/abs/1505.02710)
+- Integration with gene-level analyses --   [Soneson et al][].
+
+[Soneson et al]: http://f1000research.com/articles/4-1521/v1
+
+## Analysis
+
+Unique statistical aspects
+
+- Large data, few samples
+- Comparison of each gene, across samples; _univariate_ measures
+- Each gene is analyzed by the _same_ experimental design, under the
+  _same_ null hypothesis
+
+Summarization
+
+- Counts _per se_, rather than a summary (RPKM, FPKM, ...), are
+  relevant for analysis
+
+    - For a given gene, larger counts imply more information; RPKM etc.,
+      treat all estimates as equally informative.
+    - Comparison is across samples at _each_ region of interest; all
+      samples have the same region of interest, so modulo library size
+      there is no need to correct for, e.g., gene length or mapability.
+
+Normalization
+
+- Libraries differ in size (total counted reads per sample) for
+  un-interesting reasons; we need to account for differences in
+  library size in statistical analysis.
+- Total number of counted reads per sample is _not_ a good estimate of
+  library size. It is un-necessarily influenced by regions with large
+  counts, and can introduce bias and correlation across
+  genes. Instead, use a robust measure of library size that takes
+  account of skew in the distribution of counts (simplest: trimmed
+  geometric mean; more advanced / appropriate encountered in the lab).
+- Library size (total number of counted reads) differs between
+  samples, and should be included _as a statistical offset_ in
+  analysis of differential expression, rather than 'dividing by' the
+  library size early in an analysis.
+
+Appropriate error model
+
+- Count data is _not_ distributed normally or as a Poisson process,
+  but rather as negative binomial. 
+- Result of a combination Poisson (`shot' noise, i.e., within-sample
+  technical and sampling variation in read counts) with variation
+  between biological samples.
+- A negative binomial model requires estimation of an additional
+  parameter ('dispersion'), which is estimated poorly in small
+  samples.
+- Basic strategy is to moderate per-gene estimates with more robust
+  local estimates derived from genes with similar expression values (a
+  little more on borrowing information is provided below).
+
+Pre-filtering
+
+- Naively, a statistical test (e.g., t-test) could be applied to each
+  row of a counts table. However, we have relatively few samples
+  (10's) and very many comparisons (10,000's) so a naive approach is
+  likely to be very underpowered, resulting in a very high _false
+  discovery rate_
+- A simple approach is perform fewer tests by removing regions that
+  could not possibly result in statistical significance, regardless of
+  hypothesis under consideration.
+- Example: a region with 0 counts in all samples could not possibly be
+  significant regradless of hypothesis, so exclude from further
+  analysis.
+- Basic approaches: 'K over A'-style filter -- require a minimum of A
+  (normalized) read counts in at least K samples. Variance filter,
+  e.g., IQR (inter-quartile range) provides a robust estimate of
+  variability; can be used to rank and discard least-varying regions.
+- More nuanced approaches: `r Biocpkg("edgeR")` vignette; work flow
+  today.
+
+Borrowing information
+
+- Why does low statistical power elevate false discovery rate?
+- One way of developing intuition is to recognize a t-test (for
+  example) as a ratio of variances. The numerator is
+  treatment-specific, but the denominator is a measure of overall
+  variability.
+- Variances are measured with uncertainty; over- or under-estimating
+  the denominator variance has an asymmetric effect on a t-statistic
+  or similar ratio, with an underestimate _inflating_ the statistic
+  more dramatically than an overestimate deflates the statistic. Hence
+  elevated false discovery rate.
+- Under the null hypothesis used in microarray or RNA-seq experiments,
+  the expected overall variability of a gene is the same, at least for
+  genes with similar average expression
+- The strategy is to estimate the denominator variance as the
+  between-group variance for the gene, _moderated_ by the average
+  between-group variance across all genes.
+- This strategy exploits the fact that the same experimental design
+  has been applied to all genes assayed, and is effective at
+  moderating false discovery rate.
+
+## Statistical Issues In-depth: Normalization and Dispersion
+
+### Normalization
+
+`r Biocpkg("DESeq2")` `estimateSizeFactors()`, Anders and Huber,
+[2010](http://genomebiology.com/2010/11/10/r106)
+
+- For each gene: geometric mean of all samples.
+- For each sample: median ratio of the sample gene over the geometric
+  mean of all samples
+- Functions other than the median can be used; control genes can be
+  used instead
+
+### Dispersion
+
+`r Biocpkg("DESeq2")` `estimateDispersions()`
+
+- Estimate per-gene dispersion
+- Fit a smoothed relationship between dispersion and abundance
+
+## Comprehension
+
+Placing differentially expressed regions in context
+
+- Gene names associated with genomic ranges
+- Gene set enrichment and similar analysis
+- Proximity to regulatory marks
+- Integrate with other analyses, e.g., methylation, copy number,
+  variants, ...
+  
+  ![Copy number / expression QC](our_figures/copy_number_QC_2.png)
+  Correlation between genomic copy number and mRNA expression
+  identified 38 mis-labeled samples in the TCGA ovarian cancer
+  Affymetrix microarray dataset.
+
+# Lab: Gene-level RNA-seq differential expression
+
+## Background
+
+This lab is derived from:
+[RNA-Seq workflow][]: gene-level exploratory analysis and differential expression,
+by Michael Love, Simon Anders, Wolfgang Huber; modified by Martin
+Morgan, October 2015.
+
+[RNA-Seq workflow]: https://bioconductor.org/help/workflows/rnaseqGene/
+
+This lab will walk you through an end-to-end RNA-Seq differential
+expression workflow, using [DESeq2][] along with other _Bioconductor_
+packages.  The complete work flow starts from the FASTQ files, but we
+will start after reads have been aligned to a reference genome and
+reads overlapping known genes have been counted. We will perform
+exploratory data analysis (EDA), differential gene expression
+analysis with [DESeq2][], and visually explore the results.
+
+A number of other _Bioconductor_ packages are important in statistical
+inference of differential expression at the gene level, including
+[Rsubread][], [edgeR][], [limma][], [BaySeq][], and others.
+
+## Experimental data
+
+The data used in this workflow is an RNA-Seq experiment of airway
+smooth muscle cells treated with dexamethasone, a synthetic
+glucocorticoid steroid with anti-inflammatory effects. Glucocorticoids
+are used, for example, in asthma patients to prevent or reduce
+inflammation of the airways. In the experiment, four primary human
+airway smooth muscle cell lines were treated with 1 micromolar
+dexamethasone for 18 hours. For each of the four cell lines, we have a
+treated and an untreated sample. The reference for the experiment is:
+
+Himes BE, Jiang X, Wagner P, Hu R, Wang Q, Klanderman B, Whitaker RM,
+Duan Q, Lasky-Su J, Nikolos C, Jester W, Johnson M, Panettieri R Jr,
+Tantisira KG, Weiss ST, Lu Q. "RNA-Seq Transcriptome Profiling
+Identifies CRISPLD2 as a Glucocorticoid Responsive Gene that Modulates
+Cytokine Function in Airway Smooth Muscle Cells." PLoS One. 2014 Jun
+13;9(6):e99625.
+PMID: [24926665](http://www.ncbi.nlm.nih.gov/pubmed/24926665).
+GEO: [GSE52778](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE52778).
+
+## Preparing count matrices
+
+As input, [DESeq2][] package expects count data as obtained,
+e.g., from RNA-Seq or another high-throughput sequencing experiment,
+in the form of a matrix of integer values. The value in the *i*-th row
+and the *j*-th column of the matrix tells how many reads have been
+mapped to gene *i* in sample *j*.  Analogously, for other types of
+assays, the rows of the matrix might correspond e.g., to binding
+regions (with ChIP-Seq) or peptide sequences (with quantitative mass
+spectrometry).
+
+The count values must be raw counts of sequencing reads. This is
+important for [DESeq2][]'s statistical model to hold, as only the
+actual counts allow assessing the measurement precision
+correctly. Hence, please do not supply other quantities, such as
+(rounded) normalized counts, or counts of covered base pairs -- this
+will only lead to nonsensical results.
+
+We will discuss how to summarize data from BAM files to a count table
+later in ther course. Here we'll 'jump right in' and start with a
+prepared `SummarizedExperiment`.
+
+## Starting from `SummarizedExperiment`
+
+We now use R's `data()` command to load a prepared
+`SummarizedExperiment` that was generated from the publicly available
+sequencing data files associated with the Himes et al. paper,
+described above.  The steps we used to produce this object were
+equivalent to those you worked through in the previous sections,
+except that we used all the reads and all the genes. For more details
+on the exact steps used to create this object type
+`vignette("airway")` into your R session.
+
+```{r}
+library(airway)
+data("airway")
+se <- airway
+```
+
+The information in a `SummarizedExperiment` object can be accessed
+with accessor functions. For example, to see the actual data, i.e.,
+here, the read counts, we use the `assay()` function. (The `head()`
+function restricts the output to the first few lines.)
+
+```{r}
+head(assay(se))
+```
+
+In this count matrix, each row represents an Ensembl gene, each column
+a sequenced RNA library, and the values give the raw numbers of
+sequencing reads that were mapped to the respective gene in each
+library. We also have metadata on each of the samples (the columns of
+the count matrix). If you've counted reads with some other software,
+you need to check at this step that the columns of the count matrix
+correspond to the rows of the column metadata.
+
+We can quickly check the millions of fragments which uniquely aligned
+to the genes.
+
+```{r}
+colSums(assay(se))
+```
+
+Supposing we have constructed a `SummarizedExperiment` using
+one of the methods described in the previous section, we now need to
+make sure that the object contains all the necessary information about
+the samples, i.e., a table with metadata on the count matrix's columns
+stored in the `colData` slot:
+
+```{r}
+colData(se)
+```
+
+Here we see that this object already contains an informative `colData`
+slot -- because we have already prepared it for you, as described in
+the [airway][] vignette.  However, when you work with your own data,
+you will have to add the pertinent sample / phenotypic information for
+the experiment at this stage.  We highly recommend keeping this
+information in a comma-separated value (CSV) or tab-separated value
+(TSV) file, which can be exported from an Excel spreadsheet, and the
+assign this to the `colData` slot, making sure that the rows
+correspond to the columns of the `SummarizedExperiment`. We made sure
+of this correspondence by specifying the BAM files using a column of
+the sample table.
+
+<!-- FIXME rowRanges -->
+
+Check out the `rowRanges()` of the summarized experiment; these are
+the genomic ranges over which counting occurred.
+
+```{r rowRanges`}
+rowRanges(se)
+```
+
+## From `SummarizedExperiment` to `DESeqDataSet`
+
+We will use the [DESeq2][] package for assessing differential
+expression. The package uses an extended version of the
+`SummarizedExperiment` class, called `DESeqDataSet`. It's easy to go
+from a `SummarizedExperiment` to `DESeqDataSet`:
+
+```{r}
+library("DESeq2")
+dds <- DESeqDataSet(se, design = ~ cell + dex)
+```
+
+The 'design' argument is a formula which expresses how the counts for
+each gene depend on the variables in `colData`. Remember you can
+always get information on method arguments with `?`, e.g
+`?DESeqDataSet`.
+
+## Differential expression analysis
+
+It will be convenient to make sure that `untrt` is the first level in
+the `dex` factor, so that the default log2 fold changes are calculated
+as treated over untreated (by default R will chose the first
+alphabetical level, remember: computers don't know what to do unless
+you tell them). The function `relevel()` achieves this:
+
+```{r}
+dds$dex <- relevel(dds$dex, "untrt")
+```
+
+In addition, if you have at any point subset the columns of the
+`DESeqDataSet` you should similarly call `droplevels()` on the factors
+if the subsetting has resulted in some levels having 0 samples.
+
+### Running the pipeline
+
+Finally, we are ready to run the differential expression pipeline.
+With the data object prepared, the [DESeq2][] analysis can now be run
+with a single call to the function `DESeq()`:
+
+```{r}
+dds <- DESeq(dds)
+```
+
+This function will print out a message for the various steps it
+performs. These are described in more detail in the manual page
+`?DESeq`. Briefly these are: the estimation of size factors (which
+control for differences in the library size of the sequencing
+experiments), the estimation of dispersion for each gene, and fitting
+a generalized linear model.
+
+A `DESeqDataSet` is returned which contains all the fitted
+information within it, and the following section describes how to
+extract out result tables of interest from this object.
+
+### Building the results table
+
+Calling `results()` without any arguments will extract the estimated
+log2 fold changes and *p* values for the last variable in the design
+formula. If there are more than 2 levels for this variable, `results()`
+will extract the results table for a comparison of the last level over
+the first level.
+
+```{r}
+(res <- results(dds))
+```
+
+As `res` is a `DataFrame` object, it carries metadata
+with information on the meaning of the columns:
+
+```{r}
+mcols(res, use.names=TRUE)
+```
+
+The first column, `baseMean`, is a just the average of the normalized
+count values, dividing by size factors, taken over all samples. The
+remaining four columns refer to a specific contrast, namely the
+comparison of the `trt` level over the `untrt` level for the factor
+variable `dex`. See the help page for `results()` (by typing `?results`)
+for information on how to obtain other contrasts.
+
+The column `log2FoldChange` is the effect size estimate. It tells us
+how much the gene's expression seems to have changed due to treatment
+with dexamethasone in comparison to untreated samples.  This value is
+reported on a logarithmic scale to base 2: for example, a log2 fold
+change of 1.5 means that the gene's expression is increased by a
+multiplicative factor of $2^{1.5} \approx 2.82$.
+
+Of course, this estimate has an uncertainty associated with it, which
+is available in the column `lfcSE`, the standard error estimate for
+the log2 fold change estimate.  We can also express the uncertainty of
+a particular effect size estimate as the result of a statistical
+test. The purpose of a test for differential expression is to test
+whether the data provides sufficient evidence to conclude that this
+value is really different from zero. [DESeq2][] performs for each gene a
+*hypothesis test* to see whether evidence is sufficient to decide
+against the *null hypothesis* that there is no effect of the treatment
+on the gene and that the observed difference between treatment and
+control was merely caused by experimental variability (i.e., the type
+of variability that you can just as well expect between different
+samples in the same treatment group). As usual in statistics, the
+result of this test is reported as a *p* value, and it is found in the
+column `pvalue`. (Remember that a *p* value indicates the probability
+that a fold change as strong as the observed one, or even stronger,
+would be seen under the situation described by the null hypothesis.)
+
+We can also summarize the results with the following line of code,
+which reports some additional information.
+
+```{r}
+summary(res)
+```
+
+Note that there are many genes with differential expression due to
+dexamethasone treatment at the FDR level of 10%. This makes sense, as
+the smooth muscle cells of the airway are known to react to
+glucocorticoid steroids. However, there are two ways to be more strict
+about which set of genes are considered significant:
+
+* lower the false discovery rate threshold (the threshold on `padj` in
+  the results table)
+* raise the log2 fold change threshold from 0 using the `lfcThreshold`
+  argument of `results()`. See the [DESeq2][] vignette for a demonstration
+  of the use of this argument.
+
+Sometimes a subset of the *p* values in `res` will be `NA` ("not
+available"). This is `DESeq()`'s way of reporting that all counts for
+this gene were zero, and hence not test was applied. In addition, *p*
+values can be assigned `NA` if the gene was excluded from analysis
+because it contained an extreme count outlier. For more information,
+see the outlier detection section of the vignette.
+
+### Multiple testing
+
+Novices in high-throughput biology often assume that thresholding
+these *p* values at a low value, say 0.05, as is often done in other
+settings, would be appropriate -- but it is not. We briefly explain
+why:
+
+There are `r sum(res$pvalue < .05, na.rm=TRUE)` genes with a *p* value
+below 0.05 among the `r sum(!is.na(res$pvalue))` genes, for which the
+test succeeded in reporting a *p* value:
+
+```{r}
+sum(res$pvalue < 0.05, na.rm=TRUE)
+sum(!is.na(res$pvalue))
+```
+
+Now, assume for a moment that the null hypothesis is true for all
+genes, i.e., no gene is affected by the treatment with
+dexamethasone. Then, by the definition of *p* value, we expect up to
+5% of the genes to have a *p* value below 0.05. This amounts to
+`r round(sum(!is.na(res$pvalue)) * .05 )` genes.
+If we just considered the list of genes with a *p* value below 0.05 as
+differentially expressed, this list should therefore be expected to
+contain up to
+`r round(sum(!is.na(res$pvalue)) * .05)` /
+`r sum(res$pvalue < .05, na.rm=TRUE)` =
+`r round(sum(!is.na(res$pvalue))*.05 / sum(res$pvalue < .05, na.rm=TRUE) * 100)`%
+ false positives.
+
+[DESeq2][] uses the Benjamini-Hochberg (BH) adjustment as described in
+the base R *p.adjust* function; in brief, this method calculates for
+each gene an adjusted *p* value which answers the following question:
+if one called significant all genes with a *p* value less than or
+equal to this gene's *p* value threshold, what would be the fraction
+of false positives (the *false discovery rate*, FDR) among them (in
+the sense of the calculation outlined above)? These values, called the
+BH-adjusted *p* values, are given in the column `padj` of the `res`
+object.
+
+Hence, if we consider a fraction of 10% false positives acceptable,
+we can consider all genes with an adjusted *p* value below $10% = 0.1$
+as significant. How many such genes are there?
+
+```{r}
+sum(res$padj < 0.1, na.rm=TRUE)
+```
+
+We subset the results table to these genes and then sort it by the
+log2 fold change estimate to get the significant genes with the
+strongest down-regulation.
+
+```{r}
+resSig <- subset(res, padj < 0.1)
+head(resSig[ order( resSig$log2FoldChange ), ])
+```
+
+...and with the strongest upregulation. The `order()` function gives
+the indices in increasing order, so a simple way to ask for decreasing
+order is to add a `-` sign. Alternatively, you can use the argument
+`decreasing=TRUE`.
+
+
+```{r}
+head(resSig[ order( -resSig$log2FoldChange ), ])
+```
+
+## Diagnostic plots
+
+A quick way to visualize the counts for a particular gene is to use
+the `plotCounts()` function, which takes as arguments the
+`DESeqDataSet`, a gene name, and the group over which to plot the
+counts. 
+
+```{r plotcounts, fig.width=5, fig.height=5}
+topGene <- rownames(res)[which.min(res$padj)]
+data <- plotCounts(dds, gene=topGene, intgroup=c("dex"), returnData=TRUE)
+```
+
+We can also make more customizable plots using the `ggplot()` function from the
+[ggplot2][] package:
+
+```{r ggplotcountsdot, fig.height=5}
+library(ggplot2)
+ggplot(data, aes(x=dex, y=count, fill=dex)) +
+  scale_y_log10() + 
+  geom_dotplot(binaxis="y", stackdir="center")
+```
+
+An "MA-plot" provides a useful overview for an experiment with a
+two-group comparison.  The log2 fold change for a particular
+comparison is plotted on the y-axis and the average of the counts
+normalized by size factor is shown on the x-axis ("M" for minus,
+because a log ratio is equal to log minus log, and "A" for average).
+
+```{r plotma, eval=FALSE}
+plotMA(res, ylim=c(-5,5))
+```
+
+Each gene is represented with a dot. Genes with an adjusted $p$ value
+below a threshold (here 0.1, the default) are shown in red.  The
+[DESeq2][] package incorporates a prior on log2 fold changes, resulting
+in moderated log2 fold changes from genes with low counts and highly
+variable counts, as can be seen by the narrowing of spread of points
+on the left side of the plot.  This plot demonstrates that only genes
+with a large average normalized count contain sufficient information
+to yield a significant call.
+
+We can label individual points on the MA plot as well. Here we use the
+`with()` R function to plot a circle and text for a selected row of
+the results object. Within the `with()` function, only the `baseMean`
+and `log2FoldChange` values for the selected rows of `res` are used.
+
+```{r plotma2, eval=FALSE}
+plotMA(res, ylim=c(-5,5))
+with(res[topGene, ], {
+  points(baseMean, log2FoldChange, col="dodgerblue", cex=2, lwd=2)
+  text(baseMean, log2FoldChange, topGene, pos=2, col="dodgerblue")
+})
+```
+
+Whether a gene is called significant depends not only on its LFC but
+also on its within-group variability, which [DESeq2][] quantifies as the
+*dispersion*. For strongly expressed genes, the dispersion can be
+understood as a squared coefficient of variation: a dispersion value
+of 0.01 means that the gene's expression tends to differ by typically
+$\sqrt{0.01} = 10\%$ between samples of the same treatment group. For
+weak genes, the Poisson noise is an additional source of noise.
+
+The function `plotDispEsts()` visualizes [DESeq2][]'s dispersion
+estimates: 
+
+```{r plotdispests}
+plotDispEsts(dds)
+```
+
+The black points are the dispersion estimates for each gene as
+obtained by considering the information from each gene
+separately. Unless one has many samples, these values fluctuate
+strongly around their true values. Therefore, we fit the red trend
+line, which shows the dispersions' dependence on the mean, and then
+shrink each gene's estimate towards the red line to obtain the final
+estimates (blue points) that are then used in the hypothesis test. The
+blue circles above the main "cloud" of points are genes which have
+high gene-wise dispersion estimates which are labelled as dispersion
+outliers. These estimates are therefore not shrunk toward the fitted
+trend line.
+
+Another useful diagnostic plot is the histogram of the *p* values.
+
+```{r histpvalue}
+hist(res$pvalue, breaks=20, col="grey50", border="white")
+```
+
+This plot becomes a bit smoother by excluding genes with very small counts:
+
+```{r histpvalue2}
+hist(res$pvalue[res$baseMean > 1], breaks=20, col="grey50", border="white")
+```
+
+
+
+## Independent filtering
+
+The MA plot highlights an important property of RNA-Seq data.  For
+weakly expressed genes, we have no chance of seeing differential
+expression, because the low read counts suffer from so high Poisson
+noise that any biological effect is drowned in the uncertainties from
+the read counting.  We can also show this by examining the ratio of
+small *p* values (say, less than, 0.01) for genes binned by mean
+normalized count:
+
+```{r sensitivityovermean, fig.height=4}
+# create bins using the quantile function
+qs <- c(0, quantile(res$baseMean[res$baseMean > 0], 0:7/7))
+# cut the genes into the bins
+bins <- cut(res$baseMean, qs)
+# rename the levels of the bins using the middle point
+levels(bins) <- paste0("~",round(.5*qs[-1] + .5*qs[-length(qs)]))
+# calculate the ratio of $p$ values less than .01 for each bin
+ratios <- tapply(res$pvalue, bins, function(p) mean(p < .01, na.rm=TRUE))
+# plot these ratios
+barplot(ratios, xlab="mean normalized count", ylab="ratio of small p values")
+```
+
+At first sight, there may seem to be little benefit in filtering out
+these genes. After all, the test found them to be non-significant
+anyway. However, these genes have an influence on the multiple testing
+adjustment, whose performance improves if such genes are removed. By
+removing the weakly-expressed genes from the input to the FDR
+procedure, we can find more genes to be significant among those which
+we keep, and so improved the power of our test. This approach is known
+as *independent filtering*.
+
+The term *independent* highlights an important caveat. Such filtering
+is permissible only if the filter criterion is independent of the
+actual test statistic. Otherwise, the filtering would invalidate the
+test and consequently the assumptions of the BH procedure.  This is
+why we filtered on the average over *all* samples: this filter is
+blind to the assignment of samples to the treatment and control group
+and hence independent. The independent filtering software used inside
+[DESeq2][] comes from the `r Biocpkg("genefilter")` package, which
+contains a reference to a paper describing the statistical foundation
+for independent filtering.
+
+## Annotation: adding gene names
+
+Our result table only uses Ensembl gene IDs, but gene names may be
+more informative. _Bioconductor_'s annotation packages help with mapping
+various ID schemes to each other.
+
+We load the `r Biocpkg("AnnotationDbi")` package and the annotation package
+`r Biocannopkg("org.Hs.eg.db")`:
+
+```{r}
+library(org.Hs.eg.db)
+```
+
+This is the organism annotation package ("org") for *Homo sapiens*
+("Hs"), organized as an [AnnotationDbi][] database package ("db"),
+using Entrez Gene IDs ("eg") as primary key.  To get a list of all
+available key types, use:
+
+```{r}
+columns(org.Hs.eg.db)
+res$hgnc_symbol <- 
+    unname(mapIds(org.Hs.eg.db, rownames(res), "SYMBOL", "ENSEMBL"))
+res$entrezgene <- 
+    unname(mapIds(org.Hs.eg.db, rownames(res), "ENTREZID", "ENSEMBL"))
+```
+
+Now the results have the desired external gene ids:
+```{r}
+resOrdered <- res[order(res$pvalue),]
+head(resOrdered)
+```
+
+## Exporting results
+
+You can easily save the results table in a CSV file, which you can
+then load with a spreadsheet program such as Excel. The call to
+*as.data.frame* is necessary to convert the *DataFrame* object
+(`r Biocpkg("IRanges")` package) to a *data.frame* object which can be
+processed by *write.csv*.
+
+```{r eval=FALSE}
+write.csv(as.data.frame(resOrdered), file="results.csv")
+```
+
+## Session information
+
+As last part of this document, we call the function *sessionInfo*,
+which reports the version numbers of R and all the packages used in
+this session. It is good practice to always keep such a record as it
+will help to trace down what has happened in case that an R script
+ceases to work because the functions have been changed in a newer
+version of a package. The session information should also **always**
+be included in any emails to the
+[Bioconductor support site](https://support.bioconductor.org) along
+with all code used in the analysis.
+
+```{r}
+sessionInfo()
+```
+
+[airway]: https://bioconductor.org/packages/airway
+[gplots]: https://cran.r-project.org/package=gplots
+[ggplot2]:https://cran.r-project.org/package=ggplot2 
+[AnnotationDbi]: https://bioconductor.org/packages/AnnotationDbi
+[Rsubread]: https://bioconductor.org/packages/Rsubread
+[edgeR]: https://bioconductor.org/packages/edgeR
+[limma]: https://bioconductor.org/packages/limma
+[BaySeq]: https://bioconductor.org/packages/BaySeq
+[DESeq2]: https://bioconductor.org/packages/DESeq2
+
