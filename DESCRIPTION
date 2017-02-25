@@ -4,9 +4,18 @@ Title: Training Material for Introductory R Courses
 Version: 0.0.7
 Authors@R: c(
     person("Martin", "Morgan", role=c("aut", "cre"),
-        email="martin.morgan@roswellpark.org"))
+        email="Martin.Morgan@RoswellPark.org"),
+    person("Lori", "Shepherd", role=c("aut", "cre"),
+        email="Lori.Shepherd@RoswellPark.org"))
 Description: Vignettes and resources to support introductory R
     training courses.
-Suggests: BiocStyle, knitr
+Suggests: AnnotationHub, BiocParallel, Biostrings, DESeq2
+    GenomicAlignments, GenomicRanges, RColorBrewer,
+    RNAseqData.HNRNPC.bam.chr14, Rsamtools, ShortRead,
+    SummarizedExperiment, TxDb.Hsapiens.UCSC.hg19.knownGene,
+    VariantAnnotation, airway, biomaRt, ggplot2, gplots,
+    microbenchmark, org.Hs.eg.db, rtracklayer, survival, BiocStyle,
+    knitr
 License: Artistic-2.0
 VignetteBuilder: knitr
+
