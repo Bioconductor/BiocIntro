@@ -1,13 +1,15 @@
 ---
-title: "S.3 -- Introduction to _Bioconductor_"
-author: Martin Morgan <martin.morgan@roswellpark.org>
-date: "21 November, 2016"
+title: "B.1 -- Introduction to _Bioconductor_"
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+  Lori Shepherd <Lori.Shepherd@RoswellPark.org>
+date: "3 March 2017"
 output:
   BiocStyle::html_document:
     toc: true
     toc_depth: 2
 vignette: >
-  % \VignetteIndexEntry{S.3 -- Introduction to Bioconductor}
+  % \VignetteIndexEntry{B.1 -- Introduction to Bioconductor}
   % \VignetteEngine{knitr::rmarkdown}
 ---
 
