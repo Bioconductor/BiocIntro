@@ -23,15 +23,15 @@ with tools necessary for their own continued self-education.
 
 3:30 - 5:00. [Visualization][].
 
-## Day 2: Introduction to _Bioconductor_
+## Day 2: Introduction to [_Bioconductor_][]
 
-9:00 - 10:30. Working with _[Bioconductor][]_
+9:00 - 10:30. [Working with _Bioconductor_][].
 
-11:00 - 12:30. Exploring Genomic Data in _Bioconductor_
+11:00 - 12:30. [Exploring Genomic Data in _Bioconductor_][].
 
-1:30 - 3:00. An RNASeq Workflow
+1:30 - 3:00. [An RNASeq Workflow][].
 
-3:30 - 5:00. Next Steps
+3:30 - 5:00. [Next Steps][].
 
 [RStudio]: https://rstudio.com
 [R]: https://r-project.org
@@ -41,3 +41,8 @@ with tools necessary for their own continued self-education.
 [Data Input and Manipulation]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A2_IO.Rmd
 [Statistical Analysis]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A3_Statistics.Rmd
 [Visualization]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A4_Graphics.Rmd
+
+[Working with _Bioconductor_]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/B1_Bioconductor_intro.Rmd
+[Exploring Genomic Data in _Bioconductor_]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/B2_Common_Operations.Rmd
+[An RNASeq Workflow]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/B3_RNASeq_Workflow.Rmd
+[Next Steps]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/B4_Next_Steps.Rmd
