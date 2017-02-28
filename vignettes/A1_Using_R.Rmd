@@ -252,6 +252,9 @@ analysis)
     anova(fit)
     ```
 
+- N.B. -- 'Type I' sums-of-squares, so order of independent variables
+  matters; use `drop1()` for 'Type III'. See [DataCamp Quick-R][]
+
 - Introspection -- what class is `fit`? What _methods_ can I apply to
   an object of that class?
 
@@ -289,4 +292,4 @@ Help available in _Rstudio_ or interactively
 
 - Can be intimidating, but in the end actually _very_ useful
 
-
+[DataCamp Quick-R]: http://www.statmethods.net/stats/anova.html
