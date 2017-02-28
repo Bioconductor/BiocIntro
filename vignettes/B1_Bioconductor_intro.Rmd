@@ -402,7 +402,7 @@ Aligned reads: BAM files
         ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:4  MD:Z:72 YT:Z:UU XS:A:+  NH:i:3  CC:Z:=  CP:i:19921465   HI:i:0
         ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:4  MD:Z:72 YT:Z:UU XS:A:+  NH:i:2  CC:Z:chr22      CP:i:16189138   HI:i:0
 
-[GenomicAligments][]
+[GenomicAlignments][]
 
 - `readGAlignments()`: Single-end reads
 - `readGAlignmentPairs()`, `readGAlignmentsList()`: paired end reads
