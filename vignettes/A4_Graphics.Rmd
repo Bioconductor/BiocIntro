@@ -93,7 +93,7 @@ Load the BRFSS-subset.csv data
 
 <!--
 ```{r}
-path <- system.file(package="RIntro.RPCI.Jan2017", "extdata", "BRFSS-subset.csv")
+path <- system.file(package="BiocIntro", "extdata", "BRFSS-subset.csv")
 brfss <- read.csv(path)
 ```
 -->

@@ -23,8 +23,7 @@ knitr::opts_chunk$set(
 
 <!--
 ```{r echo=FALSE}
-path <- system.file(package="RIntro.RPCI.Jan2017", "extdata",
-    "BRFSS-subset.csv")
+path <- system.file(package="BiocIntro", "extdata", "BRFSS-subset.csv")
 ```
 -->
 ```{r ALL-choose, eval=FALSE}
@@ -133,8 +132,7 @@ Start by finding the expression data file on disk.
 
 <!--
 ```{r echo=FALSE}
-path <- system.file(package="RIntro.RPCI.Jan2017", "extdata",
-    "ALL-expression.csv")
+path <- system.file(package="BiocIntro", "extdata", "ALL-expression.csv")
 stopifnot(file.exists(path))
 ```
 -->
@@ -172,8 +170,7 @@ We'll make use of the data describing the samples
 
 <!--
 ```{r echo=FALSE}
-path <- system.file(package="RIntro.RPCI.Jan2017", "extdata",
-    "ALL-phenoData.csv")
+path <- system.file(package="BiocIntro", "extdata", "ALL-phenoData.csv")
 stopifnot(file.exists(path))
 ```
 -->

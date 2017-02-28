@@ -40,7 +40,7 @@ at a subset of the data.
 
 <!--
     ```{r system.file, echo=FALSE}
-    path <- system.file(package="RIntro.RPCI.Jan2017", "extdata", "BRFSS-subset.csv")
+    path <- system.file(package="BiocIntro", "extdata", "BRFSS-subset.csv")
     ```
 -->
 
@@ -141,7 +141,7 @@ path <- file.choose()    # look for ALL-phenoData.csv
 
 <!--
 ```{r echo=FALSE}
-path <- system.file(package="RIntro.RPCI.Jan2017", "extdata", "ALL-phenoData.csv")
+path <- system.file(package="BiocIntro", "extdata", "ALL-phenoData.csv")
 ```
 -->
 
