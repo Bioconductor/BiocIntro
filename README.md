@@ -13,6 +13,12 @@ familiarize particpants with common ways in which data, including
 genomic data, are explored and analyzed in _R_, and to provide participants
 with tools necessary for their own continued self-education.
 
+## Course survey
+
+Please take a minute to complete this [course survey][].
+
+[course survey]: https://www.surveymonkey.com/r/3HNG3LY
+
 ## Day 1: Introduction to _R_
 
 9:00 - 10:30. [Introduction][] -- _[RStudio][]_ and _[R]_.
