@@ -31,7 +31,7 @@ Usually, work is organized into a directory with:
   usually in a separate folder (`extdata/BRFSS-subset.csv`)
 - (sometimes) _R_ objects written to disk using `saveRDS()` (`.rds`
   files) that represent final results or intermediate 'checkpoints'
-  (`data/ALL-cleaned.rds`). Read the data into an _R_ session using
+  (`extdata/ALL-cleaned.rds`). Read the data into an _R_ session using
   `readRDS()`.
 - Use `setwd()` to navigate to folder containing scripts/, extdata/ folder
 - Source an entire script with `source("scripts/BRFSS-visualization.R")`.
