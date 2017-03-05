@@ -13,12 +13,6 @@ familiarize particpants with common ways in which data, including
 genomic data, are explored and analyzed in _R_, and to provide participants
 with tools necessary for their own continued self-education.
 
-## Course survey
-
-Please take a minute to complete this [course survey][].
-
-[course survey]: https://www.surveymonkey.com/r/3HNG3LY
-
 ## Day 1: Introduction to _R_
 
 9:00 - 10:30. [Introduction][] -- _[RStudio][]_ and _[R]_.
@@ -43,12 +37,12 @@ Please take a minute to complete this [course survey][].
 [R]: https://r-project.org
 [Bioconductor]: https://bioconductor.org
 
-[Introduction]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A1_Using_R.Rmd
-[Data Input and Manipulation]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A2_IO.Rmd
-[Statistical Analysis]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A3_Statistics.Rmd
-[Visualization]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/A4_Graphics.Rmd
+[Introduction]: https://bioconductor.org/help/course-materials/2017/Moffitt/A1_Using_R.html
+[Data Input and Manipulation]: https://bioconductor.org/help/course-materials/2017/Moffitt/A2_IO.Rmd
+[Statistical Analysis]: https://bioconductor.org/help/course-materials/2017/Moffitt/A3_Statistics.Rmd
+[Visualization]: https://bioconductor.org/help/course-materials/2017/Moffitt/A4_Graphics.Rmd
 
-[Working with _Bioconductor_]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/B1_Bioconductor_intro.Rmd
-[Exploring Genomic Data in _Bioconductor_]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/B2_Common_Operations.Rmd
-[An RNASeq Workflow]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/B3_RNASeq_Workflow.Rmd
-[Next Steps]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/vignettes/B4_Next_Steps.Rmd
+[Working with _Bioconductor_]: https://bioconductor.org/help/course-materials/2017/Moffitt/B1_Bioconductor_intro.Rmd
+[Exploring Genomic Data in _Bioconductor_]: https://bioconductor.org/help/course-materials/2017/Moffitt/B2_Common_Operations.Rmd
+[An RNASeq Workflow]: https://bioconductor.org/help/course-materials/2017/Moffitt/B3_RNASeq_Workflow.Rmd
+[Next Steps]: https://bioconductor.org/help/course-materials/2017/Moffitt/B4_Next_Steps.Rmd
