@@ -38,11 +38,11 @@ with tools necessary for their own continued self-education.
 [Bioconductor]: https://bioconductor.org
 
 [Introduction]: https://bioconductor.org/help/course-materials/2017/Moffitt/A1_Using_R.html
-[Data Input and Manipulation]: https://bioconductor.org/help/course-materials/2017/Moffitt/A2_IO.Rmd
-[Statistical Analysis]: https://bioconductor.org/help/course-materials/2017/Moffitt/A3_Statistics.Rmd
-[Visualization]: https://bioconductor.org/help/course-materials/2017/Moffitt/A4_Graphics.Rmd
+[Data Input and Manipulation]: https://bioconductor.org/help/course-materials/2017/Moffitt/A2_IO.html
+[Statistical Analysis]: https://bioconductor.org/help/course-materials/2017/Moffitt/A3_Statistics.html
+[Visualization]: https://bioconductor.org/help/course-materials/2017/Moffitt/A4_Graphics.html
 
-[Working with _Bioconductor_]: https://bioconductor.org/help/course-materials/2017/Moffitt/B1_Bioconductor_intro.Rmd
-[Exploring Genomic Data in _Bioconductor_]: https://bioconductor.org/help/course-materials/2017/Moffitt/B2_Common_Operations.Rmd
-[An RNASeq Workflow]: https://bioconductor.org/help/course-materials/2017/Moffitt/B3_RNASeq_Workflow.Rmd
-[Next Steps]: https://bioconductor.org/help/course-materials/2017/Moffitt/B4_Next_Steps.Rmd
+[Working with _Bioconductor_]: https://bioconductor.org/help/course-materials/2017/Moffitt/B1_Bioconductor_intro.html
+[Exploring Genomic Data in _Bioconductor_]: https://bioconductor.org/help/course-materials/2017/Moffitt/B2_Common_Operations.html
+[An RNASeq Workflow]: https://bioconductor.org/help/course-materials/2017/Moffitt/B3_RNASeq_Workflow.html
+[Next Steps]: https://bioconductor.org/help/course-materials/2017/Moffitt/B4_Next_Steps.html
