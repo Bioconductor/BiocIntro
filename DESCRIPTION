@@ -7,6 +7,6 @@ Authors@R: c(
         email="martin.morgan@roswellpark.org"))
 Description: Vignettes and resources to support introductory R
     training courses.
-Suggests: BiocStyle, knitr
+Suggests: BiocStyle, knitr, ggplot2, dplyr, RSQLite, magrittr
 License: Artistic-2.0
 VignetteBuilder: knitr

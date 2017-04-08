@@ -1,0 +1,166 @@
+---
+title: "_R_ for High-Throughput (Genomic) Analysis"
+author: Martin Morgan <martin.morgan@roswellpark.org>
+date: "9 January 2017"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{R for High-Throughput (Genomic) Analysis)}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+options(width=100)
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
+Abstract: The _R_ statistical programming language is used extensively
+across a broad spectrum of informatic domains; my area of expertise
+(see https://bioconductor.org) is the analysis and comprehension of
+high-throughput genomic data. This workshop takes a quickly-paced,
+high-level tour of _R_ in data analysis. We'll start with the very
+basics, but move on to data representation, transformation and
+visualization.  The workshop will be interesting to new and
+experienced _R_ practitioner, as well as to data scientists exploring
+the diversity of approaches to modern interactive analysis. We'll have
+hands-on activities that are both challenging and
+rewarding. [Additional material][] is available.
+
+[Additional material]: https://goo.gl/zcsUz7
+
+
+# Setup
+
+Option 1. We'll use Amazon Machine Instances during the course, so
+option 1 is to show up with internet access and a modern browser.
+
+Option 2. Alternatively, you can configure your own laptop.
+
+1. [Install R][].
+
+2. [Install RStudio][].
+
+3. Install necessary _R_ packages. Start _Rstudio_ and enter
+
+        source("https://bioconductor.org/biocLite.R")
+        biocLite(c("ggplot2", "dplyr", "RSQLite"))
+
+[Install R]: https://cran.rstudio.com/
+[Install RStudio]: https://www.rstudio.com/products/rstudio/download/
+
+# Basics
+
+Statistical programming language
+
+Vector, list, data frame, matrix, object
+
+Performance: 'vectorize', don't iterate.
+
+# Data analysis
+
+Example data: from the CDC [BRFSS][] (Behavioral Risk Factor
+Surveillance System) telephone survey. Subset of 20,000 records from
+1990 and 2010.
+
+[BRFSS]: https://www.cdc.gov/brfss/
+
+## Input
+
+```{r input0, echo=FALSE}
+fpath <- system.file(package="BiocIntro", "extdata", "BRFSS-subset.csv")
+```
+
+For this session, we'll read the data from a URL:
+
+```{r input, eval=FALSE}
+repo <- "https://raw.githubusercontent.com/Bioconductor/BiocIntro"
+path <- "R-HTG-CDSE-Apr-2017/inst/extdata/BRFSS-subset.csv"
+fpath <- paste(repo, path, sep="/")
+```
+
+ALTERNATIVELY, if the data were already on disk, we might find the
+path to the file with
+
+```{r input1, eval=FALSE}
+fpath <- file.choose()
+```
+
+or specify the path to the file directly
+
+```{r input2, eval=FALSE}
+fpath <- "C:/Users/Martin Morgan/Downloads/BRFSS-subset.csv"
+```
+
+Once the path to the data is specified, input it using `read.csv()`
+
+```{r read}
+brfss <- read.csv(fpath)
+```
+
+## Summary
+
+## Visualization
+
+## Analysis
+
+# Alternative approaches
+
+## `dplyr`
+
+```{r, message=FALSE}
+library(dplyr)
+brfss_tbl <- tbl_df(read.csv(fpath))
+brfss_tbl
+```
+
+Pipes
+
+```{r}
+library(magrittr)
+brfss_tbl %>% filter(Sex == "Female", Year == "1990")
+```
+
+Lesssons learned
+
+- Nouns and verbs
+- Endomorphisms
+- Illusions
+
+## Relational objects -- data bases
+
+```{r}
+dbpath <- tempfile()
+db = src_sqlite(dbpath, create=TRUE)
+copy_to(db, brfss_tbl)
+db
+tbl(db, "brfss_tbl") %>% filter(Year == "2010")
+tbl(db, sql("SELECT * FROM brfss_tbl WHERE Year = 2010"))
+```
+
+- Also: `inner_join()`, etc.
+
+# Measuring performance
+
+What hurts?
+
+- Iteration
+- Copying
+
+Priorities and tools
+
+- Functions for encapsulating alternatives
+- Correct -- `identical()`
+- Performant -- [microbenchmark][]
+
+Case study: the deadly duo
+
+    n <- 100000
+    x <- integer()
+    for (i in 1:n)
+        x <- c(x, i)
+
+[microbenchmark]: https://cran.r-project.org/?package="microbenchmark"
