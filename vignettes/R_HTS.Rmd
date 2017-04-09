@@ -16,6 +16,10 @@ options(width=100)
 knitr::opts_chunk$set(
     eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
     cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+suppressPackageStartupMessages({
+    library(dplyr)
+    library(ggplot2)
+})
 ```
 
 Abstract: The _R_ statistical programming language is used extensively
@@ -101,19 +105,51 @@ Once the path to the data is specified, input it using `read.csv()`
 brfss <- read.csv(fpath)
 ```
 
+## Tidy and clean
+
+```{r}
+summary(brfss)
+```
+
+- [Tidy data][]: Each variable a column, each row an observation.
+- Clean data
+
+```{r}
+brfss$Year <- factor(brfss$Year, levels=c("1990", "2010"))
+summary(brfss)
+```
+
+[Tidy data]: http://courses.had.co.nz.s3-website-us-east-1.amazonaws.com/12-rice-bdsi/slides/07-tidy-data.pdf
+
 ## Summary
+
+```{r}
+aggregate(Weight ~ Sex + Year, brfss, mean)
+```
 
 ## Visualization
 
+```{r}
+plot(log10(Weight) ~ Year, brfss)
+plot(log10(Weight) ~ Year, subset(brfss, Sex == "Male"))
+```
+
 ## Analysis
+
+```{r}
+t.test(log10(Weight) ~ Year, subset(brfss, Sex == "Male"))
+```
 
 # Alternative approaches
 
-## `dplyr`
+## dplyr
+
+[dplyr][]
 
 ```{r, message=FALSE}
 library(dplyr)
 brfss_tbl <- tbl_df(read.csv(fpath))
+brfss_tbl$Year = factor(brfss_tbl$Year, levels=c("1990", "2010"))
 brfss_tbl
 ```
 
@@ -121,7 +157,8 @@ Pipes
 
 ```{r}
 library(magrittr)
-brfss_tbl %>% filter(Sex == "Female", Year == "1990")
+brfss_tbl %>% summary()
+brfss_tbl %>% filter(Sex == "Female", Year == "1990") %>% summary()
 ```
 
 Lesssons learned
@@ -129,6 +166,26 @@ Lesssons learned
 - Nouns and verbs
 - Endomorphisms
 - Illusions
+
+## ggplot2
+
+[ggplot2][]
+
+```{r}
+library(ggplot2)
+ggplot(brfss_tbl, aes(x=Age, y=log10(Weight))) +
+    geom_point() + geom_smooth()
+```
+
+```{r}
+ggplot(brfss_tbl, aes(x=Year, y=log10(Weight))) +
+    facet_grid(~ Sex) + geom_boxplot()
+```
+
+```{r}
+ggplot(brfss_tbl, aes(log10(Weight), color=Sex)) + 
+    geom_density()
+```
 
 ## Relational objects -- data bases
 
@@ -143,7 +200,9 @@ tbl(db, sql("SELECT * FROM brfss_tbl WHERE Year = 2010"))
 
 - Also: `inner_join()`, etc.
 
-# Measuring performance
+# Big data
+
+## Measuring performance
 
 What hurts?
 
@@ -163,4 +222,12 @@ Case study: the deadly duo
     for (i in 1:n)
         x <- c(x, i)
 
-[microbenchmark]: https://cran.r-project.org/?package="microbenchmark"
+## Strategies
+
+Selective and 'chunk-wise' input
+
+Course-grained parallel evaluation
+
+[dplyr]: https://cran.r-project.org/?package=dplyr
+[ggplot2]: https://cran.r-project.org/?package=ggplot2
+[microbenchmark]: https://cran.r-project.org/?package=microbenchmark
