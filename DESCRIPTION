@@ -1,4 +1,4 @@
-Package: RIntro
+Package: BiocIntro
 Type: Package
 Title: Training Material for Introductory R Courses
 Version: 0.0.7
