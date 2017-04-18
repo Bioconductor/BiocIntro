@@ -1,4 +1,4 @@
-# UP-STAT 2017 Workshop: Exploring Data in _R_
+# UP-STAT 2017 Workshop: Exploring Data in _R_ / _Bioconductor_
 
 Date: Friday, April 21<br />
 Instructors: Martin Morgan<br />
