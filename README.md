@@ -1,7 +1,7 @@
 # Introduction to _R_
 
 Date (Tentative): Monday and Tuesday, September 11 -12<br />
-Instructors: Martin Morgan, Ezgi Karaesmen<br />
+Instructors: Martin Morgan, Ezgi Karaesmen, Abbas Rizvi<br />
 Affiliation: Roswell Park Cancer Institute; Ohio State University<br />
 Contact: Martin.Morgan at RoswellPark.org
 
