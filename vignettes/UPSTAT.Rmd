@@ -47,9 +47,33 @@ Help!
 
 ## RNA-seq
 
+- Wet-lab sequence preparation (figure from http://rnaseq.uoregon.edu/)
+
+    ![](fig-rna-seq.png)
+
+- (Illumina) Sequencing (Bentley et al., 2008, doi:10.1038/nature07517)
+
+    ![](http://nature.com/nature/journal/v456/n7218/images/nature07517-f1.2.jpg)
+
+- 'Reduction' to feature (gene) x sample count matrix
+
 ## Data exploration
 
 Data input
+
+```{r}
+fl <- "data/airway_colData.csv"
+colData <- read.csv(fl, row.names=1)
+colData
+```
+
+```{r}
+fl <- "data/airway_counts.csv"
+counts <- read.csv(fl, row.names=1)
+counts <- as.matrix(counts)
+dim(counts)
+head(counts)
+```
 
 Distribution of counts
 
@@ -63,7 +87,10 @@ Data modelling
 
 ## A more robust work flow
 
-'Rich' data -- `SummarizedExperiment()`
+'Rich' data -- [SummarizedExperiment][] package,
+`SummarizedExperiment()`
+
+![](SummarizedExperiment.png)
 
 [DESeq2][] work flow -- `DESeq2()`
 
@@ -99,6 +126,7 @@ Library size
 
 Mean / variance relationship
 
+[SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
 [DESeq2]: https://bioconductor.org/packages/DESeq2
 [10xGenomics]: https://support.10xgenomics.com/single-cell/datasets/1M_neurons
 [TENxGenomics]: https://github.com/mtmorgan/TENxGenomics
