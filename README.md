@@ -1,19 +1,22 @@
-# Introduction to _R_
+# Introduction to _R_ and _Bioconductor_
 
 Recent courses:
 
-- [Moffitt-2017][] -- 2 day introduction to _R_ and _Bioconductor_
-- [R.CDSE.Apr2017][] -- 1 three-hour session on high-throughput genomic analysis in
+- [UPSTAT-2017][] -- 1 two-hour session introducing _R_ and
+  _Bioconductor_ through data exploration.
+- [R-CDSE-2017][] -- 1 three-hour session on high-throughput genomic analysis in
   _R_ and _Bioconductor_.
-- [RIntro.RPCI.Jan2017][] -- 5 one-hour sessions introduction _R_ to the
+- [Moffitt-2017][] -- 2 day introduction to _R_ and _Bioconductor_.
+- [RPCI-Jan-2017][] -- 5 one-hour sessions introduction _R_ to the
   Roswell Park community.
-- [Technion.2016][] -- 3 three-hour sessions introducing
+- [Technion-2016][] -- 3 three-hour sessions introducing
   _Bioconductor_ (and _R_).
 
 [Bioconductor Course Archive][]
 
+[UPSTAT-2017]: https://github.com/Bioconductor/BiocIntro/blob/UP-STAT-2017/vignettes/UPSTAT.Rmd
+[R-CDSE-2017]: https://github.com/Bioconductor/BiocIntro/blob/R-HTG-CDSE-Apr-2017/vignettes/R_HTS.Rmd
 [Moffitt-2017]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/README.md
-[R.CDSE.Apr2017]:  https://github.com/Bioconductor/BiocIntro/blob/R-HTG-CDSE-Apr-2017/README.md
-[RIntro.RPCI.Jan2017]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/README.md
-[Technion.2016]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/README.md
+[RPCI-Jan-2017]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/README.md
+[Technion-2016]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/README.md
 [Bioconductor Course Archive]: https://bioconductor.org/help/course-materials
