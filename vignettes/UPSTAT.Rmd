@@ -53,7 +53,7 @@ Help!
 
 - (Illumina) Sequencing (Bentley et al., 2008, doi:10.1038/nature07517)
 
-    ![](http://nature.com/nature/journal/v456/n7218/images/nature07517-f1.2.jpg)
+   ![](http://nature.com/nature/journal/v456/n7218/images/nature07517-f1.2.jpg)
 
 - 'Reduction' to feature (gene) x sample count matrix
 
