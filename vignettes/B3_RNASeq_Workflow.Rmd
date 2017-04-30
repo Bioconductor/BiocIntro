@@ -458,7 +458,7 @@ the sample table.
 Check out the `rowRanges()` of the summarized experiment; these are
 the genomic ranges over which counting occurred.
 
-```{r rowRanges`}
+```{r rowRanges}
 rowRanges(se)
 ```
 
