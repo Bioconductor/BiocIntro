@@ -2,8 +2,7 @@
 title: "A.2 -- Data Input and Manipulation"
 author:
   Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
-  Lori Shepherd <Lori.Shepherd@RoswellPark.org>
-date: "2 March 2017"
+date: "8-9 May 2017"
 output:
   BiocStyle::html_document:
     toc: true
@@ -27,25 +26,19 @@ extensive Behavioral Risk Factor Surveillance System ([BRFSS][])
 telephone survey. Check out the link for more information. We'll look
 at a subset of the data.
 
-0. (Easy) Use _RStudio_'s "Import Dataset" function to find the
-   'BRFSS-subset.csv' file that you've downloaded to your local
-   disk. Skip the next two steps.
-
-1. (Alternative) Use `file.choose()` to find the path to the file
-   'BRFSS-subset.csv'
+1. Use `file.choose()` to find the path to the file 'BRFSS-subset.csv'
 
     ```{r file.choose, eval=FALSE}
     path <- file.choose()
     ```
 
 <!--
-    ```{r system.file, echo=FALSE}
-    path <- system.file(package="BiocIntro", "extdata", "BRFSS-subset.csv")
+    ```{r file.path, echo=FALSE}
+    path <- file.path("extdata", "BRFSS-subset.csv")
     ```
 -->
 
-2. (Alternative, continued) Input the data using `read.csv()`,
-   assigning to a variable `brfss`
+2. Input the data using `read.csv()`, assigning to a variable `brfss`
 
     ```{r read.csv}
     brfss <- read.csv(path)
@@ -85,10 +78,10 @@ at a subset of the data.
     with(brfss, aggregate(Weight, list(Year=Year, Sex=Sex), mean, na.rm=TRUE))
     ```
 
-6. (advanced) Use a `formula` and the `aggregate()` function to
-   describe the relationship between Year, Sex, and Weight
+6. Use a `formula` and the `aggregate()` function to describe the
+   relationship between Year, Sex, and Weight
 
-    ```
+    ```{r brfss-aggregate-formula}
     aggregate(Weight ~ Year + Sex, brfss, mean)  # same, but more informative
     ```
 
@@ -129,11 +122,10 @@ at a subset of the data.
 This data comes from an (old) Acute Lymphoid Leukemia microarray data
 set.
 
-Either use _RStudio_'s "Import dataset" (with a header, use first
-column for row names, comma-separated) or choose the file that
-contains ALL (acute lymphoblastic leukemia) patient information and
-input the date using `read.csv()`; for `read.csv()`, use the
-`row.names=1` to use the first column as row names.
+Choose the file that contains ALL (acute lymphoblastic leukemia)
+patient information and input the date using `read.csv()`; for
+`read.csv()`, use `row.names=1` to indicate that the first column
+contains row names.
 
 ```{r ALL-choose, eval=FALSE}
 path <- file.choose()    # look for ALL-phenoData.csv
@@ -141,7 +133,7 @@ path <- file.choose()    # look for ALL-phenoData.csv
 
 <!--
 ```{r echo=FALSE}
-path <- system.file(package="BiocIntro", "extdata", "ALL-phenoData.csv")
+path <- file.path("extdata", "ALL-phenoData.csv")
 ```
 -->
 
@@ -194,9 +186,8 @@ tail(pdata[idx,])
 dim(subset(pdata, idx))    # BETTER: no NA rows
 tail(subset(pdata,idx))
 
-## work-around for `[`: set NA values to FALSE
-idx[is.na(idx)] <- FALSE
-dim(pdata[idx,])
+## robust `[`: exclude NA values
+dim(pdata[idx & !is.na(idx),])
 ```
 
 Use the `mol.biol` column to subset the data to contain just

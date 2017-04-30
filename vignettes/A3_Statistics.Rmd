@@ -2,8 +2,7 @@
 title: "A.3 -- Statistics"
 author:
   Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
-  Lori Shepherd <Lori.Shepherd@RoswellPark.org>
-date: "2 March 2017"
+date: "8-9 May 2017"
 output:
   BiocStyle::html_document:
     toc: true
@@ -23,7 +22,7 @@ knitr::opts_chunk$set(
 
 <!--
 ```{r echo=FALSE}
-path <- system.file(package="BiocIntro", "extdata", "BRFSS-subset.csv")
+path <- file.path("extdata", "BRFSS-subset.csv")
 ```
 -->
 ```{r ALL-choose, eval=FALSE}
@@ -37,7 +36,7 @@ brfss <- read.csv(path)
 
 ## Clean data
 
-_R_ read `Year` is an integer value, but it's really a `factor`
+_R_ read `Year` as an integer value, but it's really a `factor`
 
 ```{r}
 brfss$Year <- factor(brfss$Year)
@@ -132,7 +131,7 @@ Start by finding the expression data file on disk.
 
 <!--
 ```{r echo=FALSE}
-path <- system.file(package="BiocIntro", "extdata", "ALL-expression.csv")
+path <- file.path("extdata", "ALL-expression.csv")
 stopifnot(file.exists(path))
 ```
 -->
@@ -170,7 +169,7 @@ We'll make use of the data describing the samples
 
 <!--
 ```{r echo=FALSE}
-path <- system.file(package="BiocIntro", "extdata", "ALL-phenoData.csv")
+path <- file.path("extdata", "ALL-phenoData.csv")
 stopifnot(file.exists(path))
 ```
 -->

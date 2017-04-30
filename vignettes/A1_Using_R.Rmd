@@ -2,8 +2,7 @@
 title: "A.1 -- Using R"
 author:
   Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
-  Lori Shepherd <Lori.Shepherd@RoswellPark.org>
-date: "2 March 2017"
+date: "8-9 May 2017"
 output:
   BiocStyle::html_document:
     toc: true
@@ -53,7 +52,7 @@ x = c(1, 2, 3)
 x
 ```
 
-_R_ functions, such as `sqrt()`, often operate efficienty on vectors
+_R_ functions, such as `sqrt()`, often operate efficiently on vectors
 
 ```{r vectorized}
 y = sqrt(x)
@@ -89,7 +88,7 @@ y
   logical, character, raw (bytes)
 
     ```{r atomic-vectors}
-    people <- c("Lori", "Yubo", "Greg", "Nitesh", "Valerie", "Herve")
+    people <- c("Lori", "Nitesh", "Valerie", "Herve")
     people
     ```
 
@@ -131,7 +130,7 @@ y
     substr(people, 1, 3)
     ```
 
-- _R_ is a green consumer -- recylcing short vectors to align with
+- _R_ is a green consumer -- recycling short vectors to align with
   long vectors
 
     ```{r greenery}
@@ -189,7 +188,7 @@ e.g., two 'columns' of data in a spreadsheet
 ```{r related-variables}
 x = rnorm(1000)       # 1000 random normal deviates
 y = x + rnorm(1000)   # another 1000 deviates, as a function of x
-plot(y ~ x)           # relationship bewteen x and y
+plot(y ~ x)           # relationship between x and y
 ```
 
 Convenient to manipulate them together

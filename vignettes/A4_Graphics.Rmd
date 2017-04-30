@@ -1,15 +1,14 @@
 ---
-title: "A.4 -- Graphics"
+title: "A.4 -- R Work Flows and Data Visualization"
 author:
   Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
-  Lori Shepherd <Lori.Shepherd@RoswellPark.org>
-date: "2 March 2017"
+date: "8-9 May 2017"
 output:
   BiocStyle::html_document:
     toc: true
     toc_depth: 2
 vignette: >
-  % \VignetteIndexEntry{A.4 -- Graphics}
+  % \VignetteIndexEntry{A.4 -- R Workflows and Data Visualization}
   % \VignetteEngine{knitr::rmarkdown}
 ---
 
@@ -61,7 +60,7 @@ library("survival")
 ```
 
 There are many thousands of _R_ packages, and not all of them are
-installed in a single installation. Important repostories are
+installed in a single installation. Important repositories are
 
 - CRAN: https://cran.r-project.org/
 - Bioconductor: https://bioconductor.org/packages
@@ -93,7 +92,7 @@ Load the BRFSS-subset.csv data
 
 <!--
 ```{r}
-path <- system.file(package="BiocIntro", "extdata", "BRFSS-subset.csv")
+path <- file.path("extdata", "BRFSS-subset.csv")
 brfss <- read.csv(path)
 ```
 -->

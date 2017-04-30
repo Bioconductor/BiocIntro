@@ -2,8 +2,7 @@
 title: "B.4 -- Next Steps"
 author:
   Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
-  Lori Shepherd <Lori.Shepherd@RoswellPark.org>
-date: "3 March 2017"
+date: "8-9 May 2017"
 output:
   BiocStyle::html_document:
     toc: true
@@ -82,9 +81,8 @@ data; these packages rely very heavily on the [IRanges][] /
   for basic usage.
 - The [ShortRead][] and [Rsamtools][] packages can be used for
   lower-level access to FASTQ and BAM files, respectively. Explore the
-  [ShortRead vignette](https://bioconductor.org/packages/release/bioc/vignettes/ShortRead/inst/doc/Overview.pdf)
-  and Scalable Genomics labs to see approaches to effectively
-  processing the large files.
+  [ShortRead vignette][] and Scalable Genomics labs to see approaches
+  to effectively processing the large files.
 
 Visualization
 
@@ -389,3 +387,5 @@ f1 <- function(n)
 [dplyr]: https://cran.r-project.org/package=dplyr
 [data.table]: https://cran.r-project.org/package=data.table
 [Rcpp]: https://cran.r-project.org/package=Rcpp
+
+[ShortRead vignette]: https://bioconductor.org/packages/release/bioc/vignettes/ShortRead/inst/doc/Overview.pdf
