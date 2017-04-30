@@ -1,0 +1,623 @@
+---
+title: "B.2 -- _Bioconductor_ Building Blocks"
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+  Lori Shepherd <Lori.Shepherd@RoswellPark.org>
+date: "3 March 2017"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{B.2 -- Bioconductor Building Blocks}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+options(width=100)
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
+```{r setup, echo=FALSE}
+suppressPackageStartupMessages({
+    library(SummarizedExperiment)
+    library(GenomicAlignments)
+    library(AnnotationHub)
+    library(biomaRt)
+    library(airway)
+    library(org.Hs.eg.db)
+    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+    library(RNAseqData.HNRNPC.bam.chr14)
+})
+```
+
+# Core infrastructure
+
+## _Biostrings_
+
+DNA, amino acid, and other biological sequences. See earlier example
+in [B.1 Introduction to _Bioconductor_]
+
+## _GenomicRanges_
+
+[GenomicRanges][]
+
+- `GRanges()`: genomic coordinates to represent annotations (exons,
+  genes, regulatory marks, ...) and data (called peaks, variants,
+  aligned reads)
+
+    ![Alt GRanges](our_figures/GRanges.png)
+
+- `GRangesList()`: genomic coordinates grouped into list elements
+  (e.g., paired-end reads; exons grouped by transcript)
+
+    ![Alt GRangesList](our_figures/GRangesList.png)
+
+### Range operations
+
+![Alt Ranges Algebra](our_figures/RangeOperations.png)
+
+Ranges
+
+- IRanges
+    - `start()` / `end()` / `width()`
+    - List-like -- `length()`, subset, etc.
+    - 'metadata', `mcols()`
+- GRanges
+    - 'seqnames' (chromosome), 'strand'
+    - `Seqinfo`, including `seqlevels` and `seqlengths`
+
+Intra-range methods
+
+- Independent of other ranges in the same object
+- GRanges variants strand-aware
+- `shift()`, `narrow()`, `flank()`, `promoters()`, `resize()`,
+  `restrict()`, `trim()`
+- See `?"intra-range-methods"`
+
+Inter-range methods
+
+- Depends on other ranges in the same object
+- `range()`, `reduce()`, `gaps()`, `disjoin()`
+- `coverage()` (!)
+- see `?"inter-range-methods"`
+
+Between-range methods
+
+- Functions of two (or more) range objects
+- `findOverlaps()`, `countOverlaps()`, ..., `%over%`, `%within%`,
+  `%outside%`; `union()`, `intersect()`, `setdiff()`, `punion()`,
+  `pintersect()`, `psetdiff()`
+
+Example
+
+```{r ranges, message=FALSE}
+library(GenomicRanges)
+gr <- GRanges("A", IRanges(c(10, 20, 22), width=5), "+")
+shift(gr, 1)                            # intra-range
+range(gr)                               # inter-range
+reduce(gr)                              # inter-range
+snps <- GRanges("A", IRanges(c(11, 17, 24), width=1))
+findOverlaps(snps, gr)                  # between-range
+setdiff(range(gr), gr)                  # 'introns'
+```
+
+## _GenomicAlignments_
+
+Representation of aligned reads. See exercises below.
+
+## _SummarizedExperiment_
+
+[SummarizedExperiment][]
+
+![Alt SummarizedExperiment](our_figures/SummarizedExperiment.png)
+
+- Coordinate feature x sample 'assays' with row (feature) and column
+  (sample) descriptions.
+- `colData()` data frame for desciption of samples
+- `rowRanges()` _GRanges_ / _GRangeList_ or data frame for description
+  of features
+- `exptData()` to describe the entire object
+- `assays()` can be any matrix-like object, including very large
+  on-disk representations such as [HDF5Array][]
+
+    ```{r SummarizedExperiment}
+    library(SummarizedExperiment)
+    library(airway)
+    data(airway)
+    airway
+    colData(airway)
+    airway[, airway$dex %in% "trt"]
+    chr14 <- as(seqinfo(airway), "GRanges")["14"]
+    airway[airway %over% chr14,]
+    ```
+
+## Annotation Resources
+
+- _Bioconductor_ provides extensive access to 'annotation' resources
+  (see the [AnnotationData][] biocViews hierarchy); some interesting
+  examples to explore during this lab include:
+- [biomaRt][], [PSICQUIC][], [KEGGREST][] and other packages for
+  querying on-line resources; each of these have informative vignettes.
+- [AnnotationDbi][] is a cornerstone of the
+  [Annotation Data][AnnotationData] packages provided by Bioconductor.
+    - **org** packages (e.g., [org.Hs.eg.db][]) contain maps between
+      different gene identifiers, e.g., ENTREZ and SYMBOL. The basic
+      interface to these packages is described on the help page `?select`
+    - **TxDb** packages (e.g., [TxDb.Hsapiens.UCSC.hg19.knownGene][])
+      contain gene models (exon coordinates, exon / transcript
+      relationships, etc) derived from common sources such as the hg19
+      knownGene track of the UCSC genome browser. These packages can be
+      queried, e.g., as described on the `?exonsBy` page to retrieve all
+      exons grouped by gene or transcript.
+    - **BSgenome** packages (e.g., [BSgenome.Hsapiens.UCSC.hg19][])
+      contain whole genomes of model organisms.
+- [VariantAnnotation][] and [ensemblVEP][] provide access to sequence
+  annotation facilities, e.g., to identify coding variants; see the
+  [Introduction to VariantAnnotation][] vignette for a brief
+  introduction.
+- Take a quick look at the [annotation work
+  flow](https://bioconductor.org/help/workflows/annotation/annotation/)
+  on the Bioconductor web site.
+
+Static packages
+
+- _org.\*_: identifier mappings
+
+    - `select()`, `columns()`, `keys()`
+    - `mapIds()`
+
+    ```{r}
+    library(org.Hs.eg.db)
+    org <- org.Hs.eg.db
+    select(org, "BRCA1", c("ENSEMBL", "GENENAME"), "SYMBOL")
+    ```
+
+- _TxDb.\*_: gene models
+
+    - `exons()`, `transcripts()`, `genes()`, `promoters()`, ...
+    - `exonsBy()`, `transcriptsBy()`
+    - `select()`, etc.
+
+    ```{r}
+    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+    txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+    promoters(txdb)
+    ```
+
+Web-based resources, e.g., [biomaRt][], [PSICQUIC][], [GEOquery][], ...
+
+Genome-scale resources via [AnnotationHub][]
+
+```{r}
+library(AnnotationHub)
+hub = AnnotationHub()
+hub
+query(hub, c("ensembl", "81.gtf"))
+hub[["AH48004"]]
+```
+
+# From files to _Bioconductor_ objects
+
+## BED, GFF, GTF, WIG import and export
+
+Genome annotations: BED, WIG, GTF, etc. files. E.g., GTF:
+
+- Component coordinates
+
+        7   protein_coding  gene        27221129    27224842    .   -   . ...
+        ...
+        7   protein_coding  transcript  27221134    27224835    .   -   . ...
+        7   protein_coding  exon        27224055    27224835    .   -   . ...
+        7   protein_coding  CDS         27224055    27224763    .   -   0 ...
+        7   protein_coding  start_codon 27224761    27224763    .   -   0 ...
+        7   protein_coding  exon        27221134    27222647    .   -   . ...
+        7   protein_coding  CDS         27222418    27222647    .   -   2 ...
+        7   protein_coding  stop_codon  27222415    27222417    .   -   0 ...
+        7   protein_coding  UTR         27224764    27224835    .   -   . ...
+        7   protein_coding  UTR         27221134    27222414    .   -   . ...
+
+- Annotations
+
+        gene_id "ENSG00000005073"; gene_name "HOXA11"; gene_source "ensembl_havana"; gene_biotype "protein_coding";
+        ...
+        ... transcript_id "ENST00000006015"; transcript_name "HOXA11-001"; transcript_source "ensembl_havana"; tag "CCDS"; ccds_id "CCDS5411";
+        ... exon_number "1"; exon_id "ENSE00001147062";
+        ... exon_number "1"; protein_id "ENSP00000006015";
+        ... exon_number "1";
+        ... exon_number "2"; exon_id "ENSE00002099557";
+        ... exon_number "2"; protein_id "ENSP00000006015";
+        ... exon_number "2";
+        ...
+
+[rtracklayer][]
+
+- `import()`: import various formats to `GRanges` and similar instances
+- `export()`: transform from `GRanges` and similar types to BED, GTF, ...
+- Also, functions to interactively drive UCSC genome browser with data
+  from _R_ / _Bioconductor_
+
+## FASTQ files
+
+Sequenced reads: FASTQ files
+
+    @ERR127302.1703 HWI-EAS350_0441:1:1:1460:19184#0/1
+    CCTGAGTGAAGCTGATCTTGATCTACGAAGAGAGATAGATCTTGATCGTCGAGGAGATGCTGACCTTGACCT
+    +
+    HHGHHGHHHHHHHHDGG<GDGGE@GDGGD<?B8??ADAD<BE@EE8EGDGA3CB85*,77@>>CE?=896=:
+    @ERR127302.1704 HWI-EAS350_0441:1:1:1460:16861#0/1
+    GCGGTATGCTGGAAGGTGCTCGAATGGAGAGCGCCAGCGCCCCGGCGCTGAGCCGCAGCCTCAGGTCCGCCC
+    +
+    DE?DD>ED4>EEE>DE8EEEDE8B?EB<@3;BA79?,881B?@73;1?########################
+
+[ShortRead][]
+
+- `readFastq()`: input
+- `FastqStreamer()`: iterate through FASTQ files
+- `FastqSampler()`: sample from FASTQ files, e.g., for quality assessment
+- Functions for trimming and filters FASTQ files, QA assessment
+
+## Aligned reads
+
+Aligned reads: BAM files
+
+- Header
+
+        @HD     VN:1.0  SO:coordinate
+        @SQ     SN:chr1 LN:249250621
+        @SQ     SN:chr10        LN:135534747
+        @SQ     SN:chr11        LN:135006516
+        ...
+        @SQ     SN:chrY LN:59373566
+        @PG     ID:TopHat       VN:2.0.8b       CL:/home/hpages/tophat-2.0.8b.Linux_x86_64/tophat --mate-inner-dist 150 --solexa-quals --max-multihits 5 --no-discordant --no-mixed --coverage-search --microexon-search --library-type fr-unstranded --num-threads 2 --output-dir tophat2_out/ERR127306 /home/hpages/bowtie2-2.1.0/indexes/hg19 fastq/ERR127306_1.fastq fastq/ERR127306_2.fastq
+
+- Alignments: ID, flag, alignment and mate
+
+        ERR127306.7941162       403     chr14   19653689        3       72M             =       19652348        -1413  ...
+        ERR127306.22648137      145     chr14   19653692        1       72M             =       19650044        -3720  ...
+        ERR127306.933914        339     chr14   19653707        1       66M120N6M       =       19653686        -213   ...
+
+- Alignments: sequence and quality
+
+        ... GAATTGATCAGTCTCATCTGAGAGTAACTTTGTACCCATCACTGATTCCTTCTGAGACTGCCTCCACTTCCC        *'%%%%%#&&%''#'&%%%)&&%%$%%'%%'&*****$))$)'')'%)))&)%%%%$'%%%%&"))'')%))
+        ... TTGATCAGTCTCATCTGAGAGTAACTTTGTACCCATCACTGATTCCTTCTGAGACTGCCTCCACTTCCCCAG        '**)****)*'*&*********('&)****&***(**')))())%)))&)))*')&***********)****
+        ... TGAGAGTAACTTTGTACCCATCACTGATTCCTTCTGAGACTGCCTCCACTTCCCCAGCAGCCTCTGGTTTCT        '******&%)&)))&")')'')'*((******&)&'')'))$))'')&))$)**&&****************
+
+- Alignments: Tags
+
+        ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:0  MD:Z:72 YT:Z:UU NH:i:2  CC:Z:chr22      CP:i:16189276   HI:i:0
+        ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:0  MD:Z:72 YT:Z:UU NH:i:3  CC:Z:=  CP:i:19921600   HI:i:0
+        ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:4  MD:Z:72 YT:Z:UU XS:A:+  NH:i:3  CC:Z:=  CP:i:19921465   HI:i:0
+        ... AS:i:0  XN:i:0  XM:i:0  XO:i:0  XG:i:0  NM:i:4  MD:Z:72 YT:Z:UU XS:A:+  NH:i:2  CC:Z:chr22      CP:i:16189138   HI:i:0
+
+[GenomicAlignments][]
+
+- `readGAlignments()`: Single-end reads
+- `readGAlignmentPairs()`, `readGAlignmentsList()`: paired end reads
+
+Working with large files
+
+- `ScanBamParam()`: restrict input
+- `BamFile(, yieldSize=)`: iteration
+- [GenomicFiles][] provides useful helpers, e.g., `reduceByYield()`
+
+## Called variants: VCF files
+
+- Header
+
+          ##fileformat=VCFv4.2
+          ##fileDate=20090805
+          ##source=myImputationProgramV3.1
+          ##reference=file:///seq/references/1000GenomesPilot-NCBI36.fasta
+          ##contig=<ID=20,length=62435964,assembly=B36,md5=f126cdf8a6e0c7f379d618ff66beb2da,species="Homo sapiens",taxonomy=x>
+          ##phasing=partial
+          ##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+          ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
+          ...
+          ##FILTER=<ID=q10,Description="Quality below 10">
+          ##FILTER=<ID=s50,Description="Less than 50% of samples have data">
+          ...
+          ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+          ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+
+- Location
+
+          #CHROM POS     ID        REF    ALT     QUAL FILTER ...
+          20     14370   rs6054257 G      A       29   PASS   ...
+          20     17330   .         T      A       3    q10    ...
+          20     1110696 rs6040355 A      G,T     67   PASS   ...
+
+- Variant INFO
+
+          #CHROM POS     ...	INFO                              ...
+          20     14370   ...	NS=3;DP=14;AF=0.5;DB;H2           ...
+          20     17330   ...	NS=3;DP=11;AF=0.017               ...
+          20     1110696 ...	NS=2;DP=10;AF=0.333,0.667;AA=T;DB ...
+
+- Genotype FORMAT and samples
+
+          ... POS     ...  FORMAT      NA00001        NA00002        NA00003
+          ... 14370   ...  GT:GQ:DP:HQ 0|0:48:1:51,51 1|0:48:8:51,51 1/1:43:5:.,.
+          ... 17330   ...  GT:GQ:DP:HQ 0|0:49:3:58,50 0|1:3:5:65,3   0/0:41:3
+          ... 1110696 ...  GT:GQ:DP:HQ 1|2:21:6:23,27 2|1:2:0:18,2   2/2:35:4
+
+[VariantAnnotation][]
+
+- `readVcf()`: VCF input
+- `ScanVcfParam()`: restrict input to necessary fields / ranges
+- `VcfFile()`: indexing and iterating through large VCF files
+- `locateVariants()`: annotate in relation to genes, etc; see also
+  [ensemblVEP][], [VariantFiltering][]
+- `filterVcf()`: flexible filtering
+
+# Exercises
+
+## _GenomicAlignments_
+
+The [RNAseqData.HNRNPC.bam.chr14][] package is an example of an
+experiment data package. It contains a subset of BAM files used in a
+gene knock-down experiment, as described in
+`?RNAseqData.HNRNPC.bam.chr14`. Load the package and get the path to
+the BAM files.
+
+```{r}
+library(RNAseqData.HNRNPC.bam.chr14)
+fls = RNAseqData.HNRNPC.bam.chr14_BAMFILES
+basename(fls)
+```
+
+Create `BamFileList()`, basically telling R that these are paths to
+BAM files rather than, say, text files from a spreadsheet.
+
+```{r}
+library(GenomicAlignments)
+bfls = BamFileList(fls)
+bfl = bfls[[1]]
+```
+
+Input and explore the aligments. See `?readGAlignments` and
+`?GAlignments` for details on how to manipulate these objects.
+
+```{r}
+ga = readGAlignments(bfl)
+ga
+table(strand(ga))
+```
+
+Many of the reads have cigar "72M". What does this mean? Can you
+create a subset of reads that do not have this cigar? Interpret some
+of the non-72M cigars. Any hint about what these cigars represent?
+
+```{r}
+tail(sort(table(cigar(ga))))
+ga[cigar(ga) != "72M"]
+```
+
+Use the function `summarizeJunctions()` to identify genomic regions
+that are spanned by reads with complicated cigars. Can you use the
+argument `with.revmap=TRUE` to extract the reads supporting a
+particular (e.g., first) junction?
+
+```{r}
+summarizeJunctions(ga)
+junctions <- summarizeJunctions(ga, with.revmap=TRUE)
+ga[ junctions$revmap[[1]] ]
+```
+
+It is possible to do other actions on BAM files, e.g., calculating the
+'coverage' (reads overlapping each base).
+
+```{r}
+coverage(bfl)$chr14
+```
+
+## _SummarizedExperiment_ exercise
+
+The [airway][] experiment data package summarizes an RNA-seq
+experiment investigating human smooth-muscle airway cell lines treated
+with dexamethasone. Load the library and data set.
+
+```{r}
+library(airway)
+data(airway)
+airway
+```
+
+`airway` is an example of the _SummarizedExperiment_ class. Explore
+its `assay()` (the matrix of counts of reads overlapping genomic
+regions of interest in each sample), `colData()` (a description of
+each sample), and `rowRanges()` (a description of each region of
+interest; here each region is an ENSEMBL gene).
+
+```{r}
+x <- assay(airway)
+class(x)
+dim(x)
+head(x)
+colData(airway)
+rowRanges(airway)
+```
+
+It's easy to subset a _SummarizedExperiment_ on rows, columns and
+assays, e.g., retaining just those samples in the `trt` level of the
+`dex` factor. Accessing elements of the column data is common, so
+there is a short-cut.
+
+```{r}
+cidx <- colData(airway)$dex %in% "trt"
+airway[, cidx]
+## shortcut
+airway[, airway$dex %in% "trt"]
+```
+
+It's also easy to perform range-based operations on
+`SummarizedExperiment` objects, e.g., querying for range of chromosome
+14 and then subsetting to contain only genes on this chromosome. Range
+operations on rows are very common, so there are shortcuts here, too.
+
+```{r}
+chr14 <- as(seqinfo(rowRanges(airway)), "GRanges")["14"]
+ridx <- rowRanges(airway) %over% chr14
+airway[ridx,]
+## shortcut
+chr14 <- as(seqinfo(airway), "GRanges")["14"]
+airway[airway %over% chr14,]
+```
+
+Use the `assay()` and `rowSums()` function to remove all rows from the
+`airway` object that have 0 reads overlapping all samples. Summarize
+the library size (column sums of `assay()`) and plot a histogram of
+the distribution of reads per feature of interest.
+
+## Annotation and _GenomicFeatures_
+
+Load the org package for _Homo sapiens_.
+
+```{r}
+library(org.Hs.eg.db)
+```
+
+Use `select()` to annotate the HNRNPC gene symbol with its Entrez
+identifier and less formal gene name. Create a map between SYMBOL and
+ENTREZID using `mapIds()`.
+
+```{r}
+select(org.Hs.eg.db, "HNRNPC", c("ENTREZID", "GENENAME"), "SYMBOL")
+sym2eg <- mapIds(org.Hs.eg.db, "HNRNPC", "ENTREZID", "SYMBOL")
+```
+
+Load the TxDb package for the UCSC hg19 knownGene track
+
+```{r}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+```
+
+Extract coordinates of genes, and of exons grouped by gene for the
+HNRNPC gene.
+
+```{r}
+gns <- genes(txdb)
+exonsBy(txdb, "gene")[sym2eg]
+```
+
+Use the gene coordinates to query the BAM file for a specific genomic
+region; see `?ScanBamParam()` for other ways of restricting data
+input.
+
+```{r}
+library(Rsamtools)
+param <- ScanBamParam(which=gns[sym2eg])
+readGAlignments(bfl, param=param)
+```
+
+## _AnnotationHub_
+
+The [Roadmap Epigenomics Project][] generated genome-wide maps of
+regulatory marks across a number of cell lines.
+
+Retrieve the Epigenome Roadmap table from [AnnotationHub][]...
+
+```{r}
+library(AnnotationHub)
+hub <- AnnotationHub()
+query(hub, c("epigenome", "metadata"))
+meta <- hub[["AH41830"]]
+```
+
+Explore the metadata to identify a cell line of interest to you; see
+also the [metadata][] spreadsheet version of the data made available
+by the Epigenome roadmap project.
+
+```{r}
+table(meta$ANATOMY)
+meta[meta$ANATOMY == "LIVER",]
+```
+
+Use the 'EID' to query for and retrieve the 'mnemonic' file
+summarizing chromatin state
+
+```{r}
+query(hub, c("E118", "mnemonic"))
+E118 <- hub[["AH46971"]]
+E118
+```
+
+Explore the object, e.g., tabulating the different chromatin state
+classifications (in the `name` column). Subset the object to return,
+e.g., just those regions marked as 'Heterochromatin'
+
+```{r}
+table(E118$name)
+E118[E118$name %in% "Heterochromatin"]
+```
+
+Can you, using a TxDb package and the `genes()` and
+`subsetByOverlaps()` functions, determine how many genes overlap
+heterochromatic states, or the genes `nearest()` each enhancer?
+
+## _biomaRt_
+
+Visit the [biomart website][] and figure out how to browse data to
+retreive, e.g., genes on chromosmes 21 and 22. You'll need to browse
+to the ensembl mart, _Homo spaiens_ data set, establish filters for
+chromosomes 21 and 22, and then specify that you'd like the Ensembl
+gene id attribute returned.
+
+Now do the same process in [biomaRt][]:
+
+```{r biomart, eval=FALSE}
+library(biomaRt)
+head(listMarts(), 3)                      ## list marts
+head(listDatasets(useMart("ensembl")), 3) ## mart datasets
+ensembl <-                                ## fully specified mart
+    useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+head(listFilters(ensembl), 3)             ## filters
+myFilter <- "chromosome_name"
+substr(filterOptions(myFilter, ensembl), 1, 50) ## return values
+myValues <- c("21", "22")
+head(listAttributes(ensembl), 3)          ## attributes
+myAttributes <- c("ensembl_gene_id","chromosome_name")
+
+## assemble and query the mart
+res <- getBM(attributes =  myAttributes, filters =  myFilter,
+             values =  myValues, mart = ensembl)
+```
+
+
+[B.1 Introduction to _Bioconductor_]: ./B1_Bioconductor_Intro.html
+[Roadmap Epigenomics Project]: http://egg2.wustl.edu/roadmap/web_portal/
+[metadata]: https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
+[biomart website]: http://biomart.org
+[Introduction to VariantAnnotation]: https://bioconductor.org/packages/release/bioc/vignettes/ShortRead/inst/doc/Overview.pdf
+
+[AnnotationDbi]: https://bioconductor.org/packages/AnnotationDbi
+[AnnotationHub]: https://bioconductor.org/packages/AnnotationHub
+[BSgenome.Hsapiens.UCSC.hg19]: https://bioconductor.org/packages/BSgenome.Hsapiens.UCSC.hg19
+[BSgenome]: https://bioconductor.org/packages/BSgenome
+[Biostrings]: https://bioconductor.org/packages/Biostrings
+[GenomicAlignments]: https://bioconductor.org/packages/GenomicAlignments
+[GenomicFeatures]: https://bioconductor.org/packages/GenomicFeatures
+[GenomicFiles]: https://bioconductor.org/packages/GenomicFiles
+[GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
+[HDF5Array]: https://bioconductor.org/packages/HDF5Array
+[KEGGREST]: https://bioconductor.org/packages/KEGGREST
+[PSICQUIC]: https://bioconductor.org/packages/PSICQUIC
+[RNAseqData.HNRNPC.bam.chr14]: https://bioconductor.org/packages/RNAseqData.HNRNPC.bam.chr14
+[Rsamtools]: https://bioconductor.org/packages/Rsamtools
+[ShortRead]: https://bioconductor.org/packages/ShortRead
+[SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
+[TxDb.Hsapiens.UCSC.hg19.knownGene]: https://bioconductor.org/packages/TxDb.Hsapiens.UCSC.hg19.knownGene
+[VariantAnnotation]: https://bioconductor.org/packages/VariantAnnotation
+[VariantFiltering]: https://bioconductor.org/packages/VariantFiltering
+[airway]: https://bioconductor.org/packages/airway
+[biomaRt]: https://bioconductor.org/packages/biomaRt
+[GEOquery]: https://bioconductor.org/packages/GEOquery
+[ensemblVEP]: https://bioconductor.org/packages/ensemblVEP
+[org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
+[rtracklayer]: https://bioconductor.org/packages/rtracklayer
+
+[AnnotationData]: https://bioconductor.org/packages/release/BiocViews.html#___AnnotationData

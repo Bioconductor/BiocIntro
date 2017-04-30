@@ -1,0 +1,259 @@
+---
+title: "A.2 -- Data Input and Manipulation"
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+  Lori Shepherd <Lori.Shepherd@RoswellPark.org>
+date: "2 March 2017"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{A.2 -- Data Input and Manipulation}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+options(width=100)
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
+# Exercise 1: BRFSS Survey Data
+
+We will explore a subset of data collected by the CDC through its
+extensive Behavioral Risk Factor Surveillance System ([BRFSS][])
+telephone survey. Check out the link for more information. We'll look
+at a subset of the data.
+
+0. (Easy) Use _RStudio_'s "Import Dataset" function to find the
+   'BRFSS-subset.csv' file that you've downloaded to your local
+   disk. Skip the next two steps.
+
+1. (Alternative) Use `file.choose()` to find the path to the file
+   'BRFSS-subset.csv'
+
+    ```{r file.choose, eval=FALSE}
+    path <- file.choose()
+    ```
+
+<!--
+    ```{r system.file, echo=FALSE}
+    path <- system.file(package="BiocIntro", "extdata", "BRFSS-subset.csv")
+    ```
+-->
+
+2. (Alternative, continued) Input the data using `read.csv()`,
+   assigning to a variable `brfss`
+
+    ```{r read.csv}
+    brfss <- read.csv(path)
+    ```
+
+3. Use command like `class()`, `head()`, `dim()`, `summary()` to
+   explore the data.
+
+    - What variables have been measured?
+
+    - Can you guess at the units used for, e.g., Weight and Height?
+    
+    ```
+    class(brfss)
+    head(brfss)
+    dim(brfss)
+    summary(brfss)
+    ```
+
+4. Use the `$` operator to extract the 'Sex' column, and summarize the
+   number of males and females in the survey using `table()`. Do the
+   same for 'Year', and for both `Sex` and `Year`
+
+    ```{r brfss-sex}
+    table(brfss$Sex)
+    table(brfss$Year)
+    table(brfss$Sex, brfss$Year)
+    with(brfss, table(Sex, Year))                # same, but easier
+    ```
+
+5. Use `aggregate()` to summarize the mean weight of each group. What
+   about the median weight of each group? What about the _number_ of
+   observations in each group?
+
+    ```{r brfss-aggregate}
+    with(brfss, aggregate(Weight, list(Year, Sex), mean, na.rm=TRUE))
+    with(brfss, aggregate(Weight, list(Year=Year, Sex=Sex), mean, na.rm=TRUE))
+    ```
+
+6. (advanced) Use a `formula` and the `aggregate()` function to
+   describe the relationship between Year, Sex, and Weight
+
+    ```
+    aggregate(Weight ~ Year + Sex, brfss, mean)  # same, but more informative
+    ```
+
+7. Create a subset of the data consisting of only the 1990
+   observations. Perform a t-test comparing the weight of males and
+   females ("'Weight' as a function of 'Sex'", `Weight ~ Sex`)
+
+    ```{r t-test-1990}
+    brfss_1990 = brfss[brfss$Year == 1990,]
+    t.test(Weight ~ Sex, brfss_1990)
+    ```
+   What about differences between weights of males (or females) in
+   1990 versus 2010? Check out the help page `?t.test.formula`. Is
+   there a way of performing a t-test on `brfss` without explicitly
+   creating the object `brfss_1990`?
+
+8. Use `boxplot()` to plot the weights of the Male individuals.
+   Can you transform weight, e.g., `sqrt(Weight) ~ Year`?
+   Interpret the results. Do similar boxplots for the t-tests of the
+   previous question.
+
+    ```{r brfss-boxplot, fig.width=5, fig.height=5}
+    boxplot(Weight ~ Year, brfss, subset = (Sex == "Male"),
+            main="Males")
+    ```
+
+9. Use `hist()` to plot a histogram of weights of the 1990 Female individuals.
+
+    ```{r brfss-hist, fig.width=5, fig.height=5}
+    hist(brfss_1990[brfss_1990$Sex == "Female", "Weight"],
+         main="Females, 1990", xlab="Weight" )
+    ```
+
+[BRFSS]: http://www.cdc.gov/brfss/about/index.htm
+
+# Exercise 2: ALL Phenotypic Data
+
+This data comes from an (old) Acute Lymphoid Leukemia microarray data
+set.
+
+Either use _RStudio_'s "Import dataset" (with a header, use first
+column for row names, comma-separated) or choose the file that
+contains ALL (acute lymphoblastic leukemia) patient information and
+input the date using `read.csv()`; for `read.csv()`, use the
+`row.names=1` to use the first column as row names.
+
+```{r ALL-choose, eval=FALSE}
+path <- file.choose()    # look for ALL-phenoData.csv
+```
+
+<!--
+```{r echo=FALSE}
+path <- system.file(package="BiocIntro", "extdata", "ALL-phenoData.csv")
+```
+-->
+
+```{r ALL-input}
+stopifnot(file.exists(path))
+pdata <- read.csv(path, row.names=1)
+```
+
+Check out the help page `?read.delim` for input options. The exercises
+use `?read.csv`; Can you guess why? Explore basic properties of the
+object you've created, for instance...
+
+```{r ALL-properties}
+class(pdata)
+colnames(pdata)
+dim(pdata)
+head(pdata)
+summary(pdata$sex)
+summary(pdata$cyto.normal)
+```
+
+Remind yourselves about various ways to subset and access columns of a
+data.frame
+
+```{r ALL-subset}
+pdata[1:5, 3:4]
+pdata[1:5, ]
+head(pdata[, 3:5])
+tail(pdata[, 3:5], 3)
+head(pdata$age)
+head(pdata$sex)
+head(pdata[pdata$age > 21,])
+```
+
+It seems from below that there are 17 females over 40 in the data
+set. However, some individuals have `NA` for the age and / or sex, and
+these `NA` values propagate through some computations. Use `table()`
+to summarize the number of females over 40, and the number of samples
+for which this classification cannot be determined. When _R_
+encounters an `NA` value in a subscript index, it introduces an `NA`
+into the result. Observe this (rows of `NA` values introduced into the
+result) when subsetting using `[` versus using the `subset()`
+function.
+
+```{r ALL-subset-NA}
+idx <- pdata$sex == "F" & pdata$age > 40
+table(idx, useNA="ifany")
+dim(pdata[idx,])           # WARNING: 'NA' rows introduced
+tail(pdata[idx,])
+dim(subset(pdata, idx))    # BETTER: no NA rows
+tail(subset(pdata,idx))
+
+## work-around for `[`: set NA values to FALSE
+idx[is.na(idx)] <- FALSE
+dim(pdata[idx,])
+```
+
+Use the `mol.biol` column to subset the data to contain just
+individuals with 'BCR/ABL' or 'NEG', e.g.,
+
+```{r ALL-BCR/ABL-subset}
+bcrabl <- pdata[pdata$mol.biol %in% c("BCR/ABL", "NEG"),]
+```
+
+The `mol.biol` column is a factor, and retains all levels even after
+subsetting. It is sometimes convenient to retain factor levels, but in
+our case we use `droplevels()` to removed unused levels
+
+```{r ALL-BCR/ABL-drop-unused}
+bcrabl$mol.biol <- droplevels(bcrabl$mol.biol)
+```
+
+The `BT` column is a factor describing B- and T-cell subtypes
+
+```{r ALL-BT}
+levels(bcrabl$BT)
+```
+
+How might one collapse B1, B2, ... to a single type B, and likewise
+for T1, T2, ..., so there are only two subtypes, B and T? One strategy
+is to replace two-letter level (e.g., `B1`) with the single-letter
+level (e.g., `B`). Do this using `substring()` to select the first
+letter of level, and update the previous levels with the new value
+using `levels<-`.
+
+```{r ALL-BT-recode}
+table(bcrabl$BT)
+levels(bcrabl$BT) <- substring(levels(bcrabl$BT), 1, 1)
+table(bcrabl$BT)
+```
+
+Use `aggregate()` to count the number of samples with B- and T-cell
+types in each of the BCR/ABL and NEG groups
+
+```{r ALL-BCR/ABL-BT}
+aggregate(rownames(bcrabl) ~ BT + mol.biol, bcrabl, length)
+```
+
+Use `aggregate()` to calculate the average age of males and females in
+the BCR/ABL and NEG treatment groups.
+
+```{r ALL-aggregate}
+aggregate(age ~ mol.biol + sex, bcrabl, mean)
+```
+
+Use `t.test()` to compare the age of individuals in the BCR/ABL versus
+NEG groups; visualize the results using `boxplot()`. In both cases,
+use the `formula` interface. Consult the help page `?t.test` and re-do
+the test assuming that variance of ages in the two groups is
+identical. What parts of the test output change?
+
+```{r ALL-age}
+t.test(age ~ mol.biol, bcrabl)
+boxplot(age ~ mol.biol, bcrabl)
+```
