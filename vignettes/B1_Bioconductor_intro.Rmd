@@ -163,33 +163,50 @@ _Bioconductor_ classes and methods -- "S4"
 
 ## High-throughput sequence analysis work flows
 
-1. Experimental design
+### Step 1. Experimental design
 
-2. Wet-lab sequence preparation (figure from http://rnaseq.uoregon.edu/)
+- Simple, e.g., one or two experimental factors, two levels
+- Power analysis and effect size
+- Replication -- 3 often sufficient
+- Covariates and batch effects
 
-    ![](our_figures/fig-rna-seq.png)
+### Step 2. Wet-lab sequence preparation
 
-3. (Illumina) Sequencing (Bentley et al., 2008,
-   doi:10.1038/nature07517)
+- Figure from http://rnaseq.uoregon.edu/
 
-    ![](http://www.nature.com/nature/journal/v456/n7218/images/nature07517-f1.2.jpg)
+![](our_figures/fig-rna-seq.png)
 
-    - Primary output: FASTQ files of short reads and their [quality
-      scores](http://en.wikipedia.org/wiki/FASTQ_format#Encoding)
+### Step 3. (Illumina) Sequencing 
 
-4. Alignment
-    - Choose to match task, e.g., [Rsubread][], Bowtie2 good for ChIPseq,
-      some forms of RNAseq; BWA, GMAP better for variant calling
-    - Primary output: BAM files of aligned reads
-    - More recently: [kallisto][] and similar programs that produce
-      tables of reads aligned to transcripts
-5. Reduction
-    - e.g., RNASeq 'count table' (simple spreadsheets), DNASeq called
-      variants (VCF files), ChIPSeq peaks (BED, WIG files)
-6. Analysis
-    - Differential expression, peak identification, ...
-7. Comprehension
-    - Biological context
+- Bentley et al., 2008, doi:10.1038/nature07517
+- Primary output: FASTQ files of short reads and their
+  [quality scores][].
+
+![](http://www.nature.com/nature/journal/v456/n7218/images/nature07517-f1.2.jpg)
+
+### Step 4. Alignment
+
+- Choose to match task, e.g., [Rsubread][], Bowtie2 good for ChIPseq,
+  some forms of RNAseq; BWA, GMAP better for variant calling
+- Primary output: BAM files of aligned reads
+- More recently: [kallisto][] and similar programs that produce
+  tables of reads aligned to transcripts
+
+### Step 5. Reduction
+
+- e.g., RNASeq 'count table' (simple spreadsheets), DNASeq called
+  variants (VCF files), ChIPSeq peaks (BED, WIG files)
+
+### Step 6. Analysis
+
+- Differential expression, peak identification, differential binding,
+  ...
+
+### Step 7. Comprehension
+
+- Biological context; annotation, gene set analysis, ...
+
+[quality scores]: http://en.wikipedia.org/wiki/FASTQ_format#Encoding
 
 ## _Bioconductor_ sequencing ecosystem
 

@@ -305,7 +305,7 @@ _de novo_ hybrid strategies
 This exercise is based on the `r Biocpkg("csaw")` vignette, where more
 detail can be found.
 
-## 1 - 4: Experimental Design ... Alignment
+## Steps 1 - 4: Experimental Design ... Alignment
 
 The experiment involves changes in binding profiles of the NFYA
 protein between embryonic stem cells and terminal neurons. It is a
@@ -337,7 +337,7 @@ files <- local({
 })
 ```
 
-## 5: Reduction
+## Step 5: Reduction
 
 Change to the directory where the BAM files are located
 
@@ -359,7 +359,7 @@ acc <- sub(".fastq.*", "", data$bam.files)
 colData(data) <- cbind(files[acc,], colData(data))
 ```
 
-## 6: Analysis
+## Step 6: Analysis
 
 **Filtering** (vignette Chapter 3) Start by filtering low-count
 windows. There are likely to be many of these (how many?). Is there a
@@ -449,8 +449,12 @@ grl <- split(gr, merged$id)
 mcols(grl) <- as(tabcom, "DataFrame")
 ```
 
-## Annotation
+## Step 7: Comprehension
 
-### csaw
+### Annotation
 
-### ChIPseeker
+#### csaw
+
+#### ChIPseeker
+
+### Gene Set Enrichment
