@@ -2,7 +2,7 @@
 title: "A.2 -- Data Input and Manipulation"
 author:
   Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
-date: "8-9 May 2017"
+date: "8 - 9 May 2017"
 output:
   BiocStyle::html_document2:
     toc: true

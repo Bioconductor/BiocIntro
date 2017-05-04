@@ -2,7 +2,7 @@
 title: "B.1 -- Introduction to _Bioconductor_"
 author:
   Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
-date: "8-9 May 2017"
+date: "8 - 9 May 2017"
 output:
   BiocStyle::html_document2:
     toc: true
@@ -167,48 +167,46 @@ abline(fit)
 
 ## High-throughput sequence analysis work flows
 
-### Step 1. Experimental design
+- Step 1. Experimental design
 
-- Simple, e.g., one or two experimental factors, two levels
-- Power analysis and effect size
-- Replication -- 3 often sufficient
-- Covariates and batch effects
+    - Simple, replication, sufficient power, covariates and batch
+      effects, ...
 
-### Step 2. Wet-lab sequence preparation
+- Step 2. Wet-lab sequence preparation
 
-- Figure from http://rnaseq.uoregon.edu/
+    - Figure from http://rnaseq.uoregon.edu/
 
 ![](our_figures/fig-rna-seq.png)
 
-### Step 3. (Illumina) Sequencing 
+- Step 3. (Illumina) Sequencing 
 
-- Bentley et al., 2008, doi:10.1038/nature07517
-- Primary output: FASTQ files of short reads and their
-  [quality scores][].
+    - Bentley et al., 2008, doi:10.1038/nature07517
+    - Primary output: FASTQ files of short reads and their
+      [quality scores][].
 
 ![](http://www.nature.com/nature/journal/v456/n7218/images/nature07517-f1.2.jpg)
 
-### Step 4. Alignment
+- Step 4. Alignment
 
-- Choose to match task, e.g., [Rsubread][], Bowtie2 good for ChIPseq,
-  some forms of RNAseq; BWA, GMAP better for variant calling
-- Primary output: BAM files of aligned reads
-- More recently: [kallisto][] and similar programs that produce
-  tables of reads aligned to transcripts
+    - Choose to match task, e.g., [Rsubread][], Bowtie2 good for ChIPseq,
+      some forms of RNAseq; BWA, GMAP better for variant calling
+    - Primary output: BAM files of aligned reads
+    - More recently: [kallisto][] and similar programs that produce
+      tables of reads aligned to transcripts
 
-### Step 5. Reduction
+- Step 5. Reduction
 
-- e.g., RNASeq 'count table' (simple spreadsheets), DNASeq called
-  variants (VCF files), ChIPSeq peaks (BED, WIG files)
+    - e.g., RNASeq 'count table' (simple spreadsheets), DNASeq called
+      variants (VCF files), ChIPSeq peaks (BED, WIG files)
 
-### Step 6. Analysis
+- Step 6. Analysis
 
-- Differential expression, peak identification, differential binding,
-  ...
+    - Differential expression, peak identification, differential
+      binding, ...
 
-### Step 7. Comprehension
+- Step 7. Comprehension
 
-- Biological context; annotation, gene set analysis, ...
+    - Biological context; annotation, gene set analysis, ...
 
 [quality scores]: http://en.wikipedia.org/wiki/FASTQ_format#Encoding
 
