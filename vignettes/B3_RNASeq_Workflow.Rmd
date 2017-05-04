@@ -4,7 +4,7 @@ author:
   Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
 date: "8-9 May 2017"
 output:
-  BiocStyle::html_document:
+  BiocStyle::html_document2:
     toc: true
     toc_depth: 2
 vignette: >
@@ -13,7 +13,6 @@ vignette: >
 ---
 
 ```{r style, echo = FALSE, results = 'asis'}
-options(width=100)
 knitr::opts_chunk$set(
     eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
     cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
@@ -49,7 +48,7 @@ Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
 
 ## Experimental design
 
-Keep it simple
+### Keep it simple
 
 - Classical experimental designs
 - Time series
@@ -58,7 +57,7 @@ Keep it simple
   hypothesis of interest be combined to formulate a testable
   statistical hypothesis?
 
-Replicate
+### Replicate
 
 - Extent of replication determines nuance of biological question.
 - No replication (1 sample per treatment): qualitative description
@@ -71,15 +70,15 @@ Replicate
 - 1000's of replicates: prospective studies, e.g., SNP discovery
 - One resource: `r Biocpkg("RNASeqPower")`
 
-Avoid confounding experimental factors with other factors
+### Avoid confounding experimental factors with other factors
 
 - Common problems: samples from one treatment all on the same flow
   cell; samples from treatment 1 processed first, treatment 2
   processed second, etc.
 
-Record co-variates
+### Record co-variates
        
-Be aware of _batch effects_
+### Be aware of _batch effects_
 
 - Known
     - Phenotypic covariates, e.g., age, gender
@@ -103,40 +102,38 @@ Be aware of _batch effects_
   ![](our_figures/nrg2825-f2.jpg) 
   HapMap samples from one facility, ordered by date of processing.
 
-## Wet-lab
+### Wet-lab
 
-Confounding factors
+- Confounding factors - Record or avoid
 
-- Record or avoid
+- Artifacts of your _particular_ protocols
 
-Artifacts of your _particular_ protocols
+    - Sequence contaminants
+    - Enrichment bias, e.g., non-uniform transcript representation.
+    - PCR artifacts -- adapter contaminants, sequence-specific
+      amplification bias, ...
 
-- Sequence contaminants
-- Enrichment bias, e.g., non-uniform transcript representation.
-- PCR artifacts -- adapter contaminants, sequence-specific
-  amplification bias, ...
+### Sequencing
 
-## Sequencing
+- Axes of variation
 
-Axes of variation
+    - Single- versus paired-end
+    - Length: 50-200nt
+    - Number of reads per sample
 
-- Single- versus paired-end
-- Length: 50-200nt
-- Number of reads per sample
+- Application-specific, e.g.,
 
-Application-specific, e.g.,
-
-- ChIP-seq: short, single-end reads are usually sufficient
-- RNA-seq, known genes: single- or  paired-end reads
-- RNA-seq, transcripts or novel variants: paired-end reads
-- Copy number: single- or paired-end reads
-- Structural variants: paired-end reads
-- Variants: depth via longer, paired-end reads
-- Microbiome: long paired-end reads (overlapping ends)
+    - ChIP-seq: short, single-end reads are usually sufficient
+    - RNA-seq, known genes: single- or  paired-end reads
+    - RNA-seq, transcripts or novel variants: paired-end reads
+    - Copy number: single- or paired-end reads
+    - Structural variants: paired-end reads
+    - Variants: depth via longer, paired-end reads
+    - Microbiome: long paired-end reads (overlapping ends)
 
 ## Alignment
 
-Alignment strategies
+### Alignment strategies
 
 - _de novo_
     - No reference genome; considerable sequencing and computational
@@ -150,7 +147,7 @@ Alignment strategies
     - Simple aligners
     - Known gene / transcript expression
 
-Splice-aware aligners (and _Bioconductor_ wrappers)
+### Splice-aware aligners (and _Bioconductor_ wrappers)
 
 - [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2) (`r Biocpkg("Rbowtie")`)
 - [STAR](http://bowtie-bio.sourceforge.net/bowtie2)
@@ -201,25 +198,24 @@ Splice-aware aligners (and _Bioconductor_ wrappers)
 
 ## Analysis
 
-Unique statistical aspects
+### Unique statistical aspects
 
 - Large data, few samples
 - Comparison of each gene, across samples; _univariate_ measures
 - Each gene is analyzed by the _same_ experimental design, under the
   _same_ null hypothesis
 
-Summarization
+### Summarization
 
 - Counts _per se_, rather than a summary (RPKM, FPKM, ...), are
   relevant for analysis
+- For a given gene, larger counts imply more information; RPKM etc.,
+  treat all estimates as equally informative.
+- Comparison is across samples at _each_ region of interest; all
+  samples have the same region of interest, so modulo library size
+  there is no need to correct for, e.g., gene length or mapability.
 
-    - For a given gene, larger counts imply more information; RPKM etc.,
-      treat all estimates as equally informative.
-    - Comparison is across samples at _each_ region of interest; all
-      samples have the same region of interest, so modulo library size
-      there is no need to correct for, e.g., gene length or mapability.
-
-Normalization
+### Normalization
 
 - Libraries differ in size (total counted reads per sample) for
   un-interesting reasons; we need to account for differences in
@@ -235,7 +231,7 @@ Normalization
   analysis of differential expression, rather than 'dividing by' the
   library size early in an analysis.
 
-Appropriate error model
+### Appropriate error model
 
 - Count data is _not_ distributed normally or as a Poisson process,
   but rather as negative binomial. 
@@ -249,7 +245,7 @@ Appropriate error model
   local estimates derived from genes with similar expression values (a
   little more on borrowing information is provided below).
 
-Pre-filtering
+### Pre-filtering
 
 - Naively, a statistical test (e.g., t-test) could be applied to each
   row of a counts table. However, we have relatively few samples
@@ -269,7 +265,7 @@ Pre-filtering
 - More nuanced approaches: `r Biocpkg("edgeR")` vignette; work flow
   today.
 
-Borrowing information
+### Borrowing information
 
 - Why does low statistical power elevate false discovery rate?
 - One way of developing intuition is to recognize a t-test (for
@@ -306,14 +302,11 @@ Borrowing information
 
 ### Dispersion
 
-`r Biocpkg("DESeq2")` `estimateDispersions()`
-
+- `r Biocpkg("DESeq2")` `estimateDispersions()`
 - Estimate per-gene dispersion
 - Fit a smoothed relationship between dispersion and abundance
 
-## Comprehension
-
-Placing differentially expressed regions in context
+## Comprehension: Placing differentially expressed regions in context
 
 - Gene names associated with genomic ranges
 - Gene set enrichment and similar analysis
