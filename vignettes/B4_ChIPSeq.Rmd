@@ -12,13 +12,12 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
 ---
 
-```{r style, echo=FALSE, results='asis'}
-BiocStyle::markdown()
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
 ```
 
-```{r}
-knitr::opts_chunk$set(eval=FALSE)
-```
 ```{r setup, echo=FALSE}
 options(digits=3)
 suppressPackageStartupMessages({
@@ -317,8 +316,7 @@ using `r Biocpkg("Rsubread")`, and post-processed (sorted and indexed)
 using `r Biocpkg("Rsamtools")` with the script available at
 
 ```{r csaw-preprocess, eval=FALSE}
-system.file(package="UseBioconductor", "scripts", "ChIPSeq", "NFYA", 
-    "preprocess.R")
+file.path("ChIPSeq", "NFYA", "scripts", "preprocess.R")
 ```
 
 Create a data frame summarizing the files used.
@@ -341,7 +339,7 @@ files <- local({
 Change to the directory where the BAM files are located
 
 ```{r csaw-setwd, eval=FALSE}
-setwd("~/UseBioconductor-data/ChIPSeq/NFYA")
+setwd("ChIPSeq/NFYA/bam")
 ```
 
 Load the csaw library and count reads in overlapping windows. This
@@ -358,6 +356,12 @@ acc <- sub(".fastq.*", "", data$bam.files)
 colData(data) <- cbind(files[acc,], colData(data))
 ```
 
+```{r csaw-data-load, echo=FALSE}
+frag.len <- 110
+fl <- file.path("ChIPSeq", "NFYA", "extdata", "csaw-data.Rds")
+data <- readRDS(fl)
+```
+
 ## Step 6: Analysis
 
 **Filtering** (vignette Chapter 3) Start by filtering low-count
@@ -368,12 +372,6 @@ rational way to choose the filtering threshold?
 library(edgeR)     # for aveLogCPM()
 keep <- aveLogCPM(assay(data)) >= -1
 data <- data[keep,]
-```
-
-```{r csaw-data-load, echo=FALSE}
-frag.len <- 110
-fl <- system.file(package="UseBioconductor", "extdata", "csaw-data-filtered.Rds")
-data <- readRDS(fl)
 ```
 
 **Normalization (composition bias)** (vignette Chapter 4) csaw uses
@@ -391,8 +389,9 @@ system.time({
 })                                      #139 second
 normfacs <- normalize(binned)
 ```
+
 ```{r csaw-normacs-load, echo=FALSE}
-fl <- system.file(package="UseBioconductor", "extdata", "csaw-normfacs.Rds")
+fl <- file.path("ChIPSeq", "NFYA", "extdata", "csaw-normfacs.Rds")
 normfacs <- readRDS(fl)
 ```
 
