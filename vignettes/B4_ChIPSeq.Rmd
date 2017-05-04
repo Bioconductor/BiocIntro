@@ -204,7 +204,7 @@ suppressPackageStartupMessages({
 <td id="td-25">7</td>
 <td id="td-26">Single-sample</td>
 <td id="td-27">Pooled over all</td>
-<td id="td-28">–</td>
+<td id="td-28">-</td>
 </tr>
 </tbody>
 </table>
