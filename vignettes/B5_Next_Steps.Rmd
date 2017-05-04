@@ -318,7 +318,7 @@ for both correctness and performance.
 
 `fun` sleeps for 1 second, then returns `i`.
 
-```{r parallel-sleep}
+```{r parallel-sleep, eval=FALSE}
 library(BiocParallel)
 
 fun <- function(i) {
