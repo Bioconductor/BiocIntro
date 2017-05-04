@@ -1,15 +1,14 @@
 ---
-title: F. ChIP-seq
-author: Martin Morgan (mtmorgan@fredhutch.org)
-date: "`r Sys.Date()`"
+title: B4 -- ChIP-seq
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+date: "8-9 May 2017"
 output:
   BiocStyle::html_document:
-    markdown_strict: true
     toc: true
 vignette: >
-  %\VignetteIndexEntry{F. ChIP-seq}
+  %\VignetteIndexEntry{B4 -- ChIP-seq}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
 ---
 
 ```{r style, echo=FALSE, results='asis'}

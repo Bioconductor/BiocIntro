@@ -31,7 +31,7 @@ The following is an approximate schedule.
 
 1:30 - 2:30. RNASeq, continued.
 
-3:00 - 5:00. Approaches to ChIP-seq.
+3:00 - 5:00. Approaches to [ChIPSeq][].
 
 [Introduction]: https://github.com/Bioconductor/BiocIntro/blob/OMRF-2017/vignettes/A1_Using_R.Rmd
 [Data Input and Manipulation]: https://github.com/Bioconductor/BiocIntro/blob/OMRF-2017/vignettes/A2_IO.Rmd
@@ -41,4 +41,5 @@ The following is an approximate schedule.
 [Bioconductor introduction]: https://github.com/Bioconductor/BiocIntro/blob/OMRF-2017/vignettes/B1_Bioconductor_intro.Rmd
 [Common operations]: https://github.com/Bioconductor/BiocIntro/blob/OMRF-2017/vignettes/B2_Common_Operations.Rmd
 [RNASeq]: https://github.com/Bioconductor/BiocIntro/blob/OMRF-2017/vignettes/B3_RNASeq_Workflow.Rmd
+[ChIPSeq]: https://github.com/Bioconductor/BiocIntro/blob/OMRF-2017/vignettes/B4_ChIPSeq.Rmd
 
