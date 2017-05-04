@@ -42,7 +42,7 @@ _R_ read `Year` as an integer value, but it's really a `factor`
 brfss$Year <- factor(brfss$Year)
 ```
 
-## Weight in 1990 vs. 2010 Feamles
+## Weight in 1990 vs. 2010 Females
 
 Create a subset of the data
 
