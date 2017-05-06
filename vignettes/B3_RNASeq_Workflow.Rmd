@@ -68,7 +68,7 @@ Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
 - 10-50 replicates per treatment: population studies, e.g., cancer
   cell lines.
 - 1000's of replicates: prospective studies, e.g., SNP discovery
-- One resource: `r Biocpkg("RNASeqPower")`
+- One resource: [RNASeqPower][].
 
 ### Avoid confounding experimental factors with other factors
 
@@ -86,7 +86,7 @@ Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
     - Incorporate into linear model, at least approximately
 - Unknown
     - Or just unexpected / undetected
-    - Characterize using, e.g., `r Biocpkg("sva")`.
+    - Characterize using, e.g., [sva][].
 - Surrogate variable analysis
     - Leek et al., 2010, Nature Reviews Genetics 11
       [733-739](http://www.nature.com/nrg/journal/v11/n10/abs/nrg2825.html),
@@ -97,7 +97,7 @@ Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
       build surrogate variables; remove known batch effects
     - Benefits: reduce dependence, stabilize error rate estimates, and
       improve reproducibility
-    - _combat_ software / `r Biocpkg("sva")` _Bioconductor_ package 
+    - _combat_ software / [sva][] _Bioconductor_ package 
     
   ![](our_figures/nrg2825-f2.jpg) 
   HapMap samples from one facility, ordered by date of processing.
@@ -149,10 +149,10 @@ Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
 
 ### Splice-aware aligners (and _Bioconductor_ wrappers)
 
-- [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2) (`r Biocpkg("Rbowtie")`)
+- [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2) [Rbowtie][])
 - [STAR](http://bowtie-bio.sourceforge.net/bowtie2)
   ([doi](http://dx.doi.org/10.1093/bioinformatics/bts635))
-- [subread](http://dx.doi.org/10.1093/nar/gkt214) (`r Biocpkg("Rsubread")`)
+- [subread](http://dx.doi.org/10.1093/nar/gkt214) ([Rsubread][])
 - Systematic evaluation (Engstrom et al., 2013,
   [doi](http://dx.doi.org/10.1038/nmeth.2722))
 
@@ -262,8 +262,7 @@ Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
   (normalized) read counts in at least K samples. Variance filter,
   e.g., IQR (inter-quartile range) provides a robust estimate of
   variability; can be used to rank and discard least-varying regions.
-- More nuanced approaches: `r Biocpkg("edgeR")` vignette; work flow
-  today.
+- More nuanced approaches: [edgeR][] vignette; work flow today.
 
 ### Borrowing information
 
@@ -291,7 +290,7 @@ Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
 
 ### Normalization
 
-`r Biocpkg("DESeq2")` `estimateSizeFactors()`, Anders and Huber,
+[DESeq2][] `estimateSizeFactors()`, Anders and Huber,
 [2010](http://genomebiology.com/2010/11/10/r106)
 
 - For each gene: geometric mean of all samples.
@@ -302,7 +301,7 @@ Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
 
 ### Dispersion
 
-- `r Biocpkg("DESeq2")` `estimateDispersions()`
+- [DESeq2][] `estimateDispersions()`
 - Estimate per-gene dispersion
 - Fit a smoothed relationship between dispersion and abundance
 
@@ -786,9 +785,9 @@ test and consequently the assumptions of the BH procedure.  This is
 why we filtered on the average over *all* samples: this filter is
 blind to the assignment of samples to the treatment and control group
 and hence independent. The independent filtering software used inside
-[DESeq2][] comes from the `r Biocpkg("genefilter")` package, which
-contains a reference to a paper describing the statistical foundation
-for independent filtering.
+[DESeq2][] comes from the [genefilter][] package, which contains a
+reference to a paper describing the statistical foundation for
+independent filtering.
 
 ## Annotation: adding gene names
 
@@ -796,8 +795,8 @@ Our result table only uses Ensembl gene IDs, but gene names may be
 more informative. _Bioconductor_'s annotation packages help with mapping
 various ID schemes to each other.
 
-We load the `r Biocpkg("AnnotationDbi")` package and the annotation package
-`r Biocannopkg("org.Hs.eg.db")`:
+We load the [AnnotationDbi][] package and the annotation package
+[org.Hs.eg.db][]:
 
 ```{r}
 library(org.Hs.eg.db)
@@ -827,8 +826,8 @@ head(resOrdered)
 You can easily save the results table in a CSV file, which you can
 then load with a spreadsheet program such as Excel. The call to
 *as.data.frame* is necessary to convert the *DataFrame* object
-(`r Biocpkg("IRanges")` package) to a *data.frame* object which can be
-processed by *write.csv*.
+[IRanges][] package) to a *data.frame* object which can be processed
+by *write.csv*.
 
 ```{r eval=FALSE}
 write.csv(as.data.frame(resOrdered), file="results.csv")
@@ -849,14 +848,20 @@ with all code used in the analysis.
 sessionInfo()
 ```
 
-[airway]: https://bioconductor.org/packages/airway
-[gplots]: https://cran.r-project.org/package=gplots
-[ggplot2]:https://cran.r-project.org/package=ggplot2 
 [AnnotationDbi]: https://bioconductor.org/packages/AnnotationDbi
-[Rsubread]: https://bioconductor.org/packages/Rsubread
-[edgeR]: https://bioconductor.org/packages/edgeR
-[limma]: https://bioconductor.org/packages/limma
 [BaySeq]: https://bioconductor.org/packages/BaySeq
 [DESeq2]: https://bioconductor.org/packages/DESeq2
+[IRanges]: https://bioconductor.org/packages/IRanges
+[RNASeqPower]: https://bioconductor.org/packages/RNASeqPower
+[Rbowtie]: https://bioconductor.org/packages/Rbowtie
+[Rsubread]: https://bioconductor.org/packages/Rsubread
+[airway]: https://bioconductor.org/packages/airway
+[edgeR]: https://bioconductor.org/packages/edgeR
+[genefilter]: https://bioconductor.org/packages/genefilter
+[ggplot2]:https://cran.r-project.org/package=ggplot2 
+[gplots]: https://cran.r-project.org/package=gplots
+[limma]: https://bioconductor.org/packages/limma
+[sva]: https://bioconductor.org/packages/sva
+[org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
 
 [Bioconductor support site]: https://support.bioconductor.org

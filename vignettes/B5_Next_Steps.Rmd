@@ -103,7 +103,8 @@ and efficient R code.
 
 ## Priorities
 
-1. Correct: consistent with hand-worked examples (`identical()`, `all.equal()`)
+1. Correct: consistent with hand-worked examples (`identical()`,
+   `all.equal()`)
 2. Robust: supports realistic inputs, e.g., 0-length vectors, `NA`
    values, ...
 3. Simple: easy to understand next month; easy to describe what it
@@ -117,11 +118,11 @@ and efficient R code.
     - _Step_ through the code to see how it is executed, and to gain an
       understanding of the speed of each line.
     - _Time_ evaluation of select lines or simple chunks of code with
-      `system.time()` or the `r CRANpkg("microbenchmark")` package.
+      `system.time()` or the [microbenchmark][] package.
     - _Profile_ the code with a tool that indicates how much time is
       spent in each function call or line -- the built-in `Rprof()`
-      function, or packages such as `r CRANpkg("lineprof")` or
-      `r CRANpkg("aprof")`
+      function, or packages such as [lineprof][] or
+      [aprof][]
 2. Vectorize -- operate on vectors, rather than explicit loops
 
     ```{r vectorize}
@@ -147,14 +148,12 @@ and efficient R code.
 5. Re-use existing, tested code
     - Efficient implementations of common operations -- `tabulate()`,
       `rowSums()` and friends, `%in%`, ...
-    - Efficient domain-specific implementations, e.g.,
-      `r Biocpkg("snpStats")` for GWAS linear models; `r Biocpkg("limma")`
-      for microarray linear models; `r Biocpkg("edgeR")`,
-      `r Biocpkg("DESeq2")` for negative binomial GLMs relevant to
+    - Efficient domain-specific implementations, e.g., [snpStats][]
+      for GWAS linear models; [limma][] for microarray linear models;
+      [edgeR][], [DESeq2][] for negative binomial GLMs relevant to
       RNASeq.
-    - Reuse others' work -- `r Biocpkg("DESeq2")`,
-      `r Biocpkg("GenomicRanges")`, `r Biocpkg("Biostrings")`, ...,
-      `r CRANpkg("dplyr")`, `r CRANpkg("data.table")`, `r CRANpkg("Rcpp")`
+    - Reuse others' work -- [DESeq2][], [GenomicRanges][],
+      [Biostrings][], ..., [dplyr][], [data.table][], [Rcpp][]
 
 
 ### Case Study: Pre-allocate and vectorize
@@ -192,7 +191,7 @@ head(expected)
 
 Revise the function to hoist the common multiplier, `a`, out of the
 loop. Make sure the result of the 'optimization' and the original
-calculation are the same. Use the `r CRANpkg("microbenchmark")`
+calculation are the same. Use the [microbenchmark][]
 package to compare the two versions
 
 ```{r hoist}
@@ -308,13 +307,13 @@ General ideas:
 
 ### Exercise: Sleeping serially and in parallel
 
-This small example motivates the use of parallel execution and demonstrates how
-`bplapply()` can be a drop in for `lapply`.
+This small example motivates the use of parallel execution and
+demonstrates how `bplapply()` can be a drop in for `lapply`.
 
 Use `system.time()` to explore how long this takes to execute as `n`
-increases from 1 to 10. Use `identical()` and
-`r CRANpkg("microbenchmark")` to compare alternatives `f0()` and  `f1()`
-for both correctness and performance.
+increases from 1 to 10. Use `identical()` and [microbenchmark][] to
+compare alternatives `f0()` and `f1()` for both correctness and
+performance.
 
 `fun` sleeps for 1 second, then returns `i`.
 
@@ -386,5 +385,8 @@ f1 <- function(n)
 [dplyr]: https://cran.r-project.org/package=dplyr
 [data.table]: https://cran.r-project.org/package=data.table
 [Rcpp]: https://cran.r-project.org/package=Rcpp
+[microbenchmark]: https://cran.r-project.org/package=microbenchmark
+[lineprof]: https://cran.r-project.org/package=lineprof
+[aprof]: https://cran.r-project.org/package=aprof
 
 [ShortRead vignette]: https://bioconductor.org/packages/release/bioc/vignettes/ShortRead/inst/doc/Overview.pdf

@@ -298,10 +298,10 @@ hist(P, breaks=20)
 
 ### _de novo_ hybrid strategies
 
-# Practical: Differential binding (`r Biocpkg("csaw")`)
+# Practical: Differential binding ([csaw][])
 
-This exercise is based on the `r Biocpkg("csaw")` vignette, where more
-detail can be found.
+This exercise is based on the [csaw][] vignette, where more detail can
+be found.
 
 ## Steps 1 - 4: Experimental Design ... Alignment
 
@@ -312,8 +312,8 @@ al. [2012](http://dx.doi.org/10.1038/ng.1036) available as
 [GSE25532](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE25532). There
 are two es (embryonic stem cell) and two tn (terminal neuron)
 replicates. Single-end FASTQ files were extracted from GEO, aligned
-using `r Biocpkg("Rsubread")`, and post-processed (sorted and indexed)
-using `r Biocpkg("Rsamtools")` with the script available at
+using [Rsubread][], and post-processed (sorted and indexed) using
+[Rsamtools][] with the script available at
 
 ```{r csaw-preprocess, eval=FALSE}
 file.path("ChIPSeq", "NFYA", "scripts", "preprocess.R")
@@ -378,10 +378,10 @@ data <- data[keep,]
 binned counts in normalization. The bins are large relative to the
 ChIP peaks, on the assumption that the bins primarily represent
 non-differentially bound regions. The sample bin counts are normalized
-using the `r Biocpkg("edgeR")` TMM (trimmed median of M values) method
-seen in the RNASeq differential expression lab. Explore vignette
-chapter 4 for more on normalization (this is a useful resource when
-seeking to develop normalization methods for other protocols!).
+using the [edgeR][] TMM (trimmed median of M values) method seen in
+the RNASeq differential expression lab. Explore vignette chapter 4 for
+more on normalization (this is a useful resource when seeking to
+develop normalization methods for other protocols!).
 
 ```{r csaw-normalize, eval=FALSE}
 system.time({
@@ -396,15 +396,15 @@ normfacs <- readRDS(fl)
 ```
 
 **Experimental design and Differential binding** (vignette Chapter 5)
-Differential binding will be assessed using `r Biocpkg("edgeR")`,
-where we need to specify the experimental design
+Differential binding will be assessed using [edgeR][], where we need
+to specify the experimental design
 
 ```{r csaw-experimental-design}
 design <- model.matrix(~Treatment, colData(data))
 ```
 
-Apply a standard `r Biocpkg("edgeR")` work flow to identify
-differentially bound regions. Creatively explore the results.
+Apply a standard [edgeR][] work flow to identify differentially bound
+regions. Creatively explore the results.
 
 ```{r csaw-de}
 y <- asDGEList(data, norm.factors=normfacs)
@@ -456,3 +456,8 @@ mcols(grl) <- as(tabcom, "DataFrame")
 #### ChIPseeker
 
 ### Gene Set Enrichment
+
+[Rsamtools]: https://bioconductor.org/packages/Rsamtools
+[Rsubread]: https://bioconductor.org/packages/Rsubread
+[csaw]: https://bioconductor.org/packages/csaw
+[edgeR]: https://bioconductor.org/packages/edgeR
