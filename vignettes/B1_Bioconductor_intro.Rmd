@@ -32,11 +32,9 @@ suppressPackageStartupMessages({
 })
 ```
 
-# Project Overview
+# About
 
-## About
-
-### [Bioconductor][]: Analysis and comprehension of high-throughput
+## [Bioconductor][]: Analysis and comprehension of high-throughput
 genomic data
 
 - Statistical analysis: large data, technological artifacts, designed
@@ -47,7 +45,7 @@ genomic data
     - Microarrays: expression, SNP, ...
     - Flow cytometry, proteomics, images, ...
 
-### Packages, vignettes, work flows
+## Packages, vignettes, work flows
 
 - 1296 software packages; also...
 
@@ -72,7 +70,7 @@ genomic data
   [videos](https://www.youtube.com/user/bioconductor), [recent
   courses](https://bioconductor.org/help/course-materials/)
 
-### Package installation and use
+## Package installation and use
 
 - A package needs to be installed once, using the instructions on the
   package landing page (e.g., [DESeq2][]).
@@ -99,15 +97,15 @@ genomic data
     ?GRanges
     ```
 
-## Key concepts
+# Key concepts
 
-### Goals
+## Goals
 
 - Reproducibility
 - Interoperability
 - Use
 
-### What a few lines of _R_ has to say
+## What a few lines of _R_ has to say
 
 ```{r five-lines}
 x <- rnorm(1000)
@@ -119,7 +117,7 @@ anova(fit)
 abline(fit)
 ```
 
-### Classes and methods -- "S3"
+## Classes and methods -- "S3"
 
 - `data.frame()`
 
@@ -141,7 +139,7 @@ abline(fit)
 
 - tab completion!
 
-### _Bioconductor_ classes and methods -- "S4"
+## _Bioconductor_ classes and methods -- "S4"
 
 - Example: working with DNA sequences
 
@@ -165,7 +163,7 @@ abline(fit)
     ?"reverseComplement,DNAStringSet-method"
     ```
 
-## High-throughput sequence analysis work flows
+# High-throughput sequence analysis work flows
 
 - Step 1. Experimental design
 
@@ -210,7 +208,7 @@ abline(fit)
 
 [quality scores]: http://en.wikipedia.org/wiki/FASTQ_format#Encoding
 
-## _Bioconductor_ sequencing ecosystem
+# _Bioconductor_ sequencing ecosystem
 
 ![Alt Sequencing Ecosystem](our_figures/SequencingEcosystem.png)
 

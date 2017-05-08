@@ -102,14 +102,14 @@ abline(fit, col="blue", lwd=2)
 points(180, 88, col="red", cex=4, pch=20)
 ```
 
-(Advanced) class and available 'methods'
+Class and available 'methods'
 
 ```{r, eval=FALSE}
 class(fit)                 # 'noun'
 methods(class=class(fit))  # 'verb'
 ```
 
-(Advanced) diagnostics
+Diagnostics
 
 ```{r, eval=FALSE}
 plot(fit)

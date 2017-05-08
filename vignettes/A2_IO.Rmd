@@ -1,7 +1,6 @@
 ---
 title: "A.2 -- Data Input and Manipulation"
-author:
-  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+author: "Martin Morgan <Martin.Morgan@RoswellPark.org>"
 date: "8 - 9 May 2017"
 output:
   BiocStyle::html_document2:
@@ -82,6 +81,7 @@ at a subset of the data.
 
     ```{r brfss-aggregate-formula}
     aggregate(Weight ~ Year + Sex, brfss, mean)  # same, but more informative
+    aggregate(. ~ Year + Sex, brfss, mean)       # all variables
     ```
 
 7. Create a subset of the data consisting of only the 1990
@@ -91,6 +91,7 @@ at a subset of the data.
     ```{r t-test-1990}
     brfss_1990 = brfss[brfss$Year == 1990,]
     t.test(Weight ~ Sex, brfss_1990)
+    t.test(Weight ~ Sex, brfss, subset = Year == 1990)
     ```
    What about differences between weights of males (or females) in
    1990 versus 2010? Check out the help page `?t.test.formula`. Is
@@ -103,7 +104,7 @@ at a subset of the data.
    previous question.
 
     ```{r brfss-boxplot, fig.width=5, fig.height=5}
-    boxplot(Weight ~ Year, brfss, subset = (Sex == "Male"),
+    boxplot(Weight ~ Year, brfss, subset = Sex == "Male",
             main="Males")
     ```
 
@@ -183,6 +184,7 @@ table(idx, useNA="ifany")
 dim(pdata[idx,])           # WARNING: 'NA' rows introduced
 tail(pdata[idx,])
 dim(subset(pdata, idx))    # BETTER: no NA rows
+dim(subset(pdata, (sex == "F") & (age > 40)))  # alternative
 tail(subset(pdata,idx))
 
 ## robust `[`: exclude NA values
@@ -193,7 +195,7 @@ Use the `mol.biol` column to subset the data to contain just
 individuals with 'BCR/ABL' or 'NEG', e.g.,
 
 ```{r ALL-BCR/ABL-subset}
-bcrabl <- pdata[pdata$mol.biol %in% c("BCR/ABL", "NEG"),]
+bcrabl <- subset(pdata, mol.biol %in% c("BCR/ABL", "NEG"))
 ```
 
 The `mol.biol` column is a factor, and retains all levels even after
