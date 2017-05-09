@@ -26,6 +26,8 @@ suppressPackageStartupMessages({
     library(GenomicRanges)
     library(ChIPseeker)
     library(genefilter)
+    library(org.Mm.eg.db)
+    library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 })
 ```
 
@@ -322,16 +324,14 @@ file.path("ChIPSeq", "NFYA", "scripts", "preprocess.R")
 Create a data frame summarizing the files used.
 
 ```{r csaw-setup}
-files <- local({
-    acc <- c(es_1="SRR074398", es_2="SRR074399", tn_1="SRR074417",
-             tn_2="SRR074418")
-    data.frame(Treatment=sub("_.*", "", names(acc)),
-               Replicate=sub(".*_", "", names(acc)),
-               sra=sprintf("%s.sra", acc),
-               fastq=sprintf("%s.fastq.gz", acc),
-               bam=sprintf("%s.fastq.gz.subread.BAM", acc),
-               row.names=acc, stringsAsFactors=FALSE)
-})
+acc <- c(es_1="SRR074398", es_2="SRR074399", tn_1="SRR074417",
+    tn_2="SRR074418")
+files <- data.frame(Treatment=sub("_.*", "", names(acc)),
+    Replicate=sub(".*_", "", names(acc)),
+    sra=sprintf("%s.sra", acc),
+    fastq=sprintf("%s.fastq.gz", acc),
+    bam=sprintf("%s.fastq.gz.subread.BAM", acc),
+    row.names=acc, stringsAsFactors=FALSE)
 ```
 
 ## Step 5: Reduction
@@ -446,25 +446,38 @@ head(tabcom)
 Section 6.6 of the vignette discusses approaches to identifying the
 'best' windows within regions.
 
-Finally, create a `GRangesList` that associated with two result tables
-and the genomic ranges over which the results were calculated.
+Finally, create a `GRanges` object that summarized the merged windows
+and combined test statistics.
 
-```{r csaw-grangeslist}
-gr <- rowRanges(data)
-mcols(gr) <- as(results$table, "DataFrame")
-grl <- split(gr, merged$id)
-mcols(grl) <- as(tabcom, "DataFrame")
+```{r csaw-combined-merged}
+final <- merged$region
+mcols(final) <- as(tabcom, "DataFrame")
 ```
 
 ## Step 7: Comprehension
 
 ### Annotation
 
-#### csaw
+As an example of how results can be anntoted
 
-#### ChIPseeker
+```{r}
+library(org.Mm.eg.db)
+library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+anno <- detailRanges(
+    final, txdb=TxDb.Mmusculus.UCSC.mm10.knownGene,
+    orgdb=org.Mm.eg.db, promoter=c(3000, 1000), dist=5000
+)
+mcols(final) <- cbind(mcols(final), DataFrame(anno))
+```
 
-### Gene Set Enrichment
+The 'top table' of most differentially expressed regions can be
+obtained by ordering `final` by the `PValue` column, perhaps first
+filtering to remove regions that do not overlap known promoters.
+
+```{r}
+annotated <- final[nzchar(final$overlap)]
+annotated[order(annotated$PValue)]
+```
 
 [Rsamtools]: https://bioconductor.org/packages/Rsamtools
 [Rsubread]: https://bioconductor.org/packages/Rsubread
