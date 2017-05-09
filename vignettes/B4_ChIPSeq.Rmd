@@ -356,11 +356,18 @@ acc <- sub(".fastq.*", "", data$bam.files)
 colData(data) <- cbind(files[acc,], colData(data))
 ```
 
+<!--
 ```{r csaw-data-load, echo=FALSE}
 frag.len <- 110
 fl <- file.path("ChIPSeq", "NFYA", "extdata", "csaw-data.Rds")
 data <- readRDS(fl)
 ```
+-->
+
+For further discussion about the reduction step, see Chapter 2 of the
+[csaw vignette][].
+
+[csaw vignette]: https://bioconductor.org/packages/release/bioc/vignettes/csaw/inst/doc/csawUserGuide.pdf
 
 ## Step 6: Analysis
 
@@ -390,10 +397,12 @@ system.time({
 normfacs <- normalize(binned)
 ```
 
+<!--
 ```{r csaw-normacs-load, echo=FALSE}
 fl <- file.path("ChIPSeq", "NFYA", "extdata", "csaw-normfacs.Rds")
 normfacs <- readRDS(fl)
 ```
+-->
 
 **Experimental design and Differential binding** (vignette Chapter 5)
 Differential binding will be assessed using [edgeR][], where we need
