@@ -3,6 +3,10 @@
 Date: Sept 25 - 29, 8:00 - 9:00 AM<br />
 Place: Hohn Auditorium, RSC 110, Roswell Park Cancer Institute<br />
 Instructors: Martin Morgan & guests
+<!--
+<br />
+[Registration][https://goo.gl/forms/kJMT3bxFlwzX86xQ2].
+-->
 
 This course consists of five one-hour sessions, offered at Roswell
 Park Cancer Institute and open to RPCI and UB researchers, students,
