@@ -1,0 +1,2 @@
+- https://github.com/halhen/viz-pub including sports-time-of-day
+- https://github.com/seandavi/MachineLearningIntro machine learning using classic data sets
