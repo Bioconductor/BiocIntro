@@ -1,6 +1,6 @@
 # Morning exeRcises
 
-Date: Sept 25 - 29, 8:00 - 9:00 AM<br />
+Date: 8:00 - 9:00 AM, September 25 - 29, 2017<br />
 Place: Hohn Auditorium, RSC 110, Roswell Park Cancer Institute<br />
 Instructors: Martin Morgan & guests
 <!--
