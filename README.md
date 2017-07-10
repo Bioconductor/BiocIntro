@@ -1,7 +1,7 @@
 # Morning exeRcises
 
 Date: Sept 25 - 29, 8:00 - 9:00 AM<br />
-Place: TBA, Roswell Park Cancer Institute<br />
+Place: Hohn Auditorium, RSC 110, Roswell Park Cancer Institute<br />
 Instructors: Martin Morgan & guests
 
 This course consists of five one-hour sessions, offered at Roswell
