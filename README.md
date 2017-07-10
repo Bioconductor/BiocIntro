@@ -1,6 +1,6 @@
 # Morning exeRcises
 
-Date: Sept 25 - 29, 8:00 am<br />
+Date: Sept 25 - 29, 8:00 - 9:00 AM<br />
 Place: TBA, Roswell Park Cancer Institute<br />
 Instructors: Martin Morgan & guests
 
