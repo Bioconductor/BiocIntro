@@ -1,22 +1,26 @@
-# Introduction to _R_ and _Bioconductor_
+# Morning exeRcises
 
-Recent courses:
+Date: Sept 25 - 29, 8:00 am<br />
+Place: TBA, Roswell Park Cancer Institute<br />
+Instructors: Martin Morgan & guests
 
-- [UPSTAT-2017][] -- 1 two-hour session introducing _R_ and
-  _Bioconductor_ through data exploration.
-- [CDSE-2017][] -- 1 three-hour session on high-throughput genomic analysis in
-  _R_ and _Bioconductor_.
-- [Moffitt-2017][] -- 2 day introduction to _R_ and _Bioconductor_.
-- [RPCI-Jan-2017][] -- 5 one-hour sessions introduction _R_ to the
-  Roswell Park community.
-- [Technion-2016][] -- 3 three-hour sessions introducing
-  _Bioconductor_ (and _R_).
+This course consists of five one-hour sessions, offered at Roswell
+Park Cancer Institute and open to RPCI and UB researchers, students,
+and staff. The course assumes basic familiarity with _R_ and
+_RStudio_. Participants will need a laptop with web browser, plus
+enough battery power to last an hour.
 
-[Bioconductor Course Archive][]
+A tentative schedule includes:
 
-[UPSTAT-2017]: https://github.com/Bioconductor/BiocIntro/blob/UP-STAT-2017/vignettes/UPSTAT.Rmd
-[CDSE-2017]: https://github.com/Bioconductor/BiocIntro/blob/R-HTG-CDSE-Apr-2017/vignettes/R_HTS.Rmd
-[Moffitt-2017]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/README.md
-[RPCI-Jan-2017]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/README.md
-[Technion-2016]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/README.md
-[Bioconductor Course Archive]: https://bioconductor.org/help/course-materials
+- Day 1: Working with tidy data.
+- Day 2: Making data tidy.
+- Day 3: Exploratory data analysis.
+- Day 4: Programming concepts.
+- Day 5: Managing projects, presenting results.
+
+<!--
+- https://github.com/halhen/viz-pub including sports-time-of-day
+- https://github.com/seandavi/MachineLearning
+  Intro machine learning using classic data sets
+-->
+
