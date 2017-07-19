@@ -1,16 +1,14 @@
-Package: BiocIntroRPCI
+Package: BiocIntro
 Type: Package
-Title: Training Material for Introductory R / Bioconductor Course, Roswell
-    Park Cancer Institute, Buffalo, NY, January 2016
-Version: 0.1.2
+Title: Training Material for Introductory R / Bioconductor Course at Bioc2017
+Version: 0.1.3
 Authors@R: c(
-    person("Martin", "Morgan", role=c("aut", "cre"),
-        email="martin.morgan@roswellpark.org"),
     person("Lori", "Shepherd", role="aut",
-        email="lori.shepherd@roswellpark.org"))
-Description: Vignettes and resources to support a two-day R /
-    Bioconductor training course offered at Roswell Park Cancer Insitute,
-    Buffalo, NY. January 7 and 8 or 21 and 22, 2016.
+        email="lori.shepherd@roswellpark.org"),
+    person("Martin", "Morgan", role=c("aut", "cre"),
+        email="martin.morgan@roswellpark.org"))
+Description: Vignettes and resources to support an introductory R /
+    Bioconductor training course.
 Imports: BiocInstaller
 Suggests: BiocStyle, knitr, AnnotationHub, BiocParallel, Biostrings,
     DESeq2, GenomicAlignments, GenomicRanges, RColorBrewer,

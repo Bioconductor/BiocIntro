@@ -1,0 +1,93 @@
+---
+title: "A.0 -- Installation"
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+  Lori Shepherd <Lori.Shepherd@RoswellPark.org><br/>
+date: "July 26-28, 2017"
+output:
+  BiocStyle::html_document2:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{A.0 -- Installation}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
+# Easy installation
+
+## Windows
+
+NOTE: See [Windows installation instructions][Windows] for more
+detail. Install _R_ and _RStudio_ as regular users.
+
+To install _R_, visit the [Windows base][] distribution page. Click on
+the `Download R-3.4.0 for Windows` link. Click on the installer and
+make the default selection for each option.
+
+To install _RStudio_, visit the [RStudio download][] page. Click on
+the current RStudio release for Windows link. Click on the installer
+and follow default instructions.
+
+## Mac
+
+NOTE: See [R for Mac OS X][MacOS] for more detail.
+
+To install _R_, visit the [R for Mac OS X][MacOS]. Click on the the
+`R-3.4.0.pkg` link. Click on the installer and follow default
+instructions.
+
+To install _RStudio_, visit the [RStudio download][] page. Click on
+the current RStudio release for Windows link. Click on the installer
+and follow default instructions.
+
+## Linux
+
+NOTE: See [distribution-specific instructions][Linux-distro] for
+additional detail.
+
+On debian-based systems, the easiest way to install _R_ is through a
+package manager manager, run under an administrator account.  On Linux
+one usually needs to install _R_ packages from source, and _R_ package
+source often contains C, C++, or Fortran code requiring a compiler and
+`-dev` versions of various system libraries. It is therefore
+convenient to install the `-dev` version of R.
+
+```
+sudo apt-get install r-base r-base-dev
+```
+
+When installing source packages, it may be necessary to have access to
+the `-dev` version of various system libraries. Many of these are
+installed as dependencies of `r-base-dev`; other common examples
+include the xml and curl libraries
+
+```
+sudo apt-get install libxml2-dev
+sudo apt-get install libcurl-dev
+```
+
+Note in particular the use specification of libraries (the `lib`
+prefix) and the use of the `-dev` version.
+
+To install _RStudio_, visit the [RStudio download][] page. Download
+the appropriate archive for your OS. On Ubuntu, install the `.deb`
+installer with
+
+```
+sudo dpkg -i rstudio-1.0.136-amd64.deb
+```
+
+[Windows]: https://cran.r-project.org/bin/windows/
+[Windows base]: https://cran.r-project.org/bin/windows/base/
+[MacOS]: https://cran.r-project.org/bin/macosx/
+[RStudio download]: https://www.rstudio.com/products/rstudio/download/
+
+[Rtools]: https://cran.r-project.org/bin/windows/Rtools/
+[Linux-distro]: https://cran.r-project.org/bin/linux/
+[R-admin]: https://cran.r-project.org/doc/manuals/r-release/R-admin.html)

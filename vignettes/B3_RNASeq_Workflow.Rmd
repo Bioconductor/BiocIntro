@@ -1,9 +1,11 @@
 ---
 title: "B.3 -- An RNA-seq Work Flow"
-author: Martin Morgan <martin.morgan@roswellpark.org>
-date: "16 - 17 May, 2016"
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+  Lori Shepherd <Lori.Shepherd@RoswellPark.org><br/>
+date: "July 26-28, 2017"
 output:
-  BiocStyle::html_document:
+  BiocStyle::html_document2:
     toc: true
     toc_depth: 2
 vignette: >
@@ -12,7 +14,6 @@ vignette: >
 ---
 
 ```{r style, echo = FALSE, results = 'asis'}
-options(width=100)
 knitr::opts_chunk$set(
     eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
     cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
@@ -28,7 +29,7 @@ suppressPackageStartupMessages({
 })
 ```
 
-- Bioconductor known-gene RNA-seq differential expression work flow,
+- _Bioconductor_ known-gene RNA-seq differential expression work flow,
   from aligned reads to differential expression of genes. Important
   statistical issues and their resolution. Placing results of
   differential expression analysis into biological context. Brief
@@ -48,16 +49,16 @@ Resources: [Anders, CSAMA, 2015][]; [Love, CSAMA, 2015][];
 
 ## Experimental design
 
-Keep it simple
+### Keep it simple
 
 - Classical experimental designs
 - Time series
 - Without missing values, where possible
-- Intended analysis must be feasbile -- can the available samples and
+- Intended analysis must be feasible -- can the available samples and
   hypothesis of interest be combined to formulate a testable
   statistical hypothesis?
 
-Replicate
+### Replicate
 
 - Extent of replication determines nuance of biological question.
 - No replication (1 sample per treatment): qualitative description
@@ -68,17 +69,17 @@ Replicate
 - 10-50 replicates per treatment: population studies, e.g., cancer
   cell lines.
 - 1000's of replicates: prospective studies, e.g., SNP discovery
-- One resource: `r Biocpkg("RNASeqPower")`
+- One resource: [RNASeqPower][].
 
-Avoid confounding experimental factors with other factors
+### Avoid confounding experimental factors with other factors
 
 - Common problems: samples from one treatment all on the same flow
   cell; samples from treatment 1 processed first, treatment 2
   processed second, etc.
 
-Record co-variates
+### Record co-variates
        
-Be aware of _batch effects_
+### Be aware of _batch effects_
 
 - Known
     - Phenotypic covariates, e.g., age, gender
@@ -86,7 +87,7 @@ Be aware of _batch effects_
     - Incorporate into linear model, at least approximately
 - Unknown
     - Or just unexpected / undetected
-    - Characterize using, e.g., `r Biocpkg("sva")`.
+    - Characterize using, e.g., [sva][].
 - Surrogate variable analysis
     - Leek et al., 2010, Nature Reviews Genetics 11
       [733-739](http://www.nature.com/nrg/journal/v11/n10/abs/nrg2825.html),
@@ -97,45 +98,43 @@ Be aware of _batch effects_
       build surrogate variables; remove known batch effects
     - Benefits: reduce dependence, stabilize error rate estimates, and
       improve reproducibility
-    - _combat_ software / `r Biocpkg("sva")` _Bioconductor_ package 
+    - _combat_ software / [sva][] _Bioconductor_ package 
     
   ![](our_figures/nrg2825-f2.jpg) 
   HapMap samples from one facility, ordered by date of processing.
 
-## Wet-lab
+### Wet-lab
 
-Confounding factors
+- Confounding factors - Record or avoid
 
-- Record or avoid
+- Artifacts of your _particular_ protocols
 
-Artifacts of your _particular_ protocols
+    - Sequence contaminants
+    - Enrichment bias, e.g., non-uniform transcript representation.
+    - PCR artifacts -- adapter contaminants, sequence-specific
+      amplification bias, ...
 
-- Sequence contaminants
-- Enrichment bias, e.g., non-uniform transcript representation.
-- PCR artifacts -- adapter contaminants, sequence-specific
-  amplification bias, ...
+### Sequencing
 
-## Sequencing
+- Axes of variation
 
-Axes of variation
+    - Single- versus paired-end
+    - Length: 50-200nt
+    - Number of reads per sample
 
-- Single- versus paired-end
-- Length: 50-200nt
-- Number of reads per sample
+- Application-specific, e.g.,
 
-Application-specific, e.g.,
-
-- ChIP-seq: short, single-end reads are usually sufficient
-- RNA-seq, known genes: single- or  paired-end reads
-- RNA-seq, transcripts or novel variants: paired-end reads
-- Copy number: single- or paired-end reads
-- Structural variants: paired-end reads
-- Variants: depth via longer, paired-end reads
-- Microbiome: long paired-end reads (overlapping ends)
+    - ChIP-seq: short, single-end reads are usually sufficient
+    - RNA-seq, known genes: single- or  paired-end reads
+    - RNA-seq, transcripts or novel variants: paired-end reads
+    - Copy number: single- or paired-end reads
+    - Structural variants: paired-end reads
+    - Variants: depth via longer, paired-end reads
+    - Microbiome: long paired-end reads (overlapping ends)
 
 ## Alignment
 
-Alignment strategies
+### Alignment strategies
 
 - _de novo_
     - No reference genome; considerable sequencing and computational
@@ -149,12 +148,12 @@ Alignment strategies
     - Simple aligners
     - Known gene / transcript expression
 
-Splice-aware aligners (and _Bioconductor_ wrappers)
+### Splice-aware aligners (and _Bioconductor_ wrappers)
 
-- [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2) (`r Biocpkg("Rbowtie")`)
+- [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2) [Rbowtie][])
 - [STAR](http://bowtie-bio.sourceforge.net/bowtie2)
   ([doi](http://dx.doi.org/10.1093/bioinformatics/bts635))
-- [subread](http://dx.doi.org/10.1093/nar/gkt214) (`r Biocpkg("Rsubread")`)
+- [subread](http://dx.doi.org/10.1093/nar/gkt214) ([Rsubread][])
 - Systematic evaluation (Engstrom et al., 2013,
   [doi](http://dx.doi.org/10.1038/nmeth.2722))
 
@@ -200,25 +199,24 @@ Splice-aware aligners (and _Bioconductor_ wrappers)
 
 ## Analysis
 
-Unique statistical aspects
+### Unique statistical aspects
 
 - Large data, few samples
 - Comparison of each gene, across samples; _univariate_ measures
 - Each gene is analyzed by the _same_ experimental design, under the
   _same_ null hypothesis
 
-Summarization
+### Summarization
 
 - Counts _per se_, rather than a summary (RPKM, FPKM, ...), are
   relevant for analysis
+- For a given gene, larger counts imply more information; RPKM etc.,
+  treat all estimates as equally informative.
+- Comparison is across samples at _each_ region of interest; all
+  samples have the same region of interest, so modulo library size
+  there is no need to correct for, e.g., gene length or mapability.
 
-    - For a given gene, larger counts imply more information; RPKM etc.,
-      treat all estimates as equally informative.
-    - Comparison is across samples at _each_ region of interest; all
-      samples have the same region of interest, so modulo library size
-      there is no need to correct for, e.g., gene length or mapability.
-
-Normalization
+### Normalization
 
 - Libraries differ in size (total counted reads per sample) for
   un-interesting reasons; we need to account for differences in
@@ -234,7 +232,7 @@ Normalization
   analysis of differential expression, rather than 'dividing by' the
   library size early in an analysis.
 
-Appropriate error model
+### Appropriate error model
 
 - Count data is _not_ distributed normally or as a Poisson process,
   but rather as negative binomial. 
@@ -248,7 +246,7 @@ Appropriate error model
   local estimates derived from genes with similar expression values (a
   little more on borrowing information is provided below).
 
-Pre-filtering
+### Pre-filtering
 
 - Naively, a statistical test (e.g., t-test) could be applied to each
   row of a counts table. However, we have relatively few samples
@@ -259,16 +257,15 @@ Pre-filtering
   could not possibly result in statistical significance, regardless of
   hypothesis under consideration.
 - Example: a region with 0 counts in all samples could not possibly be
-  significant regradless of hypothesis, so exclude from further
+  significant regardless of hypothesis, so exclude from further
   analysis.
 - Basic approaches: 'K over A'-style filter -- require a minimum of A
   (normalized) read counts in at least K samples. Variance filter,
   e.g., IQR (inter-quartile range) provides a robust estimate of
   variability; can be used to rank and discard least-varying regions.
-- More nuanced approaches: `r Biocpkg("edgeR")` vignette; work flow
-  today.
+- More nuanced approaches: [edgeR][] vignette; work flow today.
 
-Borrowing information
+### Borrowing information
 
 - Why does low statistical power elevate false discovery rate?
 - One way of developing intuition is to recognize a t-test (for
@@ -294,7 +291,7 @@ Borrowing information
 
 ### Normalization
 
-`r Biocpkg("DESeq2")` `estimateSizeFactors()`, Anders and Huber,
+[DESeq2][] `estimateSizeFactors()`, Anders and Huber,
 [2010](http://genomebiology.com/2010/11/10/r106)
 
 - For each gene: geometric mean of all samples.
@@ -305,14 +302,11 @@ Borrowing information
 
 ### Dispersion
 
-`r Biocpkg("DESeq2")` `estimateDispersions()`
-
+- [DESeq2][] `estimateDispersions()`
 - Estimate per-gene dispersion
 - Fit a smoothed relationship between dispersion and abundance
 
-## Comprehension
-
-Placing differentially expressed regions in context
+## Comprehension: Placing differentially expressed regions in context
 
 - Gene names associated with genomic ranges
 - Gene set enrichment and similar analysis
@@ -329,10 +323,9 @@ Placing differentially expressed regions in context
 
 ## Background
 
-This lab is derived from:
-[RNA-Seq workflow][]: gene-level exploratory analysis and differential expression,
-by Michael Love, Simon Anders, Wolfgang Huber; modified by Martin
-Morgan, October 2015.
+This lab is derived from: [RNA-Seq workflow][]: gene-level exploratory
+analysis and differential expression, by Michael Love, Simon Anders,
+Wolfgang Huber; modified by Martin Morgan, October 2015.
 
 [RNA-Seq workflow]: https://bioconductor.org/help/workflows/rnaseqGene/
 
@@ -387,7 +380,7 @@ correctly. Hence, please do not supply other quantities, such as
 will only lead to nonsensical results.
 
 We will discuss how to summarize data from BAM files to a count table
-later in ther course. Here we'll 'jump right in' and start with a
+later in the course. Here we'll 'jump right in' and start with a
 prepared `SummarizedExperiment`.
 
 ## Starting from `SummarizedExperiment`
@@ -458,7 +451,7 @@ the sample table.
 Check out the `rowRanges()` of the summarized experiment; these are
 the genomic ranges over which counting occurred.
 
-```{r rowRanges`}
+```{r rowRanges}
 rowRanges(se)
 ```
 
@@ -649,7 +642,7 @@ resSig <- subset(res, padj < 0.1)
 head(resSig[ order( resSig$log2FoldChange ), ])
 ```
 
-...and with the strongest upregulation. The `order()` function gives
+...and with the strongest up-regulation. The `order()` function gives
 the indices in increasing order, so a simple way to ask for decreasing
 order is to add a `-` sign. Alternatively, you can use the argument
 `decreasing=TRUE`.
@@ -736,7 +729,7 @@ line, which shows the dispersions' dependence on the mean, and then
 shrink each gene's estimate towards the red line to obtain the final
 estimates (blue points) that are then used in the hypothesis test. The
 blue circles above the main "cloud" of points are genes which have
-high gene-wise dispersion estimates which are labelled as dispersion
+high gene-wise dispersion estimates which are labeled as dispersion
 outliers. These estimates are therefore not shrunk toward the fitted
 trend line.
 
@@ -793,9 +786,9 @@ test and consequently the assumptions of the BH procedure.  This is
 why we filtered on the average over *all* samples: this filter is
 blind to the assignment of samples to the treatment and control group
 and hence independent. The independent filtering software used inside
-[DESeq2][] comes from the `r Biocpkg("genefilter")` package, which
-contains a reference to a paper describing the statistical foundation
-for independent filtering.
+[DESeq2][] comes from the [genefilter][] package, which contains a
+reference to a paper describing the statistical foundation for
+independent filtering.
 
 ## Annotation: adding gene names
 
@@ -803,8 +796,8 @@ Our result table only uses Ensembl gene IDs, but gene names may be
 more informative. _Bioconductor_'s annotation packages help with mapping
 various ID schemes to each other.
 
-We load the `r Biocpkg("AnnotationDbi")` package and the annotation package
-`r Biocannopkg("org.Hs.eg.db")`:
+We load the [AnnotationDbi][] package and the annotation package
+[org.Hs.eg.db][]:
 
 ```{r}
 library(org.Hs.eg.db)
@@ -834,8 +827,8 @@ head(resOrdered)
 You can easily save the results table in a CSV file, which you can
 then load with a spreadsheet program such as Excel. The call to
 *as.data.frame* is necessary to convert the *DataFrame* object
-(`r Biocpkg("IRanges")` package) to a *data.frame* object which can be
-processed by *write.csv*.
+[IRanges][] package) to a *data.frame* object which can be processed
+by *write.csv*.
 
 ```{r eval=FALSE}
 write.csv(as.data.frame(resOrdered), file="results.csv")
@@ -849,21 +842,27 @@ this session. It is good practice to always keep such a record as it
 will help to trace down what has happened in case that an R script
 ceases to work because the functions have been changed in a newer
 version of a package. The session information should also **always**
-be included in any emails to the
-[Bioconductor support site](https://support.bioconductor.org) along
+be included in any emails to the [Bioconductor support site][] along
 with all code used in the analysis.
 
 ```{r}
 sessionInfo()
 ```
 
-[airway]: https://bioconductor.org/packages/airway
-[gplots]: https://cran.r-project.org/package=gplots
-[ggplot2]:https://cran.r-project.org/package=ggplot2 
 [AnnotationDbi]: https://bioconductor.org/packages/AnnotationDbi
-[Rsubread]: https://bioconductor.org/packages/Rsubread
-[edgeR]: https://bioconductor.org/packages/edgeR
-[limma]: https://bioconductor.org/packages/limma
 [BaySeq]: https://bioconductor.org/packages/BaySeq
 [DESeq2]: https://bioconductor.org/packages/DESeq2
+[IRanges]: https://bioconductor.org/packages/IRanges
+[RNASeqPower]: https://bioconductor.org/packages/RNASeqPower
+[Rbowtie]: https://bioconductor.org/packages/Rbowtie
+[Rsubread]: https://bioconductor.org/packages/Rsubread
+[airway]: https://bioconductor.org/packages/airway
+[edgeR]: https://bioconductor.org/packages/edgeR
+[genefilter]: https://bioconductor.org/packages/genefilter
+[ggplot2]:https://cran.r-project.org/package=ggplot2 
+[gplots]: https://cran.r-project.org/package=gplots
+[limma]: https://bioconductor.org/packages/limma
+[sva]: https://bioconductor.org/packages/sva
+[org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
 
+[Bioconductor support site]: https://support.bioconductor.org

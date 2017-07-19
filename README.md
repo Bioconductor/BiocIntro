@@ -1,73 +1,42 @@
 # Introduction to _R_ / _Bioconductor_
 
-This is a two-day course introducing _[R][]_ and _[Bioconductor][]_
-for the analysis and comprehension of high-throughput genomic
-(sequencing, microarray, ...) data. There are no pre-requisites. The
-course will be offered May 16 and 17; it is open and free of charge
-to students, staff, and faculty at Roswell Park Cancer Institute or
-SUNY at Buffalo.
+This is a condensed version of the BiocIntro course introducing _[R][]_ and _[Bioconductor][]_ for the analysis and comprehension of high-throughput genomic
+(sequencing, microarray, ...) data. 
 
-An approximate agenda is:
+Summary of topics:
 
-## Day 1: Introduction to _R_
+[Installation][]
 
-Overview
+## Introduction to R
 
-- Commands, scripts, and literate documents
-- Data input, manipulation, and visualization
-- Packages
-- Introduction to example data sets
-- Getting help
+[Introduction][] -- RStudio and R.
 
-Data input and manipulation
+[Data Input and Manipulation][].
 
-- Input data from text and other files
-- Vectors, `data.frame`, and other _R_ data types
-- Tidying data
+[Statistical Analysis][].
 
-Analysis
+[R Workflows and Visualization][].
 
-- Performing basic (and advanced!) statistical analyses
-- Working with _R_ classes and methods
+## Introduction to Bioconductor
 
-Visualization
+[Bioconductor introduction][] and [Common operations][].
 
-- Base graphics for quick visualizations
-- [ggplot2][] and other effective ways of visualizing data
+[RNASeq][] -- introduction and pactical.
 
-## Day 2: Introduction to _Bioconductor_
+Approaches to [ChIPSeq][].
 
-Project overview
+[Other][]
 
-- Packages, methods, and vignettes
-- What you can (and can't!) do: sequence analysis (RNA-seq, ChIP-seq,
-  variants, ...), microarrays, flow cytometery, ...
+[Installation]: https://github.com/Bioconductor/BiocIntro/blob/Bioc2017/vignettes/A0_Installation.Rmd
+[Introduction]: https://github.com/Bioconductor/BiocIntro/blob/Bioc2017/vignettes/A1_Using_R.Rmd
+[Data Input and Manipulation]: https://github.com/Bioconductor/BiocIntro/blob/Bioc2017/vignettes/A2_IO.Rmd
+[Statistical Analysis]: https://github.com/Bioconductor/BiocIntro/blob/Bioc2017/vignettes/A3_Statistics.Rmd
+[R Workflows and Visualization]: https://github.com/Bioconductor/BiocIntro/blob/Bioc2017/vignettes/A4_Graphics.Rmd
 
-Getting familiar with common operations
-
-- [GenomicRanges][] for describing genome-scale data
-- Annotation resources for mapping between identifiers, assigning
-  pathways, describing genes, and exploring consortium and other
-  genome-scale data.
-
-A typical work flow: RNA-seq differential expression of known genes
-
-- Introduction to RNA-seq
-- Overview of upstream processing (non-_R_)
-- From count matrix to differentially expressed genes
-
-    - Statistical issues
-    - Implementation using the [DESeq2][] package
-    - Placing results in context
-
-Where to now?
-
-- Improving _R_ skills
-- Working with large data
-- Getting involved with the community
-
+[Bioconductor introduction]: https://github.com/Bioconductor/BiocIntro/blob/Bioc2017/vignettes/B1_Bioconductor_intro.Rmd
+[Common operations]: https://github.com/Bioconductor/BiocIntro/blob/Bioc2017/vignettes/B2_Common_Operations.Rmd
+[RNASeq]: https://github.com/Bioconductor/BiocIntro/blob/Bioc2017/vignettes/B3_RNASeq_Workflow.Rmd
+[ChIPSeq]: https://github.com/Bioconductor/BiocIntro/blob/OMRF-2017/vignettes/B4_ChIPSeq.Rmd
+[Other]: https://github.com/Bioconductor/BiocIntro/blob/Bioc2017/vignettes/B5_Next_Steps.Rmd
 [R]: https://r-project.org
 [Bioconductor]: https://bioconductor.org
-[ggplot2]: https://cran.r-project.org/package=ggplot2
-[GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
-[DESeq2]: https://bioconductor.org/packages/DESeq2

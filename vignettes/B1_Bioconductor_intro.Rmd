@@ -1,0 +1,226 @@
+---
+title: "B.1 -- Introduction to _Bioconductor_"
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+  Lori Shepherd <Lori.Shepherd@RoswellPark.org><br/>
+date: "July 26-28, 2017"
+output:
+  BiocStyle::html_document2:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{B.1 -- Introduction to Bioconductor}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
+```{r setup, echo=FALSE}
+suppressPackageStartupMessages({
+    library(Biostrings)
+    library(GenomicRanges)
+    library(SummarizedExperiment)
+    library(airway)
+    library(rtracklayer)
+    library(ShortRead)
+    library(GenomicAlignments)
+    library(RNAseqData.HNRNPC.bam.chr14)
+    library(VariantAnnotation)
+})
+```
+
+# About
+
+## [Bioconductor][]: Analysis and comprehension of high-throughput
+genomic data
+
+- Statistical analysis: large data, technological artifacts, designed
+  experiments; rigorous
+- Comprehension: biological context, visualization, reproducibility
+- High-throughput
+    - Sequencing: RNASeq, ChIPSeq, variants, copy number, ...
+    - Microarrays: expression, SNP, ...
+    - Flow cytometry, proteomics, images, ...
+
+## Packages, vignettes, work flows
+
+- 1383 software packages; also...
+
+    - 'Annotation' packages -- static data bases of identifier maps,
+      gene models, pathways, etc; e.g.,
+      [TxDb.Hsapiens.UCSC.hg19.knownGene][]
+    - 'Experiment packages -- data sets used to illustrate software
+      functionality, e.g., [airway][]
+
+- Discover and navigate via [biocViews][]
+- Package 'landing page'
+
+    - Title, author / maintainer, short description, citation,
+      installation instructions, ..., download statistics
+
+- All user-visible functions have help pages, most with runnable
+  examples
+- 'Vignettes' an important feature in _Bioconductor_ -- narrative
+  documents illustrating how to use the package, with integrated code
+- 'Release' (every six months) and 'devel' branches
+- [Support site](https://support.bioconductor.org);
+  [videos](https://www.youtube.com/user/bioconductor), [recent
+  courses](https://bioconductor.org/help/course-materials/)
+
+## Package installation and use
+
+- A package needs to be installed once, using the instructions on the
+  package landing page (e.g., [DESeq2][]).
+
+    ```{r install, eval=FALSE}
+    source("https://bioconductor.org/biocLite.R")
+    biocLite(c("DESeq2", "org.Hs.eg.db"))
+    ```
+
+- `biocLite()` installs _Bioconductor_, [CRAN][], and github packages.
+
+- Once installed, the package can be loaded into an R session
+
+    ```{r require}
+    library(GenomicRanges)
+    ```
+
+    and the help system queried interactively, as outlined above:
+
+    ```{r help-bioc, eval=FALSE}
+    help(package="GenomicRanges")
+    vignette(package="GenomicRanges")
+    vignette(package="GenomicRanges", "GenomicRangesHOWTOs")
+    ?GRanges
+    ```
+
+# Key concepts
+
+## Goals
+
+- Reproducibility
+- Interoperability
+- Use
+
+## What a few lines of _R_ has to say
+
+```{r five-lines}
+x <- rnorm(1000)
+y <- x + rnorm(1000)
+df <- data.frame(X=x, Y=y)
+plot(Y ~ X, df)
+fit <- lm(Y ~ X, df)
+anova(fit)
+abline(fit)
+```
+
+## Classes and methods -- "S3"
+
+- `data.frame()`
+
+    - Defines _class_ to coordinate data
+    - Creates an _instance_ or _object_
+
+- `plot()`, `lm()`, `anova()`, `abline()`: _methods_ defined on
+  _generics_ to transform instances
+
+- Discovery and help
+
+    ```{r help-r, eval=FALSE}
+    class(fit)
+    methods(class=class(fit))
+    methods(plot)
+    ?"plot"
+    ?"plot.formula"
+    ```
+
+- tab completion!
+
+## _Bioconductor_ classes and methods -- "S4"
+
+- Example: working with DNA sequences
+
+    ```{r classes-and-methods}
+    library(Biostrings)
+    dna <- DNAStringSet(c("AACAT", "GGCGCCT"))
+    reverseComplement(dna)
+    ```
+
+    ```{r}
+    data(phiX174Phage)
+    phiX174Phage
+    letterFrequency(phiX174Phage, "GC", as.prob=TRUE)
+    ```
+
+- Discovery and help
+
+    ```{r classes-and-methods-discovery, eval=FALSE}
+    class(dna)
+    ?"DNAStringSet-class"
+    ?"reverseComplement,DNAStringSet-method"
+    ```
+
+# High-throughput sequence analysis work flows
+
+- Step 1. Experimental design
+
+    - Simple, replication, sufficient power, covariates and batch
+      effects, ...
+
+- Step 2. Wet-lab sequence preparation
+
+    - Figure from http://rnaseq.uoregon.edu/
+
+![](our_figures/fig-rna-seq.png)
+
+- Step 3. (Illumina) Sequencing 
+
+    - Bentley et al., 2008, doi:10.1038/nature07517
+    - Primary output: FASTQ files of short reads and their
+      [quality scores][].
+
+![](http://www.nature.com/nature/journal/v456/n7218/images/nature07517-f1.2.jpg)
+
+- Step 4. Alignment
+
+    - Choose to match task, e.g., [Rsubread][], Bowtie2 good for ChIPseq,
+      some forms of RNAseq; BWA, GMAP better for variant calling
+    - Primary output: BAM files of aligned reads
+    - More recently: [kallisto][] and similar programs that produce
+      tables of reads aligned to transcripts
+
+- Step 5. Reduction
+
+    - e.g., RNASeq 'count table' (simple spreadsheets), DNASeq called
+      variants (VCF files), ChIPSeq peaks (BED, WIG files)
+
+- Step 6. Analysis
+
+    - Differential expression, peak identification, differential
+      binding, ...
+
+- Step 7. Comprehension
+
+    - Biological context; annotation, gene set analysis, ...
+
+[quality scores]: http://en.wikipedia.org/wiki/FASTQ_format#Encoding
+
+# _Bioconductor_ sequencing ecosystem
+
+![Alt Sequencing Ecosystem](our_figures/SequencingEcosystem.png)
+
+
+[Bioconductor]: https://bioconductor.org
+[CRAN]: https://cran.r-project.org
+[biocViews]: https://bioconductor.org/packages/
+
+[airway]: https://bioconductor.org/packages/airway
+[DESeq2]: https://bioconductor.org/packages/DESeq2
+[TxDb.Hsapiens.UCSC.hg19.knownGene]: https://bioconductor.org/packages/TxDb.Hsapiens.UCSC.hg19.knownGene
+[Rsubread]: https://bioconductor.org/packages/Rsubread
+
+[kallisto]: https://pachterlab.github.io/kallisto
