@@ -16,7 +16,8 @@ vignette: >
 ```{r style, echo = FALSE, results = 'asis'}
 knitr::opts_chunk$set(
     eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
-    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")), 
+    warning=FALSE)
 ```
 
 ```{r setup, echo=FALSE}
@@ -29,6 +30,7 @@ suppressPackageStartupMessages({
     library(org.Hs.eg.db)
     library(TxDb.Hsapiens.UCSC.hg19.knownGene)
     library(RNAseqData.HNRNPC.bam.chr14)
+    library(Organism.dplyr)
 })
 ```
 
@@ -100,7 +102,6 @@ range(gr)                               # inter-range
 reduce(gr)                              # inter-range
 snps <- GRanges("A", IRanges(c(11, 17, 24), width=1))
 findOverlaps(snps, gr)                  # between-range
-setdiff(range(gr), gr)                  # 'introns'
 ```
 
 ## _GenomicAlignments_
@@ -165,7 +166,7 @@ airway[airway %over% chr14,]
 
 - _org.\*_: identifier mappings
 
-    - `select()`, `columns()`, `keys()`
+    - `select()`, `columns()`, `keytypes()`, `keys()`
     - `mapIds()`
 
     ```{r}
@@ -184,6 +185,23 @@ airway[airway %over% chr14,]
     library(TxDb.Hsapiens.UCSC.hg19.knownGene)
     txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
     promoters(txdb)
+    ```
+
+### `Organism.dply` 
+
+The `Organism.dplyr` package combines both!
+
+- Functions from both _org.\*_ and _TxDb.\*_ 
+    - `keytypes()`, `select()`, ...
+    - `exons()`, `promoters()`, ...
+        
+    ```{r}
+    library(Organism.dplyr)
+    src = src_organism("TxDb.Hsapiens.UCSC.hg19.knownGene")
+    src
+    select(src, "BRCA1", c("ensembl", "genename"),"symbol")
+    promoters(src)
+    tbl(src, "id")
     ```
 
 ### Web-based resources
@@ -515,6 +533,41 @@ library(Rsamtools)
 param <- ScanBamParam(which=gns[sym2eg])
 readGAlignments(bfl, param=param)
 ```
+
+## Annotation and Organism.dplyr
+
+- Load the files for _Homo sapiens_.
+
+```{r}
+library(Organism.dplyr)
+src = src_organism("TxDb.Hsapiens.UCSC.hg19.knownGene")
+src
+```
+
+- Get the ensembl id and alias for "BRCA1". 
+- Get the entrez ensemble id for "BRCA1" and "BRCA2".
+
+```{r}
+tbl(src, "id")
+tbl(src, "id") %>% dplyr::select(symbol, ensembl, alias) %>% 
+    filter( symbol == "BRCA1")
+tbl(src, "id") %>% dplyr::select(symbol, ensembl, entrez) %>% 
+    filter(symbol %in% c("BRCA1", "BRCA2")) %>% collect(n=Inf) %>% unique
+```
+
+- Get the ranges for "BRCA1". 
+- Convert them to a GRanges object. 
+
+```{r}
+src
+tbl(src, "ranges_tx")
+tbl(src, "id") %>% filter(symbol == "BRCA1") %>% 
+    dplyr::select(entrez, ensembl) %>%  collect(n=Inf) %>% unique
+ranges = tbl(src, "ranges_tx") %>% filter(entrez == "672")
+ranges
+ranges %>% collect(n=Inf) %>% GRanges
+```
+
 
 ## _AnnotationHub_
 

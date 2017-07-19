@@ -14,6 +14,6 @@ Suggests: BiocStyle, knitr, AnnotationHub, BiocParallel, Biostrings,
     DESeq2, GenomicAlignments, GenomicRanges, RColorBrewer,
     RNAseqData.HNRNPC.bam.chr14, Rsamtools, SummarizedExperiment,
     TxDb.Hsapiens.UCSC.hg19.knownGene, airway, biomaRt, class,
-    ggplot2, gplots, microbenchmark, org.Hs.eg.db
+    ggplot2, gplots, microbenchmark, org.Hs.eg.db, Organism.dplyr
 License: Artistic-2.0
 VignetteBuilder: knitr
