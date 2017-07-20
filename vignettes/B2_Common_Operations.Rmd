@@ -545,7 +545,7 @@ src
 ```
 
 - Get the ensembl id and alias for "BRCA1". 
-- Get the entrez ensemble id for "BRCA1" and "BRCA2".
+- Get the entrez id and ensemble id for "BRCA1" and "BRCA2".
 
 ```{r}
 tbl(src, "id")
