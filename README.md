@@ -26,5 +26,6 @@ A tentative schedule includes:
 - https://github.com/halhen/viz-pub including sports-time-of-day
 - https://github.com/seandavi/MachineLearning
   Intro machine learning using classic data sets
+- https://github.com/MuseumofModernArt/collection MoMA collections
 -->
 
