@@ -1,11 +1,11 @@
-# Introduction to _R_
+# _R_ and _Bioconductor_ for Genomic Analysis
 
-Date (Tentative): Monday and Tuesday, September 11 -12<br />
+Date: Monday and Tuesday, September 11 - 12<br />
 Instructors: Martin Morgan, Ezgi Karaesmen, Abbas Rizvi<br />
 Affiliation: Roswell Park Cancer Institute; Ohio State University<br />
 Contact: Martin.Morgan at RoswellPark.org
 
-This two-day workshop provides an introduction to R and Bioconductor for the analysis and comprehension of high-throughput genomic data. The workshop assumes no knowledge of R. We will move at a steady pace, and cover quite a bit of ground. The goals are to familiarize particpants with common ways in which data, including genomic data, are explored and analyzed in R, and to provide participants with tools necessary for their own continued self-education.
+This two-day workshop provides an introduction to _R_ and _Bioconductor_ for the analysis and comprehension of high-throughput genomic data. The workshop assumes modest knowledge of _R_. We will move at a steady pace, and cover quite a bit of ground. The goals are to familiarize particpants with common ways in which data, including genomic data, are explored and analyzed in _R_, and to provide participants with tools necessary for their own continued self-education.
 
 Recent courses:
 
