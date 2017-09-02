@@ -7,6 +7,20 @@ Contact: Martin.Morgan at RoswellPark.org
 
 This two-day workshop provides an introduction to _R_ and _Bioconductor_ for the analysis and comprehension of high-throughput genomic data. The workshop assumes modest knowledge of _R_. We will move at a steady pace, and cover quite a bit of ground. The goals are to familiarize particpants with common ways in which data, including genomic data, are explored and analyzed in _R_, and to provide participants with tools necessary for their own continued self-education.
 
+Day 1
+
+- Basics of _R_ -- vectors, data.frames, linear models
+- Tidy data
+- _Bioconductor_ data representations -- _GenomicRanges_, _SummarizedExperiment_, and friends
+- Organizing work -- scripts, markdown, packages
+
+Day 2
+
+- Exploring RNA-seq data
+- Differential expression analysis with DESeq2
+- Results in context -- annotation, gene set enrichment, etc.
+- Writing better _R_ code
+
 Recent courses:
 
 - [Moffitt-2017][] -- 2 day introduction to _R_ and _Bioconductor_
