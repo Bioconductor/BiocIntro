@@ -1,12 +1,12 @@
 Package: RIntro
 Type: Package
-Title: Training Material for Introductory R Courses
+Title: Training Material for Introductory R and Bioconductor Courses
 Version: 0.0.7
 Authors@R: c(
     person("Martin", "Morgan", role=c("aut", "cre"),
         email="martin.morgan@roswellpark.org"))
 Description: Vignettes and resources to support introductory R
-    training courses.
+    and Bioconductor training courses.
 Suggests: AnnotationHub, BiocParallel, Biostrings, DESeq2,
     GenomicAlignments, GenomicRanges, RColorBrewer,
     RNAseqData.HNRNPC.bam.chr14, Rsamtools, ShortRead,
