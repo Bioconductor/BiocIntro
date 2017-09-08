@@ -1,12 +1,20 @@
 Package: RIntro
 Type: Package
 Title: Training Material for Introductory R Courses
-Version: 0.0.6
+Version: 0.0.7
 Authors@R: c(
     person("Martin", "Morgan", role=c("aut", "cre"),
         email="martin.morgan@roswellpark.org"))
 Description: Vignettes and resources to support introductory R
     training courses.
-Suggests: BiocStyle, knitr
+Suggests: AnnotationHub, BiocParallel, Biostrings, DESeq2,
+    GenomicAlignments, GenomicRanges, RColorBrewer,
+    RNAseqData.HNRNPC.bam.chr14, Rsamtools, ShortRead,
+    SummarizedExperiment, TxDb.Hsapiens.UCSC.hg19.knownGene,
+    VariantAnnotation, airway, biomaRt, edgeR, genefilter, ggplot2,
+    gplots, microbenchmark, org.Hs.eg.db, rtracklayer, survival,
+    tidyverse, cgdsr, greyzoneSurv,
+    BiocStyle, knitr
 License: Artistic-2.0
 VignetteBuilder: knitr
+RoxygenNote: 6.0.1
