@@ -1,7 +1,7 @@
 ---
 title: "A.1 -- Using R"
 author: "Martin Morgan <Martin.Morgan@RoswellPark.org>"
-date: "8 - 9 May 2017"
+date: "11 - 12 September 2017"
 output:
   BiocStyle::html_document:
     toc: true
