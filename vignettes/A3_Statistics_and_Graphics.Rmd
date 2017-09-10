@@ -1,0 +1,278 @@
+---
+title: "A.3 -- Statistics and Graphics"
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+date: "11 - 12 September 2017"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{A.3 -- Statistics and Graphics}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+suppressPackageStartupMessages({
+    library(tidyverse)
+})
+```
+
+# Exploration and simple univariate measures
+
+Input clean data, with `Sex` and `Year` as factors.
+
+<!--
+```{r echo=FALSE}
+path <- file.path("extdata", "BRFSS-subset.csv")
+```
+-->
+```{r ALL-choose, eval=FALSE}
+path <- file.choose()    # look for BRFSS-subset.csv
+```
+
+```{r ALL-input}
+stopifnot(file.exists(path))
+library(tidyverse)
+col_types <- cols(
+    Age = col_integer(),
+    Weight = col_double(),
+    Sex = col_factor(c("Female", "Male")),
+    Height = col_double(),
+    Year = col_factor(c("1990", "2010"))
+)
+brfss <- read_csv(path, col_types = col_types)
+brfss
+```
+
+## Univariate: `t.test()` for Weight in 1990 vs. 2010 Females
+
+Filter the data to include females only, and use base `plot()` function
+and the formula interface to visualize the relationship between
+`Weight` and `Year`.
+
+```{r brfss-female-plot}
+brfss %>% filter(Sex %in% "Female") %>% plot(Weight ~ Year, data = .)
+```
+
+Use a `t.test()` to test the hypothesis that female weight is the same
+in 2010 as in 1990
+
+```{r brfss-female-t-test}
+brfss %>% filter(Sex %in% "Female") %>% t.test(Weight ~ Year, data = .)
+```
+
+## Bivariate: Weight and height in 2010 Males
+
+Filter the data to contain 2010 Males. Use `plot()` to visualize the
+relationship, and `lm()` to model it.
+
+```{r brfss-male}
+male2010 <- brfss %>% filter(Year %in% "2010", Sex %in% "Male")
+male2010 %>% plot( Weight ~ Height, data = .)
+fit <- male2010 %>% lm( Weight ~ Height, data = .)
+fit
+summary(fit)
+```
+
+Multiple regression: Weight and Height, accounting for difference between years
+
+```{r brfss-male-year-and-height}
+male <- brfss %>% filter(Sex %in% "Male")
+male %>% lm(Weight ~ Year + Height, data = .) %>% summary()
+```
+
+Is there an interaction between `Year` and `Height`?
+
+
+```{r brfss-male-interaction}
+male %>% lm(Weight ~ Year * Height, data = .) %>% summary()
+```
+
+Check out other things to do with fitted model:
+
+- `broom::tidy()`: P-value, etc., as data.frame
+- `broom::augment()`: fitted values, residuals, etc
+
+    ```{r brfss-male-augment, warning=FALSE}
+    library(broom)
+    male %>% lm(Weight ~ Year + Height, data = .) %>% 
+        augment() %>% as.tibble()
+    ```
+
+## Visualization: [ggplot2][]
+
+*gg*plot: "Grammar of Graphics"
+
+- data: `ggplot2()`
+- *aes*thetics: `aes()`, 'x' and 'y' values, point colors, etc.
+- *geom*metric summaries, layered
+    - `geom_point()`: points
+    - `geom_smooth()`: fitted line
+    - `geom_*`: ...
+- *facet* plots (e.g., `facet_grid()`) to create 'panels' based on
+  factor levels, with shared axes.
+
+Create a plot with data points
+
+```{r male-geom_point, warning = FALSE}
+ggplot(male, aes(x=Height, y = Weight)) + geom_point()
+```
+
+Capture the base plot and points, and explore different smoothed
+relationships, e.g., linear model, non-parameteric smoother
+
+```{r male-ggplot, warning = FALSE}
+plt <- ggplot(male, aes(x=Height, y = Weight)) + geom_point()
+plt + geom_smooth(method = "lm")
+plt + geom_smooth()       # default: generalized additive model
+```
+
+Use an `aes()`thetic to color smoothed lines based on `Year`, or
+`facet_grid()` to separate years.
+
+```{r male-facet, warning = FALSE}
+plt + geom_smooth(method = "lm", aes(color = Year))
+plt + facet_grid( ~ Year ) + geom_smooth(method = "lm")
+```
+
+[ggplot2]: https://cran.r-project.org/package=ggplot2
+
+# Multivariate analysis
+
+This is a classic microarray experiment. Microarrays
+consist of 'probesets' that interogate genes for their level of
+expression. In the experiment we're looking at, there are 12625
+probesets measured on each of the 128 samples. The raw expression
+levels estimated by microarray assays require considerable
+pre-processing, the data we'll work with has been pre-processed.
+
+## Input and setup
+
+Start by finding the expression data file on disk.
+
+<!--
+```{r echo=FALSE}
+path <- file.path("extdata", "ALL-expression.csv")
+stopifnot(file.exists(path))
+```
+-->
+
+```{r ALL-choose-again, eval=FALSE}
+path <- file.choose()          # look for ALL-expression.csv
+stopifnot(file.exists(path))
+```
+
+The data is stored in 'comma-separate value' format, with each
+probeset occupying a line, and the expression value for each sample in
+that probeset separated by a comma. Input the data using
+`read.csv()`. There are three challenges:
+
+1. The row names are present in the first column of the data. Tell _R_
+   this by adding the argument `row.names=1` to `read.csv()`.
+2. By default, _R_ checks that column names do not look like numbers,
+   but our column names _do_ look like numbers. Use the argument
+   `check.colnames=FALSE` to over-ride _R_'s default.
+3. `read.csv()` returns a `data.frame`. We could use a `data.frame` to
+   work with our data, but really it is a `matrix()` -- the columns
+   are of the same type and measure the same thing. Use `as.matrix()`
+   to coerce the `data.frame` we input to a `matrix`.
+
+```{r ALL-input-exprs}
+exprs <- read.csv(path, row.names=1, check.names=FALSE)
+exprs <- as.matrix(exprs)
+class(exprs)
+dim(exprs)
+exprs[1:6, 1:10]
+range(exprs)
+```
+
+We'll make use of the data describing the samples
+
+<!--
+```{r echo=FALSE}
+path <- file.path("extdata", "ALL-phenoData.csv")
+stopifnot(file.exists(path))
+```
+-->
+
+```{r ALL-phenoData.csv-clustering-student, eval=FALSE}
+path <- file.choose()         # look for ALL-phenoData.csv
+stopifnot(file.exists(path))
+```
+
+```{r}
+pdata <- read.csv(path, row.names=1)
+class(pdata)
+dim(pdata)
+head(pdata)
+```
+
+Some of the results below involve plots, and it's convenient to choose
+pretty and functional colors. We use the [RColorBrewer][]
+package; see [colorbrewer.org][]
+
+[RColorBrewer]: https://cran.r-project.org/?package=RColorBrewer
+[colorbrewer.org]: http://colorbrewer.org
+
+```{r colors}
+library(RColorBrewer)  ## not available? install package via RStudio
+highlight <- brewer.pal(3, "Set2")[1:2]
+```
+
+`highlight' is a vector of length 2, light and dark green.
+
+For more options see `?RColorBrewer` and to view the predefined
+palettes `display.brewer.all()`
+
+## Cleaning
+
+We'll add a column to `pdata`, derived from the `BT` column, to
+indicate whether the sample is B-cell or T-cell ALL.
+
+```{r ALL-BorT}
+pdata$BorT <- factor(substr(pdata$BT, 1, 1))
+```
+
+Microarray expression data is usually represented as a matrix of genes
+as rows and samples as columns. Statisticians usually think of their
+data as samples as rows, features as columns. So we'll transpose the
+expression values
+
+```{r}
+exprs <- t(exprs)
+```
+
+Confirm that the `pdata` rows correspond to the `exprs` rows.
+
+```{r}
+stopifnot(identical(rownames(pdata), rownames(exprs)))
+```
+
+## Unsupervised machine learning -- multi-dimensional scaling
+
+Reduce high-dimensional data to lower dimension for visualization.
+
+Calculate distance between _samples_ (requires that the expression
+matrix be transposed).
+
+```{r}
+d <- dist(exprs)
+```
+
+Use the `cmdscale()` function to summarize the distance matrix into
+two points in two dimensions.
+
+```{r}
+cmd <- cmdscale(d)
+```
+
+Visualize the result, coloring points by B- or T-cell status
+
+```{r}
+plot(cmd, col=highlight[pdata$BorT])
+```
