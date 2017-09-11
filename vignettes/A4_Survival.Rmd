@@ -1,0 +1,116 @@
+---
+title: "A.4 -- Survival and TCGA"
+author:
+  Martin Morgan <Martin.Morgan@RoswellPark.org><br/>
+date: "11 - 12 September 2017"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{A.4 -- Survival and TCGA}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+suppressPackageStartupMessages({
+    library(tidyverse)
+    library(broom)
+    library(cgdsr)
+    library(survival)
+    library(survminer)
+})
+```
+
+# Getting the data
+
+## Discovery
+
+```{r}
+library(tidyverse)
+library(cgdsr)
+url <- "http://www.cbioportal.org/public-portal/"
+cbiop <- CGDS(url)
+
+studies <- getCancerStudies(cbiop) %>% as.tibble()
+## View(studies)
+study <- "skcm_tcga"
+
+cases <- getCaseLists(cbiop, study) %>% as.tibble()
+## View(cases)
+allcases <- "skcm_tcga_all"
+mRNAcases <- "skcm_tcga_rna_seq_v2_mrna"
+
+profiles <- getGeneticProfiles(cbiop, study) %>% as.tibble()
+## View(profiles)
+profile = "skcm_tcga_rna_seq_v2_mrna_median_Zscores"
+
+genes <- c('CD63', 'CD9', 'CD81')
+```
+
+## Download
+
+```{r}
+mRNA <- getProfileData(cbiop, genes, profile, mRNAcases) %>% 
+    rownames_to_column("id") %>% as.tibble()
+
+clinical <- getClinicalData(cbiop, allcases) %>%
+    rownames_to_column("id") %>% as.tibble()
+```
+
+## Cleaning
+
+```{r}
+data <- full_join(clinical, mRNA)
+
+clean <- data %>% 
+    filter(!is.na(CD63), !is.na(CD9), !is.na(CD81)) %>%
+    select(
+        id, SAMPLE_TYPE, 
+        OS_STATUS, OS_MONTHS, 
+        DFS_STATUS, DFS_MONTHS,
+        CD63, CD9, CD81
+    ) %>%
+    mutate(
+        SAMPLE_TYPE = factor(SAMPLE_TYPE),
+        OS_STATUS = factor(OS_STATUS),
+        DFS_STATUS = factor(DFS_STATUS)
+    )
+
+clean %>% summary()
+```
+
+# Analysis
+
+## Testing continuous variables
+
+```{r}
+library(survival)
+library(broom)   # tidy()
+surv <- clean %>% with(Surv(OS_MONTHS, OS_STATUS == "DECEASED"))
+fits <- bind_rows(
+    clean %>% coxph(surv ~ CD63, data = .) %>% tidy(),
+    clean %>% coxph(surv ~ CD9, data = .)  %>% tidy(),
+    clean %>% coxph(surv ~ CD81, data = .) %>% tidy()
+) %>% as.tibble()
+fits
+```
+
+## Visualization as Kaplan-Meier curves
+
+```{r}
+library(survminer)
+
+cutpoints <- clean %>% 
+    mutate(OS_STATUS = OS_STATUS == "DECEASED") %>% 
+    surv_cutpoint("OS_MONTHS", "OS_STATUS", genes)
+cats <- cutpoints %>% surv_categorize() %>% as.tibble()
+
+surv <- cats %>% with(Surv(OS_MONTHS, OS_STATUS))
+fit <- survfit(surv ~ CD81, data = cats)
+ggsurvplot(fit, conf.int=TRUE)
+```
