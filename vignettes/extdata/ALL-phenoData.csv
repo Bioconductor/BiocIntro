@@ -1,4 +1,4 @@
-"","cod","diagnosis","sex","age","BT","remission","CR","date.cr","t(4;11)","t(9;22)","cyto.normal","citog","mol.biol","fusion protein","mdr","kinet","ccr","relapse","transplant","f.u","date last seen"
+"Sample","cod","diagnosis","sex","age","BT","remission","CR","date.cr","t(4;11)","t(9;22)","cyto.normal","citog","mol.biol","fusion protein","mdr","kinet","ccr","relapse","transplant","f.u","date last seen"
 "01005","1005","5/21/1997","M",53,"B2","CR","CR","8/6/1997",FALSE,TRUE,FALSE,"t(9;22)","BCR/ABL","p210","NEG","dyploid",FALSE,FALSE,TRUE,"BMT / DEATH IN CR",NA
 "01010","1010","3/29/2000","M",19,"B2","CR","CR","6/27/2000",FALSE,FALSE,FALSE,"simple alt.","NEG",NA,"POS","dyploid",FALSE,TRUE,FALSE,"REL","8/28/2000"
 "03002","3002","6/24/1998","F",52,"B4","CR","CR","8/17/1998",NA,NA,NA,NA,"BCR/ABL","p190","NEG","dyploid",FALSE,TRUE,FALSE,"REL","10/15/1999"

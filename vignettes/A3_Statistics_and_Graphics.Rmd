@@ -22,7 +22,7 @@ suppressPackageStartupMessages({
 })
 ```
 
-# Exploration and simple univariate measures
+# Exploration, univariate, and bivariate statistics and visualization
 
 Input clean data, with `Sex` and `Year` as factors.
 
@@ -65,6 +65,8 @@ in 2010 as in 1990
 ```{r brfss-female-t-test}
 brfss %>% filter(Sex %in% "Female") %>% t.test(Weight ~ Year, data = .)
 ```
+
+
 
 ## Bivariate: Weight and height in 2010 Males
 
@@ -136,6 +138,7 @@ Use an `aes()`thetic to color smoothed lines based on `Year`, or
 `facet_grid()` to separate years.
 
 ```{r male-facet, warning = FALSE}
+ggplot(male, aes(x = Weight)) + geom_density(aes(fill = Year), alpha = .2)
 plt + geom_smooth(method = "lm", aes(color = Year))
 plt + facet_grid( ~ Year ) + geom_smooth(method = "lm")
 ```
@@ -170,28 +173,11 @@ stopifnot(file.exists(path))
 The data is stored in 'comma-separate value' format, with each
 probeset occupying a line, and the expression value for each sample in
 that probeset separated by a comma. Input the data using
-`read.csv()`. There are three challenges:
-
-1. The row names are present in the first column of the data. Tell _R_
-   this by adding the argument `row.names=1` to `read.csv()`.
-2. By default, _R_ checks that column names do not look like numbers,
-   but our column names _do_ look like numbers. Use the argument
-   `check.colnames=FALSE` to over-ride _R_'s default.
-3. `read.csv()` returns a `data.frame`. We could use a `data.frame` to
-   work with our data, but really it is a `matrix()` -- the columns
-   are of the same type and measure the same thing. Use `as.matrix()`
-   to coerce the `data.frame` we input to a `matrix`.
+`read_csv()`. The sample identifiers are present in the first column.
 
 ```{r ALL-input-exprs}
-exprs <- read.csv(path, row.names=1, check.names=FALSE)
-exprs <- as.matrix(exprs)
-class(exprs)
-dim(exprs)
-exprs[1:6, 1:10]
-range(exprs)
+exprs <- read_csv(path)
 ```
-
-We'll make use of the data describing the samples
 
 <!--
 ```{r echo=FALSE}
@@ -200,79 +186,93 @@ stopifnot(file.exists(path))
 ```
 -->
 
+We'll also input the data that describes each column
+
 ```{r ALL-phenoData.csv-clustering-student, eval=FALSE}
 path <- file.choose()         # look for ALL-phenoData.csv
 stopifnot(file.exists(path))
 ```
 
 ```{r}
-pdata <- read.csv(path, row.names=1)
-class(pdata)
-dim(pdata)
-head(pdata)
+pdata <- read_csv(path)
+pdata
 ```
 
-Some of the results below involve plots, and it's convenient to choose
-pretty and functional colors. We use the [RColorBrewer][]
-package; see [colorbrewer.org][]
+## Cleaning and Exploration
 
-[RColorBrewer]: https://cran.r-project.org/?package=RColorBrewer
-[colorbrewer.org]: http://colorbrewer.org
+The expression data is presented in what is sometimes called 'wide'
+format; a different format is 'tall', where Sample and Gene group the
+single observation Expression. Use `tidyr::gather()` to gather the
+columns of the wide format into two columns representing the tall
+format, excluding the `Gene` column from the gather operation.
 
-```{r colors}
-library(RColorBrewer)  ## not available? install package via RStudio
-highlight <- brewer.pal(3, "Set2")[1:2]
+```{r ALL-gather}
+exprs <- exprs %>% gather("Sample", "Expression", -Gene)
 ```
 
-`highlight' is a vector of length 2, light and dark green.
-
-For more options see `?RColorBrewer` and to view the predefined
-palettes `display.brewer.all()`
-
-## Cleaning
-
-We'll add a column to `pdata`, derived from the `BT` column, to
-indicate whether the sample is B-cell or T-cell ALL.
-
-```{r ALL-BorT}
-pdata$BorT <- factor(substr(pdata$BT, 1, 1))
-```
-
-Microarray expression data is usually represented as a matrix of genes
-as rows and samples as columns. Statisticians usually think of their
-data as samples as rows, features as columns. So we'll transpose the
-expression values
+Explore the data a little, e.g., a summary and histogram of the
+expression values, and a histogram of average expression values of
+each gene.
 
 ```{r}
-exprs <- t(exprs)
+exprs %>% select(Expression) %>% summary()
+exprs $ Expression %>% hist()
+exprs %>% group_by(Gene) %>% 
+    summarize(AveExprs = mean(Expression)) %$% AveExprs %>% 
+    hist(breaks=50)
 ```
 
-Confirm that the `pdata` rows correspond to the `exprs` rows.
+For subsequent analysis, we also want to simplify the 'B or T' cell
+type classification
 
-```{r}
-stopifnot(identical(rownames(pdata), rownames(exprs)))
+```{r B_or_T}
+pdata <- pdata %>% mutate(B_or_T = factor(substr(BT, 1, 1)))
 ```
 
 ## Unsupervised machine learning -- multi-dimensional scaling
 
-Reduce high-dimensional data to lower dimension for visualization.
+We'd like to reduce high-dimensional data to lower dimension for
+visualization. To do so, we need the `dist()`ance between
+samples. From `?dist`, the input can be a data.frame where rows
+represent `Sample` and columns represent `Expression` values. Use
+`spread()` to create appropriate data from `exprs`, and pipe the
+result to `dist()`ance.x
 
-Calculate distance between _samples_ (requires that the expression
-matrix be transposed).
-
-```{r}
-d <- dist(exprs)
+```{r spread}
+input <- exprs %>% spread(Gene, Expression)
+samples <- input $ Sample
+input <- input %>% select(-Sample) %>% as.matrix
+rownames(input) <- samples
 ```
 
-Use the `cmdscale()` function to summarize the distance matrix into
-two points in two dimensions.
+Calculate distance between samples, and use that for MDS scaling
 
-```{r}
-cmd <- cmdscale(d)
+```{r cmdscale}
+mds <- dist(input) %>% cmdscale()
 ```
 
-Visualize the result, coloring points by B- or T-cell status
+The result is a matrix; make it 'tidy' by coercing to a tibble; add
+the Sample identifiers as a distinct column.
+
+```{r mds-to-tibble}
+mds <- mds %>% as.tibble() %>% mutate(Sample = rownames(mds))
+```
+
+Visualize the result
 
 ```{r}
-plot(cmd, col=highlight[pdata$BorT])
+ggplot(mds, aes(x=V1, y = V2)) + geom_point()
+```
+
+With the 'eye of faith', it seems like there are two groups of
+points. To explore this, join the MDS scaling with the phenotypic data
+
+```{r join}
+joined <- inner_join(mds, pdata)
+```
+
+and use the `B_or_T` column as an aesthetic to color points
+
+```{r mds-color}
+ggplot(joined, aes(x = V1, y = V2)) + geom_point(aes(color = B_or_T))
 ```
