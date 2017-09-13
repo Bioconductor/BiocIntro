@@ -1,0 +1,220 @@
+---
+title: "Appendix: Gene Expression Using salmon"
+author: "Martin Morgan <Martin.Morgan@RoswellPark.org"
+date: "11 - 12 September 2017"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{Appendix: Gene Expression Using salmon}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+suppressPackageStartupMessages({
+    library(Biostrings)
+    library(ShortRead)
+    library(rtracklayer)
+    library(tximport)
+    library(SummarizedExperiment)
+    library(DESeq2)
+    library(tidyverse)
+})
+```
+
+# Introduction
+
+This describes some of the 'upstream' steps required for known-gene
+differential expression analysis, using the ultra-fast alignment work
+flow that goes from FASTQ files to count data without intermediate BAM
+files.
+
+We follow the [salmon tutorial][], _R_-ified in the later stages. We
+assume a Linux operating system with folder `~/a/salmon/tutorial`, and with
+`salmon` installed at `~/bin/salmon`.
+
+```{r}
+TUTORIAL <- "~/a/salmon/tutorial"
+SALMON <- "~/bin/salmon"
+```
+
+[salmon tutorial]: https://combine-lab.github.io/salmon/getting_started/
+
+# Download
+
+The tutorial requires FASTQ files representing (paired-end) sequenced
+samples. We retrieve them from the short read archive (SRA) using the
+`wget` command line tool.
+
+```
+#!/bin/bash
+
+DIR=~/a/tutorial
+SRA=ftp://ftp.sra.ebi.ac.uk/vol1/fastq
+
+for i in `seq 28 40`; 
+do 
+  mkdir -p ${DIR}/data/DRR0161${i}; 
+  cd ${DIR}/data/DRR0161${i}; 
+  wget -bqc ${SRA}/DRR016/DRR0161${i}/DRR0161${i}_1.fastq.gz; 
+  wget -bqc ${SRA}/DRR016/DRR0161${i}/DRR0161${i}_2.fastq.gz; 
+done
+
+cd $DIR
+```
+
+We will align the sequences to a reference transcriptome, in this case
+from Ensembl for _Arabidopsis thaliana_. We download the sequence and
+index it.
+
+```
+#! /bin/bash
+
+DIR=~/a/tutorial
+ENSEMBL=ftp://ftp.ensemblgenomes.org/pub/plants/release-28
+curl \
+    ${ENSEMBL}/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.28.cdna.all.fa.gz \
+    -o ${DIR}/athal.fa.gz
+salmon index -t ${DIR}/athal.fa.gz -i ${DIR}/athal_index
+```
+
+If we were interested, it's easy enough to read this in to _R_
+
+```{r}
+library(Biostrings)
+readDNAStringSet(file.path(TUTORIAL, "athal.fa.gz"))
+```
+
+We also need to know how transcripts map to genes since we'll do a
+gene-level analysis. We download the annotation file (gff3) matching
+the transcript data base.
+
+```
+#! /bin/bash
+
+DIR=~/a/tutorial
+ENSEMBL=ftp://ftp.ensemblgenomes.org/pub/plants/release-28
+curl \
+    ${ENSEMBL}/gtf/arabidopsis_thaliana/Arabidopsis_thaliana.TAIR10.28.gff3.gz\
+    -o ${DIR}/Arabidopsis_thaliana.TAIR10.28.gff3.gz
+```
+
+# Quantification
+
+The tutorial bash script invokes `salmon` on each sample, using the
+paired-end FASTQ files.
+
+```
+#!/bin/bash
+
+DIR=/home/ubuntu/tutorial
+SALMON=/home/ubuntu/bin/salmon
+
+for fn in $DIR/data/DRR0161{25..40};
+do
+    sample=`basename ${fn}`
+    echo "Processing sample ${samp}"
+    ${SALMON} quant -i athal_index -l A \
+         -1 ${fn}/${sample}_1.fastq.gz \
+         -2 ${fn}/${sample}_2.fastq.gz \
+         -p 8 -o quants/${sample}_quant
+done 
+```
+
+An _R_ version to quantify one sample is
+
+```{r}
+quantify = function(sample_file, output, salmon, doit = TRUE) {
+    sample = basename(sample_file)
+    samples = file.path(sample_file, paste0(sample, "_", 1:2, ".fastq.gz"))
+    output = file.path(output, paste0(sample, "_quant"))
+    args = c(
+        "quant", "-i", index, "-l A",
+        "-1", samples[1], "-2", samples[2],
+        "-p", parallel::detectCores(),
+        "-o", output
+    )
+    if (doit)
+        system2(salmon, args)
+    else {
+        txt = paste(salmon, paste(args, collapse=" "))
+        message(txt)
+        invisible(0)
+    }
+}
+```
+
+Here we quantify all samples (set `doit = TRUE` to actually perform
+the counting step.
+
+```{r, eval = FALSE}
+index = file.path(TUTORIAL, "athal_index")
+output  = file.path(TUTORIAL, "quants")
+data_dir = file.path(TUTORIAL, "data")
+sample_files = normalizePath(dir(data_dir, full = TRUE))
+
+args = list(salmon = SALMON, output = output, doit = FALSE)
+Map(quantify, sample_files, MoreArgs = args)
+```
+
+# Analysis in _R_
+
+We need to provide a mapping between the transcripts that the
+reads were aligned to and the genes that we will perform the analysis
+on. We import the GFF annotation file, and extract the transcripts and
+their parents (genes) as a tibble.
+
+## Transcript - gene map
+
+```{r}
+library(rtracklayer)
+library(tidyverse)
+file = file.path(TUTORIAL, "Arabidopsis_thaliana.TAIR10.29.gff3")
+gff = import(file)
+tx2gene = tibble(
+    txid = gff$transcript_id,
+    geneid = as.character(gff$Parent)
+) %>% na.omit()
+```
+
+## Input
+
+To import the count data, we use the [tximport][] package to import
+the data. We find the relevant count files, and provide names to
+identify each file (these names are propagated by the import function
+to the column names of the output count matrix).
+
+```{r}
+library(tximport)
+library(SummarizedExperiment)
+files = dir(
+    file.path(TUTORIAL, "quants"),
+    pattern = ".sf", recursive = TRUE, full = TRUE
+)
+names(files) = sub("_quant", "", basename(dirname(files)))
+counts = tximport(files, type = "salmon", tx2gene = tx2gene)
+names(counts)
+```
+
+The input is a list with three identically-dimensioned matrices and a
+fourth element describing how the other elements were determine. We
+put the three matrices into a SummarizedExperiment, to connect up with
+the [DESeq2][] work flow
+
+```
+library(SummarizedExperiment)
+se = SummarizedExperiment(counts[-4])
+```
+
+## Experimental design
+
+Next steps: add the experimental design as `colData()` on the
+`SummarizedExperiment`.
+
+[tximport]: https://bioconductor.org/packages/tximport
+[DESeq2]: https://bioconductor.org/packages/DESeq2
