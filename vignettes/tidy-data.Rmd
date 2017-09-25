@@ -1,0 +1,147 @@
+---
+title: "Working with Tidy Data"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Cancer Institute, Buffalo, NY
+output:
+  BiocStyle::html_document:
+    toc_float: true
+package: BiocStyle
+vignette: |
+  %\VignetteIndexEntry{Working with Tidy Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Tidy data and analysis
+
+[Tidy data][]
+
+- Each variable a column
+- Each observation a row
+- Each observational unit a table
+
+The tidyverse
+
+- install (once only): `install.packages("tidyverse")`
+- use
+
+    ```{r}
+    library(tidyverse)
+    library(magrittr)
+    search()
+    ```
+
+What?
+
+- [tibble][], [readr][], [magrittr][], [dplyr][], [ggplot2][]
+
+Why?
+
+- tibbles
+
+    ```{r}
+    mtcars
+    as_tibble(mtcars)
+    ```
+
+- input
+
+    ```{r}
+    brfss = read_csv("~/extdata/brfss.csv")
+    ```
+
+- pipes
+
+    ```{r}
+    brfss %>% colnames()
+    brfss %$% Age %>% mean(na.rm=TRUE)
+    ```
+
+- plyr
+
+    - `filter()`
+    - `select()`
+    - `mutate()`
+    - `group_by()`
+    - `arrange()`
+    - Examples: average Weight, Height, Age by Sex and Year
+    - `*join()`: tables
+
+- ggplot2
+
+    - `ggplot()`
+    - `geom_*()`
+    - `facet()`
+    - Example: boxplot of Weight by Year, facet by Sex
+
+Principle: correct early
+
+    - 'Sex' and 'Year' should be factors
+    - `cols()` and `read_csv()`
+
+# TCGA survival analysis
+
+Setup: `install.packages(cgdsr)`
+
+```{r}
+library(tidyverse)
+library(cgdsr)
+url <- "http://www.cbioportal.org/public-portal/"
+cbiop <- CGDS(url)
+
+studies <- getCancerStudies(cbiop) %>% as.tibble()
+## View(studies)
+study <- "skcm_tcga"
+
+cases <- getCaseLists(cbiop, study) %>% as.tibble()
+## View(cases)
+allcases <- "skcm_tcga_all"
+mRNAcases <- "skcm_tcga_rna_seq_v2_mrna"
+
+profiles <- getGeneticProfiles(cbiop, study) %>% as.tibble()
+## View(profiles)
+profile = "skcm_tcga_rna_seq_v2_mrna_median_Zscores"
+
+genes <- c('CD63', 'CD9', 'CD81')
+```
+
+## Download
+
+```{r}
+mRNA <- getProfileData(cbiop, genes, profile, mRNAcases) %>% 
+    rownames_to_column("id") %>% as.tibble()
+
+clinical <- getClinicalData(cbiop, allcases) %>%
+    rownames_to_column("id") %>% as.tibble()
+```
+
+## Cleaning
+
+```{r}
+data <- full_join(clinical, mRNA)
+
+clean <- data %>% 
+    filter(!is.na(CD63), !is.na(CD9), !is.na(CD81)) %>%
+    select(
+        id, SAMPLE_TYPE, 
+        OS_STATUS, OS_MONTHS, 
+        DFS_STATUS, DFS_MONTHS,
+        CD63, CD9, CD81
+    ) %>%
+    mutate(
+        SAMPLE_TYPE = factor(SAMPLE_TYPE),
+        OS_STATUS = factor(OS_STATUS),
+        DFS_STATUS = factor(DFS_STATUS)
+    )
+
+clean %>% summary()
+```
+
+[Tidy data]: https://www.jstatsoft.org/article/view/v059i10
+[tibble]: https://cran.r-project.org/package=tibble
+[tibble]: https://cran.r-project.org/package=tibble
+[dplry]: https://cran.r-project.org/package=dplyr
+[magrittr]: https://cran.r-project.org/package=magrittr
+[readr]: https://cran.r-project.org/package=readr
+[ggplot2]: https://cran.r-project.org/package=ggplot2
