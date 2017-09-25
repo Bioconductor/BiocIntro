@@ -16,7 +16,7 @@ enough battery power to last an hour.
 
 A tentative schedule includes:
 
-- Day 1: Working with tidy data.
+- Day 1: [Working with tidy data][vignettes/tidy-data.Rmd].
 - Day 2: Making data tidy.
 - Day 3: Exploratory data analysis.
 - Day 4: Programming concepts.
