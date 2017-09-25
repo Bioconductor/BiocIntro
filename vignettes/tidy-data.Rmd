@@ -140,8 +140,7 @@ clean %>% summary()
 
 [Tidy data]: https://www.jstatsoft.org/article/view/v059i10
 [tibble]: https://cran.r-project.org/package=tibble
-[tibble]: https://cran.r-project.org/package=tibble
-[dplry]: https://cran.r-project.org/package=dplyr
+[dplyr]: https://cran.r-project.org/package=dplyr
 [magrittr]: https://cran.r-project.org/package=magrittr
 [readr]: https://cran.r-project.org/package=readr
 [ggplot2]: https://cran.r-project.org/package=ggplot2
