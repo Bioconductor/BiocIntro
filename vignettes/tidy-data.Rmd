@@ -72,7 +72,7 @@ Why?
 
     - `ggplot()`
     - `geom_*()`
-    - `facet()`
+    - `facet_grid()`
     - Example: boxplot of Weight by Year, facet by Sex
 
 Principle: correct early

@@ -13,6 +13,37 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r}
+library(tidyverse)
+library(magrittr)
+```
+
+# ALL
+
+Phenotypic data. `%<>%`, `.`
+
+```{r}
+pdata = read_csv("~/extdata/ALL-phenoData.csv")
+pdata %>% group_by(mol.biol) %>% summarize(n=n())
+pdata %<>% filter(mol.biol %in% c("BCR/ABL", "NEG")) %>%
+    mutate(mol.bio = factor(mol.biol))
+pdata %>% t.test(age ~ mol.biol, .)
+```
+
+Expression data. `gather()`, `spread()`.
+
+```{r}
+exprs = read_csv("~/extdata/ALL-expression.csv")
+exprs %<>% gather("Sample", "Exprssion", -1)
+exprs %>% group_by(Gene) %>% summarize(Expression = mean(Expression))
+## exprs %>% spread("Gene", "Expression")
+```
+
+Together. `*_join()`.
+
+```{r}
+all <- left_join(pdata, exprs)
+```
 
 # TCGA survival analysis
 
@@ -43,7 +74,7 @@ genes <- c('CD63', 'CD9', 'CD81')
 ## Download
 
 ```{r}
-mRNA <- getProfileData(cbiop, genes, profile, mRNAcases) %>% 
+mRNA <- getProfileData(cbiop, genes, profile, mRNAcases) %>%
     rownames_to_column("id") %>% as.tibble()
 
 clinical <- getClinicalData(cbiop, allcases) %>%
@@ -55,11 +86,11 @@ clinical <- getClinicalData(cbiop, allcases) %>%
 ```{r}
 data <- full_join(clinical, mRNA)
 
-clean <- data %>% 
+clean <- data %>%
     filter(!is.na(CD63), !is.na(CD9), !is.na(CD81)) %>%
     select(
-        id, SAMPLE_TYPE, 
-        OS_STATUS, OS_MONTHS, 
+        id, SAMPLE_TYPE,
+        OS_STATUS, OS_MONTHS,
         DFS_STATUS, DFS_MONTHS,
         CD63, CD9, CD81
     ) %>%
