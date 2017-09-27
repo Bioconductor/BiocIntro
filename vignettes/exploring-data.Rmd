@@ -1,0 +1,89 @@
+---
+title: "Exploring Data"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Cancer Institute, Buffalo, NY
+output:
+  BiocStyle::html_document:
+    toc_float: true
+package: BiocStyle
+vignette: |
+  %\VignetteIndexEntry{Working with Tidy Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+library(tidyverse)
+library(magrittr)
+```
+
+# Univariate
+
+- `summary()`
+- `fivenum()`
+- `t.test()`
+- `chisq.test()`
+- `xtabs()`
+
+## Survival analysis
+
+Data input
+
+```{r}
+library(tidyverse)
+
+col_types <- cols(
+    SAMPLE_TYPE = col_factor(c("Metastatic", "Primary Tumor")),
+    OS_STATUS = col_factor(c("DECEASED", "LIVING")),
+    DFS_STATUS = col_factor(c("DiseaseFree", "Recurred/Progressed"))
+)
+clean <- read_csv(
+    "extdata/skcm_tcga_rna_seq_v2_mrna_median_Zscores.csv",
+    col_types = col_types
+)
+```
+
+Model fit
+
+```{r}
+library(survival)
+library(broom)   # tidy()
+surv <- clean %>% with(Surv(OS_MONTHS, OS_STATUS == "DECEASED"))
+fits <- bind_rows(
+    clean %>% coxph(surv ~ CD63, data = .) %>% tidy(),
+    clean %>% coxph(surv ~ CD9, data = .)  %>% tidy(),
+    clean %>% coxph(surv ~ CD81, data = .) %>% tidy()
+) %>% as_tibble()
+fits
+```
+
+Visualization as Kaplan-Meier curves
+
+- Treat gene expression as _categorical_ instead of continuous
+
+```{r}
+library(survminer)
+
+genes <- c("CD63", "CD9", "CD81")
+cutpoints <- clean %>% 
+    mutate(OS_STATUS = OS_STATUS == "DECEASED") %>% 
+    surv_cutpoint("OS_MONTHS", "OS_STATUS", genes)
+cats <- cutpoints %>% surv_categorize() %>% as_tibble()
+
+surv <- cats %>% with(Surv(OS_MONTHS, OS_STATUS))
+fit <- survfit(surv ~ CD81, data = cats)
+ggsurvplot(fit, conf.int=TRUE)
+```
+
+# Multivariate
+
+- [Multivariate][] task view
+- `lm()` / `summary()` / `anova()` / `broom::tidy()`
+- `cmdscale()` -- multidimensional scaling / principal coordinates analysis
+- clustering: `hclust()`, `kmeans()`, ... [Clustering][] task view
+- classification: `class::knn()`, ... [Machine Learning][] task view
+
+[Multivariate]: https://cran.r-project.org/view=Multivariate
+[Clustering]: https://cran.r-project.org/view=Clustering
+[Machine Learning]: https://cran.r-project.org/view=MachineLearning

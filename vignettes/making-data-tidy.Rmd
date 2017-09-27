@@ -75,10 +75,10 @@ genes <- c('CD63', 'CD9', 'CD81')
 
 ```{r}
 mRNA <- getProfileData(cbiop, genes, profile, mRNAcases) %>%
-    rownames_to_column("id") %>% as.tibble()
+    rownames_to_column("id") %>% as_tibble()
 
 clinical <- getClinicalData(cbiop, allcases) %>%
-    rownames_to_column("id") %>% as.tibble()
+    rownames_to_column("id") %>% as_tibble()
 ```
 
 ## Cleaning
@@ -87,7 +87,11 @@ clinical <- getClinicalData(cbiop, allcases) %>%
 data <- full_join(clinical, mRNA)
 
 clean <- data %>%
-    filter(!is.na(CD63), !is.na(CD9), !is.na(CD81)) %>%
+    filter(
+        !is.na(CD63), !is.na(CD9), !is.na(CD81),
+        SAMPLE_TYPE %in% c("Metastatic", "Primary Tumor"),
+        nzchar(OS_STATUS)
+    ) %>%
     select(
         id, SAMPLE_TYPE,
         OS_STATUS, OS_MONTHS,
