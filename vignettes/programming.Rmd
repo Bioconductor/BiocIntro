@@ -1,0 +1,107 @@
+---
+title: "Programming Concepts"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Cancer Institute, Buffalo, NY
+output:
+  BiocStyle::html_document:
+    toc_float: true
+package: RIntro
+vignette: |
+  %\VignetteIndexEntry{Programming Concepts}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Case study: MDS on gene expression data
+
+Data input
+
+```{r}
+suppressPackageStartupMessages({
+    library(tidyverse)
+    library(magrittr)
+})
+
+pdata <- read_csv("extdata/ALL-phenoData.csv")
+pdata %<>% 
+    filter(mol.biol %in% c("BCR/ABL", "NEG")) %>%
+    mutate(
+        BT = factor(substr(BT, 1, 1)),
+        mol.biol = factor(mol.biol)
+    )
+
+exprs <- read_csv("extdata/ALL-expression.csv")
+exprs %<>% gather("Sample", "Expression", -Gene)
+```
+
+Script to perform MDS, keeping track of samples -- tedious and
+error-prone, but frequently useful
+
+```{r}
+## from tibble to classic data structures...
+classic <- exprs %>% spread("Gene", "Expression")
+df <- classic %>% select(-Sample) %>% as.data.frame()
+rownames(df) <- classic$Sample
+
+## MDS
+cmd <- cmdscale(dist(df))
+
+## ... and back to tibble
+cmd %<>% as.data.frame() %>% rownames_to_column("Sample") %>% as_tibble()
+```
+
+```{r}
+mdstbl <- 
+    function(data, id, key, value)
+{
+    ## from tibble to classic data structures...
+    classic <- exprs %>% spread(key, value)
+    df <- classic %>% select(-starts_with(id)) %>% as.data.frame()
+    rownames(df) <- classic[[id]]
+
+    ## MDS
+    cmd <- cmdscale(dist(as.matrix(df)))
+
+    ## ... and back to tibble
+    cmd %<>% as.data.frame() %>% rownames_to_column(id) %>% as_tibble()
+    
+    cmd
+}
+```
+
+# Elements of programming
+
+functions 
+
+```{r}
+fun <- function(x, y = 1, ...) {}
+```
+
+- arguments
+
+    - required
+    - default values
+    - additional
+
+- 'first class' objects in _R_
+
+iteration
+
+- `apply()`, `lapply()`, `sapply()`, `vapply()`
+- `for () {}`
+- `while () {}`, `repeat {}`
+- iteration versus vectorization -- `n` function calls versus 1
+  function call.
+
+conditional
+
+- `if () {} else {}` (versus `ifelse()`)
+
+# Correctness and performance
+
+- Most important to write _correct_ code; compare to expectation with
+  `identical()`, `all.equal()`.
+- Measure speed with `system.time({})` or [microbenchmark][].
+
+[microbenchmark]: https://cran.r-project.org/package=microbenchmark

@@ -6,7 +6,7 @@ author:
 output:
   BiocStyle::html_document:
     toc_float: true
-package: BiocStyle
+package: RIntro
 vignette: |
   %\VignetteIndexEntry{Working with Tidy Data}
   %\VignetteEngine{knitr::rmarkdown}
