@@ -19,7 +19,7 @@ A tentative schedule includes:
 - Day 1: [Working with tidy data](vignettes/tidy-data.Rmd); [history](vignettes/history-day-1.R)
 - Day 2: [Making data tidy](vignettes/making-data-tidy.Rmd); [history](vignettes/history-day-2.R)
 - Day 3: [Exploratory data analysis](vignettes/exploring-data.Rmd); [history](vignettes/history-day-3.R).
-- Day 4: Programming concepts.
+- Day 4: [Programming concepts](vignettes/programming.Rmd); history (oops!).
 - Day 5: Managing projects, presenting results.
 
 <!--
