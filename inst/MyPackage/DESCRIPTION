@@ -1,0 +1,11 @@
+Package: MyPackage
+Type: Package
+Version: 0.0.1
+Author: Martin Morgan
+Maintainer: Martin Morgan <martin.morgan@roswellpark.org>
+Title: A Minimal Package
+Description: An abstract-like description of the package.
+License: Artistic-2.0
+RoxygenNote: 6.0.1
+Suggests: 
+    testthat

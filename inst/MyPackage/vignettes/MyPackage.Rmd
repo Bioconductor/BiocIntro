@@ -1,0 +1,50 @@
+---
+title: "Introduction to MyPackage"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Cancer Institute, Buffalo, NY
+vignette: |
+  %\VignetteIndexEntry{Introduction to MyPackage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+This package provides an ice-breaker for getting to know
+people. It has tips for shouting or whispering to them, or just
+speaking in a normal voice. The latter is usually best for making
+friends.
+
+# Use
+
+To use this package, load it
+
+```{r}
+library(MyPackage)
+````
+
+and greet one or more friends.
+
+```{r}
+hi(c("Martin", "Jenny"))
+```
+
+Shout if your friends are hard of hearing or seem to be ignoring
+you
+
+```{r}
+hi(c("Martin", "Jenny"), "shout")
+```
+
+Whisper in more intimate situations or to avoid bothering others.
+
+```{r}
+hi("Martin", "whisper")
+```
+
+# Session Info
+
+```{r}
+sessionInfo()
+```

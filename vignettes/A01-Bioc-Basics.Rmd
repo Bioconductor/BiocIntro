@@ -204,17 +204,45 @@ Data associated with ranges
 
 ## [SummarizedExperiment][]
 
+![](our_figures/SummarizedExperiment.png)
+
+- Coordinate `assay()` data (e.g., RNAseq expression counts) with
+  information about rows (`rowData()`, e.g., genes) and columns
+  (`colData()`, e.g., samples).
+
+Example: 'airway' RNAseq data
+
 ```{r}
 suppressPackageStartupMessages({
    library(airway)
 })
 data(airway)
 airway
-rowRanges(airway)
-libSize <- colSums(assay(airway))
-libSize
-table(rowSums(assay(airway)) != 0)
 ```
+
+- Information about samples, and coordinated manipulation
+
+    ```{r}
+    colData(airway)
+    airway[, airway$dex == "trt"]
+    ```
+
+- Information about regions of interest (genes, including exon coordinates)
+
+    ```{r}
+    rowRanges(airway)
+    rowData(airway)$p.value <- runif(nrow(airway))
+    ```
+
+- Access to assay information (matrix of counts of RNAseq reads in
+  each region of interest and sample).
+
+    ```{r}
+    libSize <- colSums(assay(airway))
+    libSize
+    airway$libSize <- libSize
+    table(rowSums(assay(airway)) != 0)
+    ```
 
 [SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
 
@@ -246,6 +274,16 @@ Annotation resources
 - [biomaRt][], [KEGGREST][], ...: 
 - `org.*` (e.g., [org.Hs.eg.db][]) packages: 6-month snapshots for
   symbol mapping
+  
+    ```{r}
+    suppressPackageStartupMessages({
+        library(org.Hs.eg.db)
+    })
+    rowData(airway)$Symbol <- mapIds(
+        org.Hs.eg.db, rownames(airway), "SYMBOL", "ENSEMBL"
+    )
+    ```
+
 - `TxDb.*` (e.g., [TxDb.Hsapiens.UCSC.hg38.knownGene][]) packages:
   gene models; [GenomicFeatures][]: `makeTxDbFrom...`
 - `BSgenome.*` (e.g., [BSgenome.Hsapiens.UCSC.hg38][]
