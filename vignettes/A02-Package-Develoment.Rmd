@@ -22,6 +22,23 @@ knitr::opts_chunk$set(
 
 # Packages
 
+## What and Why?
+
+What?
+
+- A simple directory structure with text files.
+- `DESCRIPTION`: title, author, version, license, etc.
+- `NAMESPACE`: functions used by and made available by your package
+- `R/`: function defintions
+- `man/`: help pages
+- `vignettes/`: vignettes
+- `tests/`: code to test your package
+
+Why?
+
+- Organize an analysis.
+- Share reproducible code with lab mates, colleagues, ...
+
 Minimal
 
 ```
@@ -63,79 +80,79 @@ $ tree
 6 directories, 7 files
 ```
 
-Working with packages
+## Working with packages
 
-- Build
+Build
 
 
-    ```
-    $ R CMD build MyPackage
-    * checking for file 'MyPackage/DESCRIPTION' ... OK
-    * preparing 'MyPackage':
-    * checking DESCRIPTION meta-information ... OK
-    * checking for LF line-endings in source and make files and shell scripts
-    * checking for empty or unneeded directories
-    * creating default NAMESPACE file
-    * building 'MyPackage_0.0.1.tar.gz'
-    ```
+```
+$ R CMD build MyPackage
+* checking for file 'MyPackage/DESCRIPTION' ... OK
+* preparing 'MyPackage':
+* checking DESCRIPTION meta-information ... OK
+* checking for LF line-endings in source and make files and shell scripts
+* checking for empty or unneeded directories
+* creating default NAMESPACE file
+* building 'MyPackage_0.0.1.tar.gz'
+```
 
-- Check
+Check
 
-    ```
-    $ R CMD check MyPackage_0.0.1.tar.gz 
-    * using log directory '/home/mtmorgan/a/BiocIntro/vignettes/MyPackage.Rcheck'
-    * using R version 3.4.2 Patched (2017-10-12 r73550)
-    * using platform: x86_64-pc-linux-gnu (64-bit)
-    * using session charset: UTF-8
-    * checking for file 'MyPackage/DESCRIPTION' ... OK
-    * checking extension type ... Package
-    * this is package 'MyPackage' version '0.0.1'
-    * checking package namespace information ... OK
-    * checking package dependencies ... OK
-    * checking if this is a source package ... OK
-    * checking if there is a namespace ... OK
-    * checking for executable files ... OK
-    * checking for hidden files and directories ... OK
-    * checking for portable file names ... OK
-    * checking for sufficient/correct file permissions ... OK
-    * checking whether package 'MyPackage' can be installed ... OK
-    * checking installed package size ... OK
-    * checking package directory ... OK
-    * checking DESCRIPTION meta-information ... OK
-    * checking top-level files ... OK
-    * checking for left-over files ... OK
-    * checking index information ... OK
-    * checking package subdirectories ... OK
-    * checking whether the package can be loaded ... OK
-    * checking whether the package can be loaded with stated dependencies ... OK
-    * checking whether the package can be unloaded cleanly ... OK
-    * checking whether the namespace can be loaded with stated dependencies ... OK
-    * checking whether the namespace can be unloaded cleanly ... OK
-    * checking loading without being on the library search path ... OK
-    * checking examples ... NONE
-    * checking PDF version of manual ... OK
-    * DONE
-    
-    Status: OK
-    ```
+```
+$ R CMD check MyPackage_0.0.1.tar.gz 
+* using log directory '/home/mtmorgan/a/BiocIntro/vignettes/MyPackage.Rcheck'
+* using R version 3.4.2 Patched (2017-10-12 r73550)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file 'MyPackage/DESCRIPTION' ... OK
+* checking extension type ... Package
+* this is package 'MyPackage' version '0.0.1'
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package 'MyPackage' can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking examples ... NONE
+* checking PDF version of manual ... OK
+* DONE
 
-- Install
+Status: OK
+```
 
-    ```
-    $ R CMD INSTALL MyPackage_0.0.1.tar.gz 
-    * installing to library '/home/mtmorgan/R/x86_64-pc-linux-gnu-library/3.4-Bioc-3.6'
-    * installing *source* package 'MyPackage' ...
-    ** help
-    No man pages found in package  'MyPackage' 
-    *** installing help indices
-    ** building package indices
-    ** testing if installed package can be loaded
-    * DONE (MyPackage)
-    ```
+Install
+
+```
+$ R CMD INSTALL MyPackage_0.0.1.tar.gz 
+* installing to library '/home/mtmorgan/R/x86_64-pc-linux-gnu-library/3.4-Bioc-3.6'
+* installing *source* package 'MyPackage' ...
+** help
+No man pages found in package  'MyPackage' 
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded
+* DONE (MyPackage)
+```
 
 # Package Development
 
-Olde school
+## Olde School
 
 - Add new functions in files `R/foo.R`
 - Update `NAMESPACE` to import functions or packages used by your
@@ -144,7 +161,7 @@ Olde school
 - Write vignettes in LaTeX Sweave
 - Key reference: _Writing R Extensions_, `RShowDoc("R-exts")`
 
-Nueue School
+## New School
 
 - `devtools::create()` a package skeleton. More flexible `Authors@R`
   instead of `Author:` / `Maintainer:` fields.
@@ -284,8 +301,11 @@ Common comments
 
 ## `man` pages
 
-- Structured like `.R` files
-- Convenient for _user_
+- Document functions on man pages that have the same names as
+  corresponding `.R` files.
+- Specify parameters (input arguments) using standard _R_ idioms
+  (e.g., `character(1)`).
+- Specify return value.
 - Easy-to-run, illustrative examples.
 
 ## Vignettes
@@ -307,4 +327,3 @@ Common comments
 
 [testthat]: https://cran.r-project.org/?pacakge=testthat
 [github]: https://github.com
-
