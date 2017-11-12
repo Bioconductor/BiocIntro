@@ -210,7 +210,10 @@ Nueue School
   [BiocStyle][]).
 
     ```{r, echo=FALSE, comment=""}
-    fl <- file.path("MyPackage", "vignettes", "MyPackage.Rmd")
+    fl <- system.file(
+        package = "BiocIntro",
+        "MyPackage", "vignettes", "MyPackage.Rmd"
+    )
     cat(readLines(fl), sep="\n")
     ```
 
@@ -231,7 +234,10 @@ Nueue School
     Content of `test_hi.R`:
 
     ```{r, echo=FALSE, comment=""}
-    fl <- file.path("MyPackage", "tests", "testthat", "test_hi.R")
+    fl <- system.file(
+        package = "BiocIntro",
+        "MyPackage", "tests", "testthat", "test_hi.R"
+    )
     cat(readLines(fl), sep="\n")
     ```
   
