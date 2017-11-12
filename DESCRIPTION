@@ -10,7 +10,7 @@ Description: Vignettes and resources to support introductory R
 Depends:
     ggplot2,
     Biostrings, GenomicRanges, SummarizedExperiment, airway,
-    AnnotationHub, ExperimentHub,
+    AnnotationHub, ExperimentHub, org.Hs.eg.db,
     HDF5Array, SingleCellExperiment,
     devtools, roxygen2, rmarkdown
 Suggests: BiocStyle, knitr
