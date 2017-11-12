@@ -1,0 +1,329 @@
+---
+title: "Bioconductor Essentials"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Cancer Institute, Buffalo, NY
+output:
+  BiocStyle::html_document:
+    toc_float: true
+  BiocStyle::pdf_document: default
+package: BiocIntro
+vignette: |
+  %\VignetteIndexEntry{A01 -- Bioconductor Essentials}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# _R_
+
+Extensible statistical programming language
+
+- https://r-project.org
+
+## _R_ Langauge
+
+```{r}
+x <- rnorm(50)
+y <- x + rnorm(50)
+df <- data.frame(Indep = x, Dep = y)
+fit <- lm(Dep ~ Indep, df)
+summary(fit)
+```
+
+Vectors
+
+- `numeric()`, `character()`, `integer()`, `logical()`, `list()`, ...
+- Statistical concepts: `NA`, `factor()`
+
+Objects
+
+- Class: `data.frame`, `lm`, `matrix`, ...
+
+Function, generic, method
+
+- `rnorm()`, `lm()`; `summary()` generic, `summary.lm()` method.
+
+Programming constructs
+
+- `apply()` (array), `lapply()` vector or list --> list, `sapply()`;
+  `if () {} else {}`, `for () {}` / `repeat {}`
+- `function() {}`
+- _Garbage collection_
+
+## Packages
+
+```{r, warning=FALSE}
+library(ggplot2)
+ggplot(df, aes(x = Dep, y = Indep)) + geom_point() + geom_smooth(method="lm")
+```
+
+- Base, recommended, contributed
+- [CRAN][]
+- Domain expertise + author 'opinion' about statistics, programming, ...
+
+## Help!
+
+- `?"summary"`, `?"summary.lm"`
+- CRAN [Task views][]
+- [StackOverflow][]
+
+[CRAN]: https://cran.r-project.org
+[Task views]: https://cran.r-project.org
+[StackOverflow]: https://stackoverflow.com
+
+# _Bioconductor_
+
+Statistical analysis and comprehension of high-throughput genomic data
+
+- https://bioconductor.org
+- https://support.bioconductor.org
+
+## A First Workflow
+
+```{r}
+suppressPackageStartupMessages({
+    library(Biostrings)
+})
+dna <- DNAStringSet( c("AAACTG", "CCCAACCA") )
+dna
+reverseComplement(dna)
+```
+
+- Biological context
+- 'S4' classes and methods
+- Inter-operable packages -- learning to work with [Biostrings][] and
+  `DNAStringSet` pays off in other packages.
+    
+Help!
+
+- `class(dna)`
+- `methods(class = "DNAStringSet")`
+- `?"DNAStringSet"`, `?"reverseComplement,DNAStringSet-method"` (tab
+  completion!)
+- `browseVignettes(package="Biostrings")`
+- https://bioconductor.org/packages
+- https://support.bioconductor.org
+
+[Biostrings]: https://bioconductor.org/packages/Biostrings
+
+## [GenomicRanges][]
+
+```{r}
+suppressPackageStartupMessages({
+    library(GenomicRanges)
+})
+gr <- GRanges(
+    c("chr1:10-19", "chr1:15-24", "chr1:30-39")
+)
+gr
+```
+
+- Closed-interval (start and end coordinates include in range, like
+  Ensembl; UCSC uses 1/2-open)
+- 1-based (like Ensembl; UCSC uses 0-based)
+
+Operations
+
+- Accessors: `seqnames()`, `start()`, `end()`, `width()`, `strand()`
+
+
+    ```{r}
+    width(gr)
+    ```
+
+- Intra-range: `shift()`, `narrow()`, `resize()`, `flank()`,
+  `restrict()`, `trim()`... See `?"intra-range-methods"`.
+
+
+    ```{r}
+    shift(gr, 1)
+    shift(gr, c(1, 2, 3))
+    ```
+
+- Inter-range: `range()`, `gaps()`, `reduce()`, `disjoin()`,
+  `coverage()`, ... See `?"inter-range-methods"`.
+
+    ```{r}
+    gaps(gr)
+    reduce(gr)
+    disjoin(gr)
+    as(coverage(gr), "GRanges")
+    ```
+    
+- Between-ranges: `findOverlaps()` / `countOverlaps()`; set operations
+  (e.g., `union()`, `punion()`); `subsetByOverlaps()`; ...
+  
+    ```{r}
+    snps <- GRanges("chr1", IRanges(c(7, 12, 17, 22), width = 1))
+    snps
+    countOverlaps(gr, snps)
+    subsetByOverlaps(snps, gr)
+    ```
+
+Data associated with ranges
+
+- `mcols()` or `$`
+
+    ```{r}
+    gr$p.value <- runif(3)
+    gr
+    ```
+
+`GRangesList`
+
+- List of `GRanges`, e.g., exons
+
+    ```{r}
+    gene <- c("A", "A", "B")
+    grl <- splitAsList(gr, gene)
+    ```
+
+- A common paradigm -- `unlist()`, transform, `relist()`
+
+    ```{r}
+    gr1 <- unlist(grl, use.names=FALSE)
+    gr1$neg.log10.pvalue <- -log10(gr1$p.value)
+    relist(gr1, grl)
+    ```
+    
+- Other `*List`, e.g., `NumericList()`
+
+`seqinfo()`
+
+- Sequences associated with `GRanges` or `GRangesList`, analogous to
+  factor levels.
+
+[GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
+
+## [SummarizedExperiment][]
+
+```{r}
+suppressPackageStartupMessages({
+   library(airway)
+})
+data(airway)
+airway
+rowRanges(airway)
+libSize <- colSums(assay(airway))
+libSize
+table(rowSums(assay(airway)) != 0)
+```
+
+[SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
+
+## Additional 'Core' Infrastructure
+
+BED, GFF, GTF, ... import
+
+- [rtracklayer][] `import()`
+- Also [Biostrings][] (Fasta), [VariantAnnotation][] (VCF),
+  [GenomicAlignments][] (bam), [ShortRead][] (Fastq), ...
+  
+Gene sets
+
+- [GSEABase][]
+
+File management
+
+- [BiocFileCache][] -- e.g., retrieve remote files to disk, subsequent
+  references read from disk.
+- [GenomicFiles][] -- iteration and other operations on large files or
+  collections of files (e.g., by-chromosome VCF files).
+
+Parallel evaluation
+
+- [BiocParallel][] -- cores, clusters, clouds
+
+Annotation resources
+
+- [biomaRt][], [KEGGREST][], ...: 
+- `org.*` (e.g., [org.Hs.eg.db][]) packages: 6-month snapshots for
+  symbol mapping
+- `TxDb.*` (e.g., [TxDb.Hsapiens.UCSC.hg38.knownGene][]) packages:
+  gene models; [GenomicFeatures][]: `makeTxDbFrom...`
+- `BSgenome.*` (e.g., [BSgenome.Hsapiens.UCSC.hg38][]
+- [AnnotationHub][], [ExperimentHub][]
+
+    - Ready access to lightly or heavily curated resources
+    
+    ```{r, warning=FALSE, message=FALSE}
+    suppressPackageStartupMessages({
+        library(AnnotationHub)
+        library(ExperimentHub)
+    })
+    query(AnnotationHub(), c("Homo sapiens", "gtf", "release-90"))
+    query(AnnotationHub(), "EnsDb")
+    query(ExperimentHub(), "curatedMetagenomic")
+    ```
+    
+[rtracklayer]: https://bioconductor.org/packages/rtracklayer
+[VariantAnnotation]: https://bioconductor.org/packages/VariantAnnotation
+[GenomicAlignments]: https://bioconductor.org/packages/GenomicAlignments
+[ShortRead]: https://bioconductor.org/packages/ShortRead
+[GSEABase]: https://bioconductor.org/packages/GSEABase
+[BiocFileCache]: https://bioconductor.org/packages/BiocFileCache
+[GenomicFiles]: https://bioconductor.org/packages/GenomicFiles
+[BiocParallel]: https://bioconductor.org/packages/BiocParallel
+[biomaRt]: https://bioconductor.org/packages/biomaRt
+[KEGGREST]: https://bioconductor.org/packages/KEGGREST
+[BSgenome.Hsapiens.UCSC.hg38]:
+    https://bioconductor.org/packages/BSgenome.Hsapiens.UCSC.hg38
+[org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
+[TxDb.Hsapiens.UCSC.hg38.knownGene]:
+    https://bioconductor.org/packages/TxDb.Hsapiens.UCSC.hg38.knownGene
+[GenomicFeatures]: https://bioconductor.org/packages/GenomicFeatures
+[AnnotationHub]: https://bioconductor.org/packages/AnnotationHub
+[ExperimentHub]: https://bioconductor.org/packages/ExperimentHub
+
+## Emerging Area: Very Large Data
+
+- [DelayedArray][], [HDF5Array][], [DelayedMatrixStats][]
+- [SingleCellExperiment][]
+
+
+NB: requires R-devel / Bioc-devel
+
+- Library accessing 10x genomics 'million neuron' data set
+
+```
+if (!"TENxBrainData" %in% rownames(installed.packages()))
+    biocLite("LTLA/TENxBrainData")    # install from github
+library(TENxBrainData)
+```
+
+- Retrieve data from ExperimentHub
+- Represent 'big' data as DelayedArray (HDF5Array)
+- Incorporate into SingleCellExperiment
+
+```
+se <- TENxBrainData()
+se
+```
+```
+## class: SingleCellExperiment 
+## dim: 27998 1306127 
+## metadata(0):
+## assays(1): counts
+## rownames: NULL
+## rowData names(2): Ensembl Symbol
+## colnames(1306127): AAACCTGAGATAGGAG-1 AAACCTGAGCGGCTTC-1 ...
+##   TTTGTCAGTTAAAGTG-133 TTTGTCATCTGAAAGA-133
+## colData names(4): Barcode Sequence Library Mouse
+## reducedDimNames(0):
+## spikeNames(0):
+```
+
+- Familiar operation on very large data, e.g., subset & calculate
+
+```
+libSize <- colSums(assay(se)[, 1:1000])
+range(libSize)
+```
+```
+## [1]  1453 34233
+```
+
+[DelayedArray]: https://bioconductor.org/packages/DelayedArray
+[HDF5Array]: https://bioconductor.org/packages/HDF5Array
+[DelayedMatrixStats]: https://bioconductor.org/packages/DelayedMatrixStats
+[SingleCellExperiment]: https://bioconductor.org/packages/SingleCellExperiment
