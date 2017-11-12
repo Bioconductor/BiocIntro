@@ -14,6 +14,12 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
 # _R_
 
 Extensible statistical programming language
@@ -176,6 +182,7 @@ Data associated with ranges
     ```{r}
     gene <- c("A", "A", "B")
     grl <- splitAsList(gr, gene)
+    grl
     ```
 
 - A common paradigm -- `unlist()`, transform, `relist()`
