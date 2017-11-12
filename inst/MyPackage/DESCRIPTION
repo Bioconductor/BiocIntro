@@ -8,4 +8,7 @@ Description: An abstract-like description of the package.
 License: Artistic-2.0
 RoxygenNote: 6.0.1
 Suggests: 
-    testthat
+    testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
