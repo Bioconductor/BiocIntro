@@ -276,11 +276,11 @@ Manual review
 
 Common comments
 
+- Re-use, e.g., `rtracklayer::import.bed()`, rather than re-invent.
+- Inter-operate, e.g,. use `SummarizedExperiment()` rather than `matrix`.
 - Use portable code, e.g,. `tempfile()` rather than hard-coded path
 - Use robust code, e.g., `seq_len(n)` rather than `1:n`
 - 'Vectorize' instead of iterate, e.g,. `sqrt(x)` instead of `sapply(x, sqrt)`.
-- Re-use, e.g., `rtracklayer::import.bed()`, rather than re-invent.
-- Inter-operate, e.g,. use `SummarizedExperiment()` rather than `matrix`.
 - Avoid high 'cyclomatic complexity'
 
     - Only one or a few paths through a function.
