@@ -1,0 +1,213 @@
+---
+title: "A.1 -- Introduction to _Bioconductor_"
+author: Martin Morgan <martin.morgan@roswellpark.org>
+date: "15 June, 2018"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{A.1 -- Introduction to Bioconductor}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+```
+
+```{r setup, echo=FALSE}
+suppressPackageStartupMessages({
+    library(DESeq2)
+    library(airway)
+    library(tidyverse)
+    library(org.Hs.eg.db)
+})
+```
+
+# Project overview
+
+What
+
+- "Analysis and comprehension of high-throughput genomic data"
+- https://bioconductor.org ; https://support.bioconductor.org
+
+Unique features: users
+
+- `biocLite()`; `BiocInstaller::biocValid()`
+- Vignettes
+- Release cycle -- 'stable' & tested for end users
+- Workflows (to F1000research peer-reviewed publications!)
+
+Unique features: contributors
+
+- Central version control
+  - https://git.bioconductor.org (read-only)
+- Release cycle -- 'devel' branch for innovation
+- nightly builds
+
+What's different computationally?
+
+- Emphasis on robust and interoperable code
+
+  - A `data.frame` or `tibble` doesn't provide enough guarantees about
+    the content of the object
+
+- Use formal (S4) classes and supporting infrastructure
+
+  - Simple example: `DNAStringSet`
+  - `GenomicRanges`
+  - `SummarizedExperiment`
+  - Power users: `S4Vectors` -- `length()`, `[`, `[[`; 'annotated' elements
+ 
+# Tackling a problem: RNASeq
+
+## Research question
+
+Technology
+
+- mRNA -> cDNA, fragment, sequence, align, count
+- Large counts: high expression
+- 'Bulk' sequencing
+
+Experimental design
+
+- Simple design
+- Replication
+- Covariates
+- Power?
+- Batch effects?
+
+Sequencing & alignment -- count matrix
+
+- Old school
+  - alignment to reference genome or transcriptome -- BAM files
+- New school
+  - from FASTQ to count matrix via ultra-fast alignment
+  - alignment on a laptop in minutes; very modest memory
+- summarized as count matrix
+  - rows: features, e.g., genes or transcripts
+  - columns: samples
+  - elements: reads mapping to particular feature in particular sample
+  - nb: transpose of how most statisticians would represent data
+  - nb: not 'tidy'
+
+Differential expression
+
+- Small n, large p (shrinkage estimators)
+- Counts (negative binomial)
+- 'library' sizes (normalization)
+
+## Finding software
+
+biocViews & landing pages
+
+- https://bioconductor.org/packages
+- 'landing' pages, e.g., https://bioconductor.org/packages/DESeq2
+- Software packages, but also annotation & experiment data
+
+Vignettes
+
+- landing pages, or...
+- `browseVignettes(package = "DESeq2")` (better -- your version of the software)
+
+Support site
+
+## Workflow
+
+Data representation
+
+- A simple matrix of counts, but...
+- Tightly coordinated 'row' and 'column' annotations, so...
+- 'SummarizedExperiment'
+
+```{r}
+library(airway)
+data(airway)
+airway
+colData(airway)
+head(assay(airway))
+```
+
+Exploratory analysis
+- small n, large p (shrinkage estimators)
+- 'library' sizes (normalization)
+- counts (negative binomial)
+
+```{r}
+dim(airway)
+colSums(assay(airway))
+hist(log10(rowMeans(assay(airway))))
+table(rowSums(assay(airway)) == 0)
+airway <- airway[rowSums(assay(airway)) != 0,]
+```
+
+**Exercise**
+
+- Use multidimensional scaling to visualize, in an exploratory way,
+  the location of the 8 samples in reduced dimensional space. You'll
+  need to
+  
+  - transform the assay data `m <- log10(1 + assay(airway))`
+  - calculate the distance matrix between samples -- TRANSPOSE the
+    scaled data, `d <- dist(t(m))`
+  - use `cmdscale()` to perform classic multi-dimensional scaling;
+    visualize the result using `plot()` or similar. Highlight the cell
+    line and `dex` treatment using different colors or plotting
+    symbols.
+    
+```{r}
+d <- dist(t(log10(1 + assay(airway))))
+plot(cmdscale(d), col = airway$cell, pch = as.integer(airway$dex))
+```
+
+Differential expression
+
+```{r}
+library(DESeq2)
+library(tidyverse)
+airway$dex <- relevel(airway$dex, ref = "untrt")
+dds <- DESeqDataSet(airway, design = ~ cell + dex)
+dds <- DESeq(dds)
+top <- results(dds) %>% as_tibble()
+```
+
+**Exercise**
+
+- Using `top`, what genes are most differentially expressed...
+  - Based on p.value?
+  - Based on (absolute) log fold change?
+
+- Create a 'volcano plot' of -log10(p.value) on the y-axis and log
+  fold change on the x-axis; interpret this in terms of 'biological'
+  and 'statistical' signal.
+
+- Create a histogram of observed p.values. What kind of histogram
+  would you expect under the null hypothesis of no differential
+  expression?
+
+
+## Down-stream analysis
+
+E.g., 'annotation', 'gene set enrichment', multi-assay experiments, ...
+
+- software packages
+- 'Annotation' resources: `org.*`, `TxDb.*`, `BSgenome.*`
+
+```{r}
+library(org.Hs.eg.db)
+mapIds(org.Hs.eg.db, head(rownames(top)), "SYMBOL", "ENSEMBL")
+```
+
+# Summary
+
+**Exercise**
+
+Your colleague suggests [csaw][] as a package for creative analysis of
+ChIP-seq data. Check out the package landing page and vignette. Can
+you install the package and (challenging!) necessary data to work
+through the vignette?
+
+[csaw]: https://bioconductor.org/packages/csaw

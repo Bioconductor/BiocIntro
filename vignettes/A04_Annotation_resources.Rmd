@@ -1,0 +1,133 @@
+---
+title: "A.4 -- Annotation and experiment data resources"
+author: Martin Morgan <martin.morgan@roswellpark.org>
+date: "15 June, 2018"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{A.4 -- Annotation and experiment data resources}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+```
+```{r setup, echo=FALSE}
+suppressPackageStartupMessages({
+    library(AnnotationHub)
+    library(ExperimentHub)
+    library(org.Hs.eg.db)
+    library(ensembldb)
+    library(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+    library(BSgenome.Dmelanogaster.UCSC.dm6)
+    library(curatedTCGAData)
+})
+```
+
+# Annotation resources
+
+## org.*, TxDb.*, BSgenome.* and similar  packages
+
+org.*; GO.db: symbol mapping
+
+- `keytypes()`, `columns()`, `keys()`, `mapIds()`, `select()`
+
+**Exercise**
+
+- Install and attach `org.Hs.eg.db`.
+- Use `mapIds()` to get ENSEMBL gene ids for SYMBOL "BRCA1"
+- Use `AnnotationDbi::select()` to describe ENSEMBL and GENENAME for BRCA1.
+
+TxDb: transcript representation
+
+- `exons()`, `cds()`, `genes()`, `transcripts()`
+- `exonsBy()`, `transcriptsBy()`
+- `seqinfo()`
+
+**Exercise**
+
+- Install and attach `TxDb.Dmelanogaster.UCSC.dm6.ensGene`
+- use `exons()` to get all exon coordinates
+- use `exonsBy()` to retrieve all exons, grouped by transcript. Use
+  `lengths()`, `which.max()` and subsetting
+  `[` to find the transcript with the most exons.
+
+BSgenome: whole-genome sequences
+
+- `[[`
+- `getSeq()`
+
+```{r}
+library("TxDb.Dmelanogaster.UCSC.dm6.ensGene")
+library("BSgenome.Dmelanogaster.UCSC.dm6")
+genes <- genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+dna <- getSeq(BSgenome.Dmelanogaster.UCSC.dm6, genes)
+```
+
+**Exercise**
+
+- GC content of 'genes' versus each of first 6 chromosomes
+  `head(seqnames(BSgenome.Dmelanogaster.UCSC.dm6))`
+
+## Web-based queries
+
+- biomaRt -- https://www.ensembl.org/biomart
+
+- KEGGREST -- https://www.genome.jp/kegg/
+
+## AnnotationHub
+
+```{r}
+library(AnnotationHub)
+hub <- AnnotationHub()
+query(hub, c("EnsDb", "Drosophila"))
+edb <- hub[["AH60963"]]
+```
+
+**Exercise**
+
+- Figure out what to do with `edb` by using
+  `browseVignettes(package="ensembldb")`, e.g.,
+  
+  ```{r}
+  transcripts(edb, filter = ~ tx_biotype == "pseudogene")
+  ```
+  
+  can you use `GRangesFilter()` to get only transcripts on 3L (hint:
+  see `seqinfo(edb)` for chromosome widths).
+- Use `query()` to find other Ensembl-based resources for
+  D. melanogaster, e.g., `query(hub, c("ensembl", "92", "Drosophila"))`
+  
+
+# ExperimentHub
+
+- Cloud-based resources for retrieval to R; usually a package (e.g., 
+  curatedTCGAData) provides an interface
+
+Example: curatedTCGAData
+
+- light-weight 'experiment data' package
+- it knows how to get data and assemble into useful structures
+
+Discovery
+
+```{r}
+curatedTCGAData(diseaseCode = "*", assays = "*", dry.run = TRUE)
+curatedTCGAData(diseaseCode = "COAD", assays = "RPPA*", dry.run = TRUE)
+```
+
+Retrieval
+
+```{r}
+gbm <- curatedTCGAData("GBM", "RPPA*", FALSE)
+```
+
+**Exercise**
+
+- retrieve the RPPA assays for GBM; how many samples were assayed?
+  What can you do with the object now that you've downloaded it?
