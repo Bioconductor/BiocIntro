@@ -72,6 +72,8 @@ Technology
 - Large counts: high expression
 - 'Bulk' sequencing
 
+![](./our_figures/fig-rna-seq.png)
+
 Experimental design
 
 - Simple design
@@ -202,6 +204,8 @@ mapIds(org.Hs.eg.db, head(rownames(top)), "SYMBOL", "ENSEMBL")
 ```
 
 # Summary
+
+![](our_figures/SequencingEcosystem.png)
 
 **Exercise**
 

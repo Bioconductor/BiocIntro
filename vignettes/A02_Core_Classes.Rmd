@@ -141,7 +141,9 @@ Representation
   - Genes
   - Transcripts
   
-- import
+- import -- `rtracklayer::import()` BED, WIG, GFF, etc.
+
+![](our_figures/RangeOperations.png)
 
 **Exercises**
 
@@ -196,6 +198,8 @@ Representation
 Check out the [plyranges][] package!
 
 # Summarized Experiments
+
+![](our_figures/SummarizedExperiment.png)
 
 Motivation: reproducible & interoperable
 
