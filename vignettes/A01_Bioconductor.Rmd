@@ -205,7 +205,7 @@ mapIds(org.Hs.eg.db, head(rownames(top)), "SYMBOL", "ENSEMBL")
 
 # Summary
 
-![](our_figures/SequencingEcosystem.png)
+  ![](our_figures/SequencingEcosystem.png)
 
 **Exercise**
 
