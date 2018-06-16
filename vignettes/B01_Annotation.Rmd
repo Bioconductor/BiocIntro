@@ -116,10 +116,10 @@ Exercise 1: `org.*` packages
       as_tibble() %>% 
       rownames_to_column("ENTREZID")
       
-  AnnotationDbi::select(
-      org.Hs.eg.db, egid, c("SYMBOL", "GO", "GENENAME"), "ENTREZID"
-  ) %>% as_tibble()
-  ```
+   AnnotationDbi::select(
+       org.Hs.eg.db, egid, c("SYMBOL", "GO", "GENENAME"), "ENTREZID"
+   ) %>% as_tibble()
+   ```
   
 [org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
 
