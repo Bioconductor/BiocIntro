@@ -74,7 +74,7 @@ Biological questions
 **Exercise**
 
 1. For simplicity, clean up the data to remove cds with width not a multiple of 
-   3. Remove cds containing any 'N' nucelotides.
+   three. Remove cds containing any 'N' nucelotides.
  
     ```{r}
     pred1 <- width(cds) %% 3 == 0

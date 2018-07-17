@@ -448,9 +448,9 @@ Exercise 2: [ExperimentHub][]
    principle coordinates several different experiments conducted on
    overlapping samples. Here we have one experiment
    
-   ```{r}
-   experiments(gbm)[["GBM_RPPAArray-20160128"]]
-   ```
+    ```{r}
+    experiments(gbm)[["GBM_RPPAArray-20160128"]]
+    ```
    
    which is presented in the familiar `SummarizedExperiment` format.
 
