@@ -1,24 +1,19 @@
-# Introduction to _R_ and _Bioconductor_
+# Using _R_ and _Bioconductor_ to tackle bioinformatic challenges in epigenomics 
 
-[Bioconductor Course Material Archive][Bioc-archive]
+September 18, 2018</br>
+Buffalo Niagra Medical Campus</br>
+Martin Morgan
 
-Recent courses:
+This workshop provides an introduction to _R_ / _Bioconductor_, motivated by epigenomic use cases.
 
-- [OMRF-2017][] - 2 day introduction to _R_ and _Bioconductor_
-- [UPSTAT-2017][] -- 1 two-hour session introducing _R_ and
-  _Bioconductor_ through data exploration.
-- [CDSE-2017][] -- 1 three-hour session on high-throughput genomic analysis in
-  _R_ and _Bioconductor_.
-- [Moffitt-2017][] -- 2 day introduction to _R_ and _Bioconductor_.
-- [RPCI-Jan-2017][] -- 5 one-hour sessions introduction _R_ to the
-  Roswell Park community.
-- [Technion-2016][] -- 3 three-hour sessions introducing
-  _Bioconductor_ (and _R_).
+Participants should have some experience using _R_, including use of _RStudio_. Participants should come with a laptop with WiFi access. Participants should be familiar with scientific concepts in epigenomics, including a basic understanding how methylation arrays and ChIP-seq experiments can inform biological insight.
 
-[OMRF-2017]: https://github.com/Bioconductor/BiocIntro/blob/OMRF-2017/README.md
-[UPSTAT-2017]: https://github.com/Bioconductor/BiocIntro/blob/UP-STAT-2017/vignettes/UPSTAT.Rmd
-[CDSE-2017]: https://github.com/Bioconductor/BiocIntro/blob/R-HTG-CDSE-Apr-2017/vignettes/R_HTS.Rmd
-[Moffitt-2017]: https://github.com/Bioconductor/BiocIntro/blob/Moffitt-2017/README.md
-[RPCI-Jan-2017]: https://github.com/Bioconductor/BiocIntro/blob/R-Intro-RPCI-Jan-2017/README.md
-[Technion-2016]: https://github.com/Bioconductor/BiocIntro/blob/Technion-2016/README.md
-[Bioc-archive]: https://bioconductor.org/help/course-materials
+The workshop will start with an overall orientation to _Bioconductor_ software and annotation resources. We'll then explore typical steps in a _Bioconductor_ workflow for analysis of methylation arrays using the [minfi][] package, and similar steps in the analysis of ChIP-seq data using the [csaw][] package. We place results from these workflows into biological context using _Bioconductor_ annotation resources, and conclude with mention of advanced and emerging areas of _Bioconductor_ relevance.
+
+
+| 1:30 - 2:15 | _Bioconductor_ packages, vignettes, and work flows |
+| 2:15 - 3:00 | Methylation arrays |
+| 3:00 - 3:15 | Break |
+| 3:15 - 4:00 | ChIP-seq analysis |
+| 4:00 - 4:45 | Results in context |
+| 4:45 - 5:00 | Advanced and emerging topics |
