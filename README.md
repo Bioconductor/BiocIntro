@@ -13,8 +13,9 @@ The workshop will start with an overall orientation to _Bioconductor_ software a
 
 | Time        | Topic |
 | :---------- | :---- |
-| 1:30 - 2:15 | _Bioconductor_ packages, vignettes, and work flows |
-| 2:15 - 3:00 | Methylation arrays |
+| 1:00 - 1:15 | Introduction and overview |
+| 1:15 - 2:00 | _Bioconductor_ packages, vignettes, and work flows |
+| 2:00 - 3:00 | Methylation arrays |
 | 3:00 - 3:15 | Break |
 | 3:15 - 4:00 | ChIP-seq analysis |
 | 4:00 - 4:45 | Results in context |
