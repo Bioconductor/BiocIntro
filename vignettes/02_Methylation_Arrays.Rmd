@@ -1,0 +1,158 @@
+---
+title: "Methylation Arrays"
+author: Martin Morgan <martin.morgan@roswellpark.org>
+date: "18 September, 2018"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{Methylation Arrays}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+```
+
+```{r setup, echo=FALSE}
+suppressPackageStartupMessages({
+    library(methylationArrayAnalysis)
+    library(minfi)
+    library(IlluminaHumanMethylation450kmanifest)
+    library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+    library(limma)
+})
+```
+
+# Introduction
+
+- Based on array-based [Methylation Analysis Workflow][] 
+- Public data from [GSE62944][].
+- Data available in _R_ as part of the [methylationArrayAnalysis][] package
+
+```{r}
+datadir <- system.file("extdata", package = "methylationArrayAnalysis")
+dir(datadir)
+```
+
+[Methylation Analysis Workflow]: https://bioconductor.org/packages/methylationArrayAnalysis
+[GSE62944]: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE49667
+[methylationArrayAnalysis]: https://bioconductor.org/packages/methylationArrayAnalysis
+
+# Experimental design & upstream processing
+
+- 10 samples. 
+- 4 different sorted T-cell types (naive, rTreg, act\_naive, act\_rTreg)
+- 3 different individuals (M28, M29, M30)
+- Additional birth sample (individual VICS-72098-18-B) from GSE51180 included to illustrate QC.
+
+```{r}
+sample_sheet <- dir(datadir, "SampleSheet.csv", full=TRUE)
+samples <- read.csv(sample_sheet)
+samples
+```
+
+# Data input
+
+```{r}
+library(minfi)
+targets <- read.metharray.sheet(datadir, pattern="SampleSheet.csv")
+methyl <- read.metharray.exp(targets=targets)
+methyl
+```
+
+# Quality control
+
+```{r}
+detP <- detectionP(methyl)
+head(detP)
+barplot(colMeans(detP))
+```
+
+```{r}
+keep <- colMeans(detP) < 0.05
+methyl <- methyl[,keep]
+targets <- targets[keep,]
+```
+
+# Normalization
+
+```{r}
+methyl_normalized <- preprocessQuantile(methyl)
+```
+
+```{r}
+library(limma)     # plotMDS
+plotMDS(getM(methyl_normalized))
+```
+
+# Filtering
+
+FIXME: Remove probes that have failed in one or more suamples
+
+FIXME: Remove sex-specific probes
+
+FIXME: remove probes where common SNPs affect CpG.
+
+FIXME: remove probes that are cross-reactive (i.e., mapping to multiple locations)
+
+# Methylation analysis
+
+## Probe-wise analysis
+
+Factor of interest and covariate
+
+```{r}
+celltype <- factor(targets$Sample_Group)
+individual <- factor(targets$Sample_Source) 
+```
+
+Model matrix
+
+```{r}
+design <- model.matrix(~ 0 + celltype + individual, data=targets)
+colnames(design) <- c(levels(celltype), levels(individual)[-1])
+```
+
+fit
+
+```{r}
+fit <- lmFit(getM(methyl_normalized), design)
+```
+
+contrasts
+
+```{r}
+contrasts <- makeContrasts(
+    naive - rTreg, naive - act_naive,
+    rTreg - act_rTreg, act_naive - act_rTreg,
+    levels=design
+)
+fit2 <- contrasts.fit(fit, contrasts)
+```
+
+Empirical Bayes
+
+```{r}
+fit2 <- eBayes(fit2)
+```
+
+Preview results
+
+```{r}
+summary(decideTests(fit2))
+```
+
+# Comprehension
+
+# Session info
+
+As a part of the effort to provide reproducible analysis pipelines, it is essential to document the software and versions used; here is the information about _R_ packages used in the current chapter.
+
+```{r}
+sessionInfo()
+```

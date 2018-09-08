@@ -1,0 +1,167 @@
+---
+title: "Introduction"
+author: Martin Morgan <martin.morgan@roswellpark.org>
+date: "18 September, 2018"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{Introduction}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+```
+
+```{r setup, echo=FALSE}
+suppressPackageStartupMessages({
+    library(ggplot2)
+    library(GenomicRanges)
+    library(SummarizedExperiment)
+    library(TENxBrainData)
+})
+```
+
+# _R_
+
+_R_ works with vectors organized into higher level objects such as `data.frame()`
+
+```{r}
+x0 <- rnorm(1000)
+df <- data.frame(
+    x = x0,
+    y = x0 + rnorm(1000)
+)
+```
+
+_R_ functions return _objects_. Objects have _methods_ for accessing elements
+
+```{r}
+fit <- lm(y ~ x, df)
+summary(fit)
+hist(residuals(fit))
+```
+
+```{r}
+plot(y ~ x, df)
+abline(fit, col="blue", lwd = 2)
+```
+
+_R_ provides introspection
+
+```{r}
+class(fit)
+methods(class = class(fit))
+```
+
+Use `?` to look up help
+
+```{r, eval = FALSE}
+?lm
+?summary.lm
+```
+
+Packages, contributed by the community, extend base _R_ functionality
+
+```{r}
+library(ggplot2)
+ggplot(df, aes(x, y)) + geom_point() + geom_smooth(method="lm")
+```
+
+# _Bioconductor_
+
+Statistical analysis and comprehension of high-throughput genomic data
+
+- https://bioconductor.org/packages
+- 1500+ _R_ pacakges
+- Sequence (sc and bulk RNAseq, ChIP-seq, called variants, ...),
+  arrays (methylation, expression, ...), flow cytometry, metabolomics,
+  proteomics, images, ...
+
+Vignettes, workflows, and support
+
+- [Packages][] and vignettes: detials user-oriented 'how to' use packages e.g., [limma][] package 'landing page' and [DESeq2][DESeq2-vignette] vignette.
+- [Workflows][]: integration across packages, e.g., [RNA-seq][], [methylation arrays][], [ChIP-seq][], [single cell][].
+
+[Packages]: https://bioconductor.org/packages/release/BiocViews.html#___Software
+[limma]: https://bioconductor.org/packages/limma
+[DESeq2-vignette]: https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
+[Workflows]: https://bioconductor.org/packages/release/BiocViews.html#___Workflow 
+[RNA-seq]: https://bioconductor.org/packages/release/workflows/html/RNAseq123.html
+[methylation arrays]: https://bioconductor.org/packages/release/workflows/html/methylationArrayAnalysis.html
+[ChIP-seq]: https://bioconductor.org/packages/release/workflows/html/chipseqDB.html
+[single cell]: http://bioconductor.org/packages/release/workflows/html/simpleSingleCell.html
+
+Extensive use of classes
+
+- `GenomicRanges` represent regions in the genome, with _methods_ for common operations
+
+    ```{r}
+    library(GenomicRanges)
+    gr <- GRanges(c("chr1:1000-1020", "chr1:1010-2020"))
+    as(coverage(gr), "GRanges")
+    ```
+
+- `SummarizedExperiment` represents assays (e.g., gene-level
+  differential expression) and associated description of rows (genes)
+  and columns (samples)
+
+    ```{r}
+    library(SummarizedExperiment)
+    library(TENxBrainData)
+    suppressMessages({
+        tenx <- TENxBrainData()
+    })
+    tenx
+    ```
+
+- Introspection helps, along with man pages and vignettes, to discover
+  what can be done with an object
+
+    ```{r}
+    methods(class=class(tenx))
+    assay(tenx)
+    ```
+
+- Objects can be integrated into standard _R_ workflows; it can be
+  important to order operations carefully
+
+    ```{r}
+    libsize <- colSums(assay(tenx)[, 1:1000])
+    plot(density(log10(libsize)))
+    ```
+    
+# This workshop
+
+Methylation arrays - Essential steps in typical workflows
+
+- Experimental design
+- Quality control
+- Batch effects and normalization
+- Statistical inference
+- Comprehension -- placing analytic results in biological context
+- Reproducibility
+    
+ChIP-seq
+
+- Novel features of sequence-based analysis -- genomic coordinates
+- Continued relevance of experimental design, etc.
+- Facilities within _Bioconductor_ for genomic ranges
+
+Advanced / emerging topics
+
+- Importance of single cell analysis
+- Challenges of large data
+
+# Session info
+
+As a part of the effort to provide reproducible analysis pipelines, it is essential to document the software and versions used; here is the information about _R_ packages used in the current chapter.
+
+```{r}
+sessionInfo()
+```

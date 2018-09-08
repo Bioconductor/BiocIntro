@@ -1,0 +1,32 @@
+---
+title: "Results in Context"
+author: Martin Morgan <martin.morgan@roswellpark.org>
+date: "18 September, 2018"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{Results in Context}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+```
+
+```{r setup, echo=FALSE}
+suppressPackageStartupMessages({
+})
+```
+
+# Session info
+
+As a part of the effort to provide reproducible analysis pipelines, it is essential to document the software and versions used; here is the information about _R_ packages used in the current chapter.
+
+```{r}
+sessionInfo()
+```
