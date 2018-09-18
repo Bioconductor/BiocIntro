@@ -1,12 +1,15 @@
-Package: RIntro
+Package: BiocIntro
 Type: Package
-Title: Training Material for Introductory R Courses
+Title: Training Material for Introductory R / Bioconductor Courses
 Version: 0.0.6
 Authors@R: c(
     person("Martin", "Morgan", role=c("aut", "cre"),
         email="martin.morgan@roswellpark.org"))
 Description: Vignettes and resources to support introductory R
     training courses.
-Suggests: BiocStyle, knitr, ChIPseeker, TxDb.Hsapiens.UCSC.hg19.knownGene
+Suggests: BiocStyle, knitr, ChIPseeker, TxDb.Hsapiens.UCSC.hg19.knownGene,
+    ggplot2, GenomicRanges, SummarizedExperiment, TENxBrainData,
+    methylationArrayAnalysis, minfi, IlluminaHumanMethylation450kmanifest,
+    illuminahumanmethylation450kmanifest.ilmn12.hg19, limma
 License: Artistic-2.0
 VignetteBuilder: knitr
