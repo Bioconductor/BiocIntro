@@ -34,8 +34,17 @@ suppressPackageStartupMessages({
 - Public data from [GSE62944][].
 - Data available in _R_ as part of the [methylationArrayAnalysis][] package
 
+Methylation arrays
+
+- Illumina 'beads' with particular 50bp DNA sequences, designed to interrogate specific genomic locations for presence of methylated CG dinucleotides.
+- Methylated (M) and unmethylated (U) intensity, summarized as beta-values (M / (M + U), for visualization) or M-values (log2(M / U), for statistical analysis)
+
+![](methylation-figure1.png)
+<br />From Maksimovic, Gordon, and Oshlack, 2012
+
+
 ```{r}
-datadir <- system.file("extdata", package = "methylationArrayAnalysis")
+datadir <- "~/extdata/methylation"
 dir(datadir)
 ```
 
@@ -48,7 +57,6 @@ dir(datadir)
 - 10 samples. 
 - 4 different sorted T-cell types (naive, rTreg, act\_naive, act\_rTreg)
 - 3 different individuals (M28, M29, M30)
-- Additional birth sample (individual VICS-72098-18-B) from GSE51180 included to illustrate QC.
 
 ```{r}
 sample_sheet <- dir(datadir, "SampleSheet.csv", full=TRUE)
@@ -63,6 +71,14 @@ library(minfi)
 targets <- read.metharray.sheet(datadir, pattern="SampleSheet.csv")
 methyl <- read.metharray.exp(targets=targets)
 methyl
+colData(methyl)[, c("Sample_Source", "Sample_Group")]
+```
+
+Recode two columns for later statistical analysis
+
+```{r}
+methyl$celltype <- factor(methyl$Sample_Group)
+methyl$individual <- factor(methyl$Sample_Source)
 ```
 
 # Quality control
@@ -71,12 +87,6 @@ methyl
 detP <- detectionP(methyl)
 head(detP)
 barplot(colMeans(detP))
-```
-
-```{r}
-keep <- colMeans(detP) < 0.05
-methyl <- methyl[,keep]
-targets <- targets[keep,]
 ```
 
 # Normalization
@@ -104,18 +114,17 @@ FIXME: remove probes that are cross-reactive (i.e., mapping to multiple location
 
 ## Probe-wise analysis
 
-Factor of interest and covariate
-
-```{r}
-celltype <- factor(targets$Sample_Group)
-individual <- factor(targets$Sample_Source) 
-```
-
 Model matrix
 
 ```{r}
-design <- model.matrix(~ 0 + celltype + individual, data=targets)
-colnames(design) <- c(levels(celltype), levels(individual)[-1])
+design <- model.matrix(
+    ~ 0 + celltype + individual,
+    data=colData(methyl_normalized)
+)
+colnames(design) <- c(
+    levels(methyl_normalized$celltype), 
+    levels(methyl_normalized$individual)[-1]
+)
 ```
 
 fit
@@ -147,7 +156,24 @@ Preview results
 summary(decideTests(fit2))
 ```
 
+Find differentially methylated probes for first contrast
+
+```{r}
+dmprobes <- topTable(fit2, num=10, coef=1)
+head(dmprobes)
+```
+
 # Comprehension
+
+Probes to genes
+
+```{r}
+ann450k <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+```
+
+```{r}
+annotated <- merge(dmprobes, ann450k, by="row.names")
+```
 
 # Session info
 

@@ -35,7 +35,7 @@ Based on the [ChIPseeker][] 'pipeline' vignette.
 
 ```{r}
 library(ChIPseeker)
-fls <- dir("~/extdata", "*bed.gz", full = TRUE)
+fls <- dir("~/extdata/chipseq", "*bed.gz", full = TRUE)
 peak <- readPeakFile(fls[[4]])
 peak
 covplot(peak)

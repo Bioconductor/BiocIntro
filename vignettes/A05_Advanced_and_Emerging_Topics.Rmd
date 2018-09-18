@@ -20,12 +20,60 @@ knitr::opts_chunk$set(
 
 ```{r setup, echo=FALSE}
 suppressPackageStartupMessages({
+    library(SummarizedExperiment)
+    library(TENxBrainData)
+    library(BiocParallel)
 })
 ```
 
 # Single Cell Analysis
 
+- Check out the [simpleSingleCell][] [workflow][]
+
+[simpleSingleCell]: https://bioconductor.org/packages/simpleSingleCell
+[workflow]: https://bioconductor.org/packages
+
 # Very Large Data
+
+## Parallel evaluation
+
+```{r}
+library(BiocParallel)
+system.time(
+    lapply(1:4, function(i) Sys.sleep(1))
+)
+system.time(
+    bplapply(1:4, function(i) Sys.sleep(1))
+)
+```
+
+Cores or clusters?
+
+- Cores: single computer
+
+    ```{r}
+    param <- MulticoreParam(workers = 4)
+    results <- bplapply(1:4, function(i) Sys.sleep(1), BPPARAM = param)
+    ```
+
+- Clusters -- job scheduler like _slurm_
+
+    ```{r, eval = FALSE}
+    param <- BatchtoolsParam(workers = 4, cluster="slurm")
+    results <- bplapply(1:4, function(i) Sys.sleep(1), BPPARAM = param)
+    ```
+
+## 'on-disk' data
+
+```{r}
+library(TENxBrainData)
+suppressMessages({
+    tenx <- TENxBrainData()
+})
+tenx
+assay(tenx)
+hist(log10(colSums(assay(tenx)[,1:1000])))
+```
 
 # Session info
 
