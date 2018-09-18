@@ -20,12 +20,65 @@ knitr::opts_chunk$set(
 
 ```{r setup, echo=FALSE}
 suppressPackageStartupMessages({
+    library(ChIPseeker)
+    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 })
 ```
 
+# Introduction
+
+Based on the [ChIPseeker][] 'pipeline' vignette.
+
+[ChIPseeker]: https://bioconductor.org/packages/ChIPseeker
+
+# Working with called peaks -- 'bed' files
+
+```{r}
+library(ChIPseeker)
+fls <- dir("~/extdata", "*bed.gz", full = TRUE)
+peak <- readPeakFile(fls[[4]])
+peak
+covplot(peak)
+```
+
+# Peaks in promoters
+
+```{r}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+promoter <- getPromoters(TxDb=txdb, upstream=3000, downstream=3000)
+tagMatrix <- getTagMatrix(peak, windows=promoter)
+dim(tagMatrix)
+plot(colSums(tagMatrix), type="l")
+```
+
+```{r}
+tagHeatmap(tagMatrix, xlim=c(-3000, 3000))
+```
+
+# Annotating peaks
+
+```{r}
+peakAnno <- annotatePeak(
+    fls[[4]], tssRegion=c(-3000, 3000), TxDb=txdb, annoDb="org.Hs.eg.db"
+)
+```
+
+```{r}
+plotAnnoPie(peakAnno)
+```
+
+```{r}
+upsetplot(peakAnno)
+```
+
+# Differential binding
+
 # Session info
 
-As a part of the effort to provide reproducible analysis pipelines, it is essential to document the software and versions used; here is the information about _R_ packages used in the current chapter.
+As a part of the effort to provide reproducible analysis pipelines, it
+is essential to document the software and versions used; here is the
+information about _R_ packages used in the current chapter.
 
 ```{r}
 sessionInfo()

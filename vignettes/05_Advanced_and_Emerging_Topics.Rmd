@@ -23,9 +23,15 @@ suppressPackageStartupMessages({
 })
 ```
 
+# Single Cell Analysis
+
+# Very Large Data
+
 # Session info
 
-As a part of the effort to provide reproducible analysis pipelines, it is essential to document the software and versions used; here is the information about _R_ packages used in the current chapter.
+As a part of the effort to provide reproducible analysis pipelines, it
+is essential to document the software and versions used; here is the
+information about _R_ packages used in the current chapter.
 
 ```{r}
 sessionInfo()
