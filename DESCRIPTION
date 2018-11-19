@@ -1,12 +1,18 @@
-Package: RIntro
+Package: BiocIntro
 Type: Package
-Title: Training Material for Introductory R Courses
-Version: 0.0.6
+Title: Training Material for Introductory Bioconductor Courses
+Version: 0.0.7
 Authors@R: c(
     person("Martin", "Morgan", role=c("aut", "cre"),
         email="martin.morgan@roswellpark.org"))
 Description: Vignettes and resources to support introductory R
     training courses.
-Suggests: BiocStyle, knitr
+Suggests:
+    devtools, usethis, roxygen2, testthat, rmarkdown,
+    airway, EnsDb.Hsapiens.v75 AnnotationDbi, AnnotationHub,
+    ensembldb, Organism.dplyr org.Hs.eg.db,
+    TxDb.Hsapiens.UCSC.hg19.knownGene, BSgenome.Hsapiens.UCSC.hg19,
+    biomaRt, GO.db, KEGGREST
+    BiocStyle, knitr
 License: Artistic-2.0
 VignetteBuilder: knitr

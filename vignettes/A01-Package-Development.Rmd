@@ -1,0 +1,329 @@
+---
+title: "Bioconductor Package Development"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Cancer Institute, Buffalo, NY
+output:
+  BiocStyle::html_document:
+    toc_float: true
+  BiocStyle::pdf_document: default
+package: BiocIntro
+vignette: |
+  %\VignetteIndexEntry{A02 -- Bioconductor Package Development}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
+# Packages
+
+## What and Why?
+
+What?
+
+- A simple directory structure with text files.
+- `DESCRIPTION`: title, author, version, license, etc.
+- `NAMESPACE`: functions used by and made available by your package
+- `R/`: function defintions
+- `man/`: help pages
+- `vignettes/`: vignettes
+- `tests/`: code to test your package
+
+Why?
+
+- Organize an analysis.
+- Share reproducible code with lab mates, colleagues, ...
+
+Minimal
+
+```
+$ tree MyPackage
+MyPackage
+└── DESCRIPTION
+
+0 directories, 1 file
+$ cat MyPackage/DESCRIPTION 
+Package: MyPackage
+Type: Package
+Version: 0.0.1
+Author: Martin Morgan
+Maintainer: Martin Morgan <martin.morgan@roswellpark.org>
+Title: A Minimal Package
+Description: An abstract-like description of the package.
+License: Artistic-2.0
+```
+
+Typical
+
+```
+$ tree
+.
+└── MyPackage
+    ├── DESCRIPTION
+    ├── man
+    │   └── hi.Rd
+    ├── NAMESPACE
+    ├── R
+    │   └── hi.R
+    ├── tests
+    │   ├── testthat
+    │   │   └── test_hi.R
+    │   └── testthat.R
+    └── vignettes
+        └── MyPackage.Rmd
+
+6 directories, 7 files
+```
+
+## Working with packages
+
+Build
+
+
+```
+$ R CMD build MyPackage
+* checking for file 'MyPackage/DESCRIPTION' ... OK
+* preparing 'MyPackage':
+* checking DESCRIPTION meta-information ... OK
+* checking for LF line-endings in source and make files and shell scripts
+* checking for empty or unneeded directories
+* creating default NAMESPACE file
+* building 'MyPackage_0.0.1.tar.gz'
+```
+
+Check
+
+```
+$ R CMD check MyPackage_0.0.1.tar.gz 
+* using log directory '/home/mtmorgan/a/BiocIntro/vignettes/MyPackage.Rcheck'
+* using R version 3.4.2 Patched (2017-10-12 r73550)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file 'MyPackage/DESCRIPTION' ... OK
+* checking extension type ... Package
+* this is package 'MyPackage' version '0.0.1'
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package 'MyPackage' can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking examples ... NONE
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+```
+
+Install
+
+```
+$ R CMD INSTALL MyPackage_0.0.1.tar.gz 
+* installing to library '/home/mtmorgan/R/x86_64-pc-linux-gnu-library/3.4-Bioc-3.6'
+* installing *source* package 'MyPackage' ...
+** help
+No man pages found in package  'MyPackage' 
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded
+* DONE (MyPackage)
+```
+
+# Package Development
+
+## Olde School
+
+- Add new functions in files `R/foo.R`
+- Update `NAMESPACE` to import functions or packages used by your
+  function, and to export your functions that users will want to use.
+- Create `man` pages by hand
+- Write vignettes in LaTeX Sweave
+- Key reference: _Writing R Extensions_, `RShowDoc("R-exts")`
+
+## New School
+
+- `devtools::create()` a package skeleton. More flexible `Authors@R`
+  instead of `Author:` / `Maintainer:` fields.
+- Use 'roxygen' to document functions
+
+    - Lines starting with `#'` are documentation lines
+    - `@details`, `@param`, `@return`, `@examples` document the function
+    - `@export` indicates that the function should be visible to the user
+    - `@import` and `@importFrom` indicate (non-base) functions that
+      are used by this function, e.g,. `@importFrom stats rnorm runif`
+    - `devtools::document()` to update documentation.
+
+    ```
+    #' Title, e.g., Say 'hi' to friends.
+    #'
+    #' Short description of this help page. `hi("Martin")` returns a greeting.
+    #'
+    #' @details A more extensive description of the functions or other objects
+    #'    documented on this help page. Use `how=` to determine the nature of
+    #'    the greeting.
+    #'
+    #' @param who character() The name(s) of the person / people to greet.
+    #'
+    #' @param how character(1) Whether to shout (uppercase) or whisper 
+    #'     (lowercase) the greeting.
+    #'
+    #' @return character() of greetings, with length equal to `who`.
+    #'
+    #' @examples
+    #' hi(c("Martin", "Jenny"), "whisper")
+    #'
+    #' @export
+    hi <- function(who, how = c("asis", "shout", "whisper")) {
+        stopifnot(
+            is.character(who),
+            is.character(how), missing(how) || length(how) == 1
+        )
+        transform <- switch(
+            match.arg(how),
+            asis = identity, shout = toupper, whisper = tolower
+        )
+
+        greet <- paste("hi", who)
+        transform(greet)
+    }
+    ```
+    
+- Build / check / install using devtools from an _R_ session inside
+  the package folder.
+
+    ```
+    getwd()  # e.g., MyPackage/
+    devtools::build()
+    devtools::check()
+    devtools::install()
+    ```
+    
+- During development, short-circuit full round-trip with
+  `devtools::load_all()`
+  
+- Write vignettes in markdown, e.g.,
+  `vignettes/MyPackage.Rmd`. `usethis::use_vignette()` (see also
+  [BiocStyle][]).
+
+    ```{r, echo=FALSE, comment=""}
+    fl <- system.file(
+        package = "BiocIntro",
+        "MyPackage", "vignettes", "MyPackage.Rmd"
+    )
+    cat(readLines(fl), sep="\n")
+    ```
+
+- Write _unit tests_ that validate the correctness of you
+  functions. `usethis::use_testthat()`
+  
+    ```
+    $ tree
+    .
+    ...
+    ├── tests
+    │   ├── testthat
+    │   │   └── test_hi.R
+    │   └── testthat.R
+    ...
+    ```
+
+    Content of `test_hi.R`:
+
+    ```{r, echo=FALSE, comment=""}
+    fl <- system.file(
+        package = "BiocIntro",
+        "MyPackage", "tests", "testthat", "test_hi.R"
+    )
+    cat(readLines(fl), sep="\n")
+    ```
+  
+[BiocStyle]: https:/bioconductor.org/packages/BiocStyle
+
+# Contributing to _Bioconductor_
+
+Process
+
+- Open an issue at https://github.com/Bioconductor/Contributions
+- Automatic review -- `R CMD check`, `R CMD BiocCheck` (after
+  `biocLite("BiocCheck")`)
+- Manual review
+
+Manual review
+
+- Open process
+- Basic code review
+
+Common comments
+
+- Re-use, e.g., `rtracklayer::import.bed()`, rather than re-invent.
+- Inter-operate, e.g,. use `SummarizedExperiment()` rather than `matrix`.
+- Use portable code, e.g,. `tempfile()` rather than hard-coded path
+- Use robust code, e.g., `seq_len(n)` rather than `1:n`
+- 'Vectorize' instead of iterate, e.g,. `sqrt(x)` instead of `sapply(x, sqrt)`.
+- Avoid high 'cyclomatic complexity'
+
+    - Only one or a few paths through a function.
+    - Assertions about inputs at the start of the function, not
+      part-way through.
+    - Choose and write functions that are vectorized, and that handle
+      the edge cases, e.g., length 0 arguments or `NA` values,
+      correctly (compare `sapply(integer(), sqrt)` with
+      `vapply(integer(), sqrt)`).
+
+- Functions 'fit in your head', literally.
+
+    - Refactor to allow re-use rather than repetition of common code.
+    - Refactor to isolate logically consistent operations -- testable
+      inputs and outputs.
+
+# Best Practices
+
+## `man` pages
+
+- Document functions on man pages that have the same names as
+  corresponding `.R` files.
+- Specify parameters (input arguments) using standard _R_ idioms
+  (e.g., `character(1)`).
+- Specify return value.
+- Easy-to-run, illustrative examples.
+
+## Vignettes
+
+- Overall use and interoperation with other packages / stages in the
+  work flow.
+- 'Toy' data for easy reproducibility, but realistic enough to
+  illustrate nuannces.
+
+## Unit tests
+
+- Use [testthat][] or other packages.
+- Avoid using examples or vignette to test edge-cases; this just
+  confuses the user.
+
+## Version control
+
+- Use git for local version control; consider [github][] for sharing.
+
+[testthat]: https://cran.r-project.org/?pacakge=testthat
+[github]: https://github.com
