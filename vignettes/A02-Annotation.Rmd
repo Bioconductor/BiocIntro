@@ -1,6 +1,32 @@
-# 101: Introduction to Bioconductor annotation resources
+---
+title: "Introduction to Bioconductor Annotation Resources"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Comprehensive Cancer Center, Buffalo, NY
+output:
+  BiocStyle::html_document:
+    toc_float: true
+  BiocStyle::pdf_document: default
+package: BiocIntro
+vignette: |
+  %\VignetteIndexEntry{A02 -- Bioconductor Annotation Resources}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
 
-## Instructors
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
+```
+
+# Introduction to Bioconductor Annotation Resources
+
+## Instructor
+
+* Martin Morgan (Martin.Morgan@RoswellPark.org)
+
+Modified from original material by
 
 * James W. MacDonald (jmacdon@uw.edu)
 * Lori Shepherd (lori.shepherd@roswellpark.org)
@@ -22,16 +48,13 @@ contain, and how to use them efficiently.
 
 Useful background reading
 
-* The
-  [AnnotationDbi](https://www.bioconductor.org/packages/release/bioc/vignettes/AnnotationDbi/inst/doc/IntroToAnnotationPackages.pdf)
-  vignette.
-* The
-  [biomaRt](https://www.bioconductor.org/packages/release/bioc/vignettes/biomaRt/inst/doc/biomaRt.html)
-  vignette.
-* The
-  [GenomicFeatures](https://www.bioconductor.org/packages/release/bioc/vignettes/GenomicFeatures/inst/doc/GenomicFeatures.pdf)
-  vignette.
+* The [AnnotationDbi][] vignette.
+* The [biomaRt][] vignette.
+* The [GenomicFeatures][] vignette.
   
+[AnnotationDbi]: https://www.bioconductor.org/packages/release/bioc/vignettes/AnnotationDbi/inst/doc/IntroToAnnotationPackages.pdf
+[biomaRt]: https://www.bioconductor.org/packages/release/bioc/vignettes/biomaRt/inst/doc/biomaRt.html
+[GenomicFeatures]: https://www.bioconductor.org/packages/release/bioc/vignettes/GenomicFeatures/inst/doc/GenomicFeatures.pdf
 
 ### Workshop Participation
 
@@ -42,17 +65,13 @@ given the opportunity to practice making their own queries.
 
 * AnnotationDbi
 * AnnotationHub
-* BSgenome
-* biomaRt
-* ensembldb
+* EnsDb.Hsapiens.v75
 * org.Hs.eg.db
-* TxDb.Hsapiens.UCSC.hg19.knownGene
-* EnsDb.Hsapiens.v79
-* EnsDb.Mmusculus.v79
-* Homo.sapiens 
 * BSgenome.Hsapiens.UCSC.hg19
-* hugene20sttranscriptcluster.db
-
+* GO.db
+* Organism.dplyr
+* biomaRt
+* KEGGREST
 
 ## Workshop goals and objectives
 
@@ -92,19 +111,15 @@ to a Biologist.
 
 - Get in some practice
 
-```{r setup, include = FALSE, warning = FALSE}
-
-library(Bioc2018Anno)
-library(hugene20sttranscriptcluster.db)
-library(EnsDb.Mmusculus.v79)
+```{r setup, include = FALSE, warning = FALSE, message = FALSE}
+library(airway)
+library(EnsDb.Hsapiens.v75)
 library(org.Hs.eg.db)
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-library(Homo.sapiens)
-library(BSgenome)
 library(BSgenome.Hsapiens.UCSC.hg19)
 library(AnnotationHub)
 library(Organism.dplyr)
-
+library(biomaRt)
 ```
 
 
@@ -130,8 +145,8 @@ knitr::include_graphics("./graphics/boxes.png")
 
 ```
 
-The end result might be as simple as a data.frame or HTML table, or as complex as a
-`RangedSummarizedExperiment`
+The end result might be as simple as a data.frame or HTML table, or as
+complex as a `SummarizedExperiment`
 
 ### Data containers
 
@@ -141,38 +156,34 @@ knitr::include_graphics("./graphics/eset.png")
 
 ```
 
-### ExpressionSet
+### SummarizedExperiment
 
 
-```{r, warning = FALSE}
+```{r}
 
-load(system.file("extdata/eset.Rdata", package = "Bioc2018Anno"))
-eset
-
-```
-### ExpressionSet (continued)
-
-```{r, warning = FALSE}
-
-head(exprs(eset))
-head(pData(phenoData(eset)))
-
-
+library(airway)
+data(airway)
+airway
 
 ```
-### ExpressionSet (continued)
 
-```{r, warning = FALSE}
+```{r}
 
-head(pData(featureData(eset)))
+head(assay(airway))
+colData(airway)
 
+```
 
+```{r}
+
+rowRanges(airway)
+rowData(airway)
 
 ```
 
 ### BioC containers vs basic structures
 
-#### Pros
+Pros
 
 * Validity checking
 
@@ -182,7 +193,7 @@ head(pData(featureData(eset)))
 
 * Automatic behaviors
 
-#### Cons
+Cons
 
 * Difficult to create
 
@@ -206,7 +217,9 @@ knitr::kable(df)
 
 The main function is `select`:
 
+```
 select(*annopkg*, *keys*, *columns*, *keytype*)
+```
 
 Where
 
@@ -216,25 +229,18 @@ Where
 
 * columns are the values we **want**
 
-* keytype is the type of key used
-    + if the keytype is the **central** key, it can remain unspecified
-
+* keytype is the type of key used. Each package has a 'central' identifier, e.g., in the EnsDb.* packages the central identifiers are Ensembl gene ids like "ENSG00000000003"; the central identifier can be referred to as `GENEID`.
 
 ### Simple example
 
-Say we have analyzed data from an Affymetrix Human Gene ST 2.0 array
-and want to know what the genes are. For purposes of this lab, we
-just select some IDs at random.
+The rownames of `airway` are Ensembl identifiers. We'd like to know the gene symbols (e.g., BRCA1, etc) that these correspond to.
 
 ```{r, warning = FALSE}
 
-library(hugene20sttranscriptcluster.db)
-set.seed(12345)
-ids <- featureNames(eset)[sample(1:25000, 5)]
+library(EnsDb.Hsapiens.v75)
+ids <- head(rownames(airway))
 ids
-select(hugene20sttranscriptcluster.db, ids, "SYMBOL")
-
-
+select(EnsDb.Hsapiens.v75, ids, "SYMBOL", "GENEID")
 
 ```
 
@@ -260,8 +266,8 @@ What keytypes or columns are available for a given annotation package?
 
 ```{r, warning = FALSE}
 
-keytypes(hugene20sttranscriptcluster.db)
-columns(hugene20sttranscriptcluster.db)
+keytypes(EnsDb.Hsapiens.v75)
+columns(EnsDb.Hsapiens.v75)
 
 ```
 ### Another example
@@ -270,9 +276,8 @@ There is one issue with `select` however.
 
 ```{r, warning = FALSE}
 
-ids <- c('16737401','16657436' ,'16678303')
-select(hugene20sttranscriptcluster.db, ids, c("SYMBOL","MAP"))
-
+ids <- c("TSPAN6", "ZNF311")
+select(EnsDb.Hsapiens.v75, ids, "GENEID", "SYMBOL")
 
 ```
 ### The `mapIds` function
@@ -290,7 +295,7 @@ duplicates
 
 ```{r, warning = FALSE}
 
-mapIds(hugene20sttranscriptcluster.db, ids, "SYMBOL", "PROBEID")
+mapIds(EnsDb.Hsapiens.v75, ids, "GENEID", "SYMBOL")
 
 ```
 
@@ -302,8 +307,7 @@ duplicates. Other choices are `list`, `CharacterList`, `filter`,
 
 ```{r, warning = FALSE}
 
-mapIds(hugene20sttranscriptcluster.db, ids, "SYMBOL", "PROBEID", multiVals = "list")
-
+mapIds(EnsDb.Hsapiens.v75, ids, "GENEID", "SYMBOL", multiVals = "list")
 
 ```
 
@@ -311,29 +315,24 @@ mapIds(hugene20sttranscriptcluster.db, ids, "SYMBOL", "PROBEID", multiVals = "li
 
 ```{r, warning = FALSE}
 
-mapIds(hugene20sttranscriptcluster.db, ids, "SYMBOL", "PROBEID", multiVals = "CharacterList")
-mapIds(hugene20sttranscriptcluster.db, ids, "SYMBOL", "PROBEID", multiVals = "filter")
-mapIds(hugene20sttranscriptcluster.db, ids, "SYMBOL", "PROBEID", multiVals = "asNA")
-
+mapIds(EnsDb.Hsapiens.v75, ids, "GENEID", "SYMBOL", multiVals = "filter")
+mapIds(EnsDb.Hsapiens.v75, ids, "GENEID", "SYMBOL", multiVals = "asNA")
 
 ```
-### ChipDb/OrgDb questions
+### EnsDb/OrgDb questions
 
-Using either the hugene20sttranscriptcluster.db or org.Hs.eg.db package,
+Using either the EnsDb.Hsapiens.v75 or org.Hs.eg.db package,
 
-* What gene symbol corresponds to Entrez Gene ID 1000?
+* What gene symbol corresponds to Entrez Gene ID ENSG00000005471?
 
 * What is the Ensembl Gene ID for PPARG?
 
 * What is the UniProt ID for GAPDH?
 
-* How many of the probesets from the ExpressionSet (eset) we loaded map to a
-  single gene? How many don't map to a gene at all?
-
 ### TxDb packages
 
-TxDb packages contain positional information; the contents can be
-inferred by the package name
+TxDb packages (as well as EnsDb packages) contain positional
+information; the contents can be inferred by the package name
 
 **TxDb.Species.Source.Build.Table**
 
@@ -347,28 +346,20 @@ inferred by the package name
 
 	- knownGene table
 
+Other examples:
+
 TxDb.Dmelanogaster.UCSC.dm3.ensGene
 TxDb.Athaliana.BioMart.plantsmart22
 
-### EnsDb packages
-
-EnsDb packages are similar to TxDb packages, but based on Ensembl
-mappings
-
-EnsDb.Hsapiens.v79
-EnsDb.Mmusculus.v79
-EnsDb.Rnorvegicus.v79
-
 ### Transcript packages
 
-As with ChipDb and OrgDb packages, `select` and `mapIds` can be used
-to make queries
+`select` and `mapIds` can be used to make queries on TxDb objects
 
 ```{r, warning = FALSE}
 
 select(TxDb.Hsapiens.UCSC.hg19.knownGene, c("1","10"),
        c("TXNAME","TXCHROM","TXSTART","TXEND"), "GENEID")
-select(EnsDb.Hsapiens.v79, c("1", "10"),
+select(EnsDb.Hsapiens.v75, c("1", "10"),
        c("GENEID","GENENAME","SEQNAME","GENESEQSTART","GENESEQEND"), "ENTREZID")
 
 ```
@@ -570,12 +561,13 @@ inner_join(tbl(src, "id"), tbl(src, "ranges_gene")) %>%
 
 BSgenome packages contain sequence information for a given
 species/build. There are many such packages - you can get a listing
-using `available.genomes`
+using `BiocManager::available()`
 
 ```{r, warning = FALSE}
 
 library(BSgenome)
-head(available.genomes())
+BiocManager::available("BSgenome.Hsap")
+length(BiocManager::available("BSgenome."))
 
 ```
 ### BSgenome packages

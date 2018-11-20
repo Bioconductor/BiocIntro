@@ -2,14 +2,14 @@
 title: "Bioconductor Package Development"
 author:
 - name: Martin Morgan
-  affiliation: Roswell Park Cancer Institute, Buffalo, NY
+  affiliation: Roswell Park Comprehensive Cancer Center, Buffalo, NY
 output:
   BiocStyle::html_document:
     toc_float: true
   BiocStyle::pdf_document: default
 package: BiocIntro
 vignette: |
-  %\VignetteIndexEntry{A02 -- Bioconductor Package Development}
+  %\VignetteIndexEntry{A01 -- Bioconductor Package Development}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

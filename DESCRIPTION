@@ -9,10 +9,10 @@ Description: Vignettes and resources to support introductory R
     training courses.
 Suggests:
     devtools, usethis, roxygen2, testthat, rmarkdown,
-    airway, EnsDb.Hsapiens.v75 AnnotationDbi, AnnotationHub,
-    ensembldb, Organism.dplyr org.Hs.eg.db,
+    airway, EnsDb.Hsapiens.v75, AnnotationDbi, AnnotationHub,
+    ensembldb, Organism.dplyr, org.Hs.eg.db,
     TxDb.Hsapiens.UCSC.hg19.knownGene, BSgenome.Hsapiens.UCSC.hg19,
-    biomaRt, GO.db, KEGGREST
+    biomaRt, GO.db, KEGGREST,
     BiocStyle, knitr
 License: Artistic-2.0
 VignetteBuilder: knitr
