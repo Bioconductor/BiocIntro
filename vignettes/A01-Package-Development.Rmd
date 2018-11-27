@@ -152,17 +152,6 @@ No man pages found in package  'MyPackage'
 
 # Package Development
 
-## Olde School
-
-- Add new functions in files `R/foo.R`
-- Update `NAMESPACE` to import functions or packages used by your
-  function, and to export your functions that users will want to use.
-- Create `man` pages by hand
-- Write vignettes in LaTeX Sweave
-- Key reference: _Writing R Extensions_, `RShowDoc("R-exts")`
-
-## New School
-
 - `devtools::create()` a package skeleton. More flexible `Authors@R`
   instead of `Author:` / `Maintainer:` fields.
 - Use 'roxygen' to document functions
@@ -266,7 +255,7 @@ Process
 
 - Open an issue at https://github.com/Bioconductor/Contributions
 - Automatic review -- `R CMD check`, `R CMD BiocCheck` (after
-  `biocLite("BiocCheck")`)
+  `BiocManager::install('BiocCheck')`)
 - Manual review
 
 Manual review
@@ -289,7 +278,7 @@ Common comments
     - Choose and write functions that are vectorized, and that handle
       the edge cases, e.g., length 0 arguments or `NA` values,
       correctly (compare `sapply(integer(), sqrt)` with
-      `vapply(integer(), sqrt)`).
+      `vapply(integer(), sqrt, integer(1))`).
 
 - Functions 'fit in your head', literally.
 
