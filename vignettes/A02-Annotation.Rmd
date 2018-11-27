@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
     cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE")))
 ```
 
-# Introduction to Bioconductor Annotation Resources
+# Introduction
 
 ## Instructor
 
@@ -39,9 +39,9 @@ results from high-throughput experiments. This can be as simple as
 mapping Ensembl IDs to corresponding HUGO gene symbols, to much more
 complex queries involving multiple data sources. In this workshop we
 will cover the various classes of annotation packages, what they
-contain, and how to use them efficiently. 
+contain, and how to use them efficiently.
 
-### Prerequisites
+## Prerequisites
 
 * Basic knowledge of R syntax
 * Basic understanding of the various annotation sources (NCBI, EBI/EMBL)
@@ -51,17 +51,17 @@ Useful background reading
 * The [AnnotationDbi][] vignette.
 * The [biomaRt][] vignette.
 * The [GenomicFeatures][] vignette.
-  
+
 [AnnotationDbi]: https://www.bioconductor.org/packages/release/bioc/vignettes/AnnotationDbi/inst/doc/IntroToAnnotationPackages.pdf
 [biomaRt]: https://www.bioconductor.org/packages/release/bioc/vignettes/biomaRt/inst/doc/biomaRt.html
 [GenomicFeatures]: https://www.bioconductor.org/packages/release/bioc/vignettes/GenomicFeatures/inst/doc/GenomicFeatures.pdf
 
-### Workshop Participation
+## Workshop Participation
 
 After each type of annotation package is introduced, students will be
-given the opportunity to practice making their own queries. 
+given the opportunity to practice making their own queries.
 
-### _R_ / _Bioconductor_ packages used
+_R_ / _Bioconductor_ packages used:
 
 * AnnotationDbi
 * AnnotationHub
@@ -85,23 +85,21 @@ Gene IDs for each gene measured, and as part of the output you may
 want to include the gene symbols, which are more likely to be familiar
 to a Biologist.
 
-### Learning goals
+Learning goals
 
 * Understand what sort of annotation data are available
 * Understand the difference between annotation sources (NCBI and EBI/EMBL)
 * Gain familiarity with the various ways to query annotation packages
 * Get some practice making queries
 
-### Learning objectives
+Learning objectives
 
 * Be able to use select and mapIds to map between identifiers
 * Be able to extract data from TxDb and EnsDb packages
 * Be able to make queries using biomaRt
 * Extract and utilize various data from AnnotationHub
 
-## Annotation Workshop
-
-### Goals for this workshop
+# Goals for this workshop
 
 - Learn about various annotation package types
 
@@ -122,63 +120,48 @@ library(Organism.dplyr)
 library(biomaRt)
 ```
 
-
-### What do we mean by annotation?
+## What do we mean by annotation?
 
 Map a known ID to other functional or positional information
 
 ```{r, out.wdth = "75%", echo = FALSE}
-
 knitr::include_graphics("./graphics/mapping.png")
-
 ```
 
-
-### Specific goal
+## Specific goal
 
 We have data and statistics, and we want to add other useful
 information
 
 ```{r, out.width = "75%", echo = FALSE}
-
 knitr::include_graphics("./graphics/boxes.png")
-
 ```
 
 The end result might be as simple as a data.frame or HTML table, or as
 complex as a `SummarizedExperiment`
 
-### Data containers
+## Data containers
 
 ```{r, out.width = "75%", echo = FALSE}
-
 knitr::include_graphics("./graphics/eset.png")
-
 ```
 
 ### SummarizedExperiment
 
-
 ```{r}
-
 library(airway)
 data(airway)
 airway
-
 ```
 
 ```{r}
-
 head(assay(airway))
 colData(airway)
-
 ```
 
 ```{r}
-
 rowRanges(airway)
 rowData(airway)
-
 ```
 
 ### BioC containers vs basic structures
@@ -186,39 +169,40 @@ rowData(airway)
 Pros
 
 * Validity checking
-
 * Subsetting
-
 * Function dispatch
-
 * Automatic behaviors
 
 Cons
 
 * Difficult to create
-
 * Cumbersome to extract data by hand
+* Useful only within _R_
 
-* Useful only within R
-
-### Annotation sources
+# Annotation basics
 
 ```{r, results = "asis", echo = FALSE, warning = FALSE}
-
-df <- data.frame("Package type" = c("ChipDb","OrgDb","TxDb/EnsDb","OrganismDb","BSgenome","Others","AnnotationHub","biomaRt"),
-		 Example = c("hugene20sttranscriptcluster.db","org.Hs.eg.db","TxDb.Hsapiens.UCSC.hg19.knownGene; EnsDb.Hsapiens.v75",
-			     "Homo.sapiens","BSgenome.Hsapiens.UCSC.hg19","GO.db; KEGG.db", "Online resource","Online resource"), check.names = FALSE)
+df <- data.frame(
+    "Package type" = c(
+        "ChipDb","OrgDb","TxDb / EnsDb","OrganismDb","BSgenome",
+        "Others","AnnotationHub","biomaRt"),
+    Example = c(
+        "hugene20sttranscriptcluster.db","org.Hs.eg.db",
+        "TxDb.Hsapiens.UCSC.hg19.knownGene; EnsDb.Hsapiens.v75",
+        "Homo.sapiens","BSgenome.Hsapiens.UCSC.hg19","GO.db; KEGG.db", 
+        "Online resource","Online resource"
+    ),
+    check.names = FALSE
+)
 knitr::kable(df)
-
 ```
 
-
-### Interacting with AnnoDb packages
+### Interacting with OrgDb / TxDb / EnsDb packages
 
 The main function is `select`:
 
 ```
-select(*annopkg*, *keys*, *columns*, *keytype*)
+select(*pkg*, *keys*, *columns*, *keytype*)
 ```
 
 Where
@@ -241,9 +225,7 @@ library(EnsDb.Hsapiens.v75)
 ids <- head(rownames(airway))
 ids
 select(EnsDb.Hsapiens.v75, ids, "SYMBOL", "GENEID")
-
 ```
-
 
 ### Questions!
 
@@ -265,21 +247,18 @@ How do you know what the central keys are?
 What keytypes or columns are available for a given annotation package?
 
 ```{r, warning = FALSE}
-
 keytypes(EnsDb.Hsapiens.v75)
 columns(EnsDb.Hsapiens.v75)
-
 ```
 ### Another example
 
 There is one issue with `select` however.
 
 ```{r, warning = FALSE}
-
 ids <- c("TSPAN6", "ZNF311")
 select(EnsDb.Hsapiens.v75, ids, "GENEID", "SYMBOL")
-
 ```
+
 ### The `mapIds` function
 
 An alternative to `select` is `mapIds`, which gives control of
@@ -294,9 +273,7 @@ duplicates
     - An additional argument, multiVals used to control duplicates
 
 ```{r, warning = FALSE}
-
 mapIds(EnsDb.Hsapiens.v75, ids, "GENEID", "SYMBOL")
-
 ```
 
 ### Choices for multiVals
@@ -306,18 +283,14 @@ duplicates. Other choices are `list`, `CharacterList`, `filter`,
 `asNA` or a user-specified function.
 
 ```{r, warning = FALSE}
-
 mapIds(EnsDb.Hsapiens.v75, ids, "GENEID", "SYMBOL", multiVals = "list")
-
 ```
 
 ### Choices for multiVals (continued)
 
 ```{r, warning = FALSE}
-
 mapIds(EnsDb.Hsapiens.v75, ids, "GENEID", "SYMBOL", multiVals = "filter")
 mapIds(EnsDb.Hsapiens.v75, ids, "GENEID", "SYMBOL", multiVals = "asNA")
-
 ```
 ### EnsDb/OrgDb questions
 
@@ -329,7 +302,7 @@ Using either the EnsDb.Hsapiens.v75 or org.Hs.eg.db package,
 
 * What is the UniProt ID for GAPDH?
 
-### TxDb packages
+# TxDb packages
 
 TxDb packages (as well as EnsDb packages) contain positional
 information; the contents can be inferred by the package name
@@ -338,56 +311,50 @@ information; the contents can be inferred by the package name
 
 * TxDb.Hsapiens.UCSC.hg19.knownGene
 
-	- *Homo sapiens*
+    - *Homo sapiens*
 
-	- UCSC genome browser
+    - UCSC genome browser
 
-	- hg19 (their version of GRCh37)
+    - hg19 (their version of GRCh37)
 
-	- knownGene table
+    - knownGene table
 
-Other examples:
+Other examples: TxDb.Dmelanogaster.UCSC.dm3.ensGene;
+TxDb.Athaliana.BioMart.plantsmart22.
 
-TxDb.Dmelanogaster.UCSC.dm3.ensGene
-TxDb.Athaliana.BioMart.plantsmart22
-
-### Transcript packages
+## Transcript packages
 
 `select` and `mapIds` can be used to make queries on TxDb objects
 
 ```{r, warning = FALSE}
-
 select(TxDb.Hsapiens.UCSC.hg19.knownGene, c("1","10"),
        c("TXNAME","TXCHROM","TXSTART","TXEND"), "GENEID")
 select(EnsDb.Hsapiens.v75, c("1", "10"),
        c("GENEID","GENENAME","SEQNAME","GENESEQSTART","GENESEQEND"), "ENTREZID")
-
 ```
 But this is not how one normally uses them...
 
-### GRanges
+## GRanges
 
 The normal use case for transcript packages is to extract positional
 information into a `GRanges` or `GRangesList` object. An example is
 the genomic position of all genes:
 
 ```{r, warning = FALSE}
-
 gns <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
 gns
-
 ```
-### GRangesList
+
+## GRangesList
 
 Or the genomic position of all transcripts **by** gene:
 
 ```{r, warning = FALSE}
-
 txs <- transcriptsBy(TxDb.Hsapiens.UCSC.hg19.knownGene)
 txs
-
 ```
-### Other accessors
+
+## Other accessors
 
 * Positional information can be extracted for `transcripts`, `genes`, coding
   sequences (`cds`), `promoters`  and `exons`.
@@ -399,7 +366,7 @@ txs
 * More detail on these *Ranges objects is beyond the scope of this
   workshop, but why we want them is not.
 
-### Why *Ranges objects
+## Why *Ranges objects
 
 The main rationale for *Ranges objects is to allow us to easily select
 and subset data based on genomic position information. This is really
@@ -409,13 +376,10 @@ powerful!
 be subsetted using the `[` function. As a really artificial example:
 
 ```{r, warning = FALSE}
-
 txs[txs %over% gns[1:2,]]
-
-
 ```
 
-### *Ranges use cases
+## *Ranges use cases
 
 * Gene expression changes near differentially methylated CpG islands
 
@@ -425,15 +389,13 @@ txs[txs %over% gns[1:2,]]
 
 * Number of CpGs measured over Gene X by Chip Y
 
-### SummarizedExperiment objects
+## SummarizedExperiment objects
 
 SummarizedExperiment objects are like ExpressionSets, but the row-wise
 annotations are GRanges, so you can subset by genomic locations:
 
 ```{r, out.width = "75%", echo = FALSE}
-
 knitr::include_graphics("./graphics/subset.png")
-
 ```
 
 SummarizedExperiment objects are popular objects for representing expression
@@ -441,8 +403,7 @@ data and other rectangular data (feature x sample data). Incoming packages are
 now strongly recommended to use this class representation instead of
 ExpressionSet.
 
-
-### TxDb exercises
+## TxDb exercises
 
 * How many transcripts does PPARG have, according to UCSC?
 
@@ -450,9 +411,11 @@ ExpressionSet.
 
 * How many genes are between 2858473 and 3271812 on chr2 in the hg19
 genome?
-    - Hint: you make a `GRanges` like this - `GRanges("chr2", IRanges(2858473,3271812))`
 
-### OrganismDb packages
+    - Hint: you make a `GRanges` like this - 
+      `GRanges("chr2", IRanges(2858473,3271812))`
+
+# OrganismDb packages
 
 OrganismDb packages are meta-packages that contain an OrgDb, a TxDb,
 and a GO.db package and allow cross-queries between those packages.
@@ -460,14 +423,9 @@ and a GO.db package and allow cross-queries between those packages.
 All previous accessors work; `select`, `mapIds`, `transcripts`, etc.
 
 ```{r, warning = FALSE}
-
 library(Homo.sapiens)
 Homo.sapiens
-
-
 ```
-
-### OrganismDb packages
 
 * Updateable - can change TxDb object
 
@@ -476,12 +434,10 @@ Homo.sapiens
 * Calls to TxDb accessors include a 'columns' argument
 
 ```{r , warning = FALSE}
-
 head(genes(Homo.sapiens, columns = c("ENTREZID","ALIAS","UNIPROT")),4)
-
 ```
 
-### OrganismDb exercises
+## OrganismDb exercises
 
 * Get all the GO terms for BRCA1
 
@@ -492,7 +448,7 @@ head(genes(Homo.sapiens, columns = c("ENTREZID","ALIAS","UNIPROT")),4)
 * Get all the transcripts from the hg19 genome build, along with their
   Ensembl gene ID, UCSC transcript ID and gene symbol
 
-### Organism.dplyr package
+# Organism.dplyr package
 
 * Combines the data from TxDb and Org.Db associated packages into local database.
 
@@ -511,41 +467,29 @@ src <- src_organism(dbpath = hg38light())
 src
 ```
 
-### Organism.dplyr
-
 Get promoters from a TxDb object (we use a small version)
 
 ```{r, warning = FALSE, cache=FALSE}
-
 options(width = 120)
 promoters(src)
-
 ```
-### Organism.dplyr
 
 Extract a table from the underlying database
 
 ```{r, warning = FALSE, cache=FALSE}
-
 tbl(src, "id")
-
-
 ```
 
-### Organism.dplyr
 Make a complex query between tables in the underlying database
 
 ```{r, warning = FALSE, cache=FALSE}
-
 inner_join(tbl(src, "id"), tbl(src, "ranges_gene")) %>%
-		    filter(symbol %in% c("ADA", "NAT2")) %>%
-		    dplyr::select(gene_chrom, gene_start, gene_end,
-		    gene_strand, symbol, alias, map)
-
+            filter(symbol %in% c("ADA", "NAT2")) %>%
+            dplyr::select(gene_chrom, gene_start, gene_end,
+            gene_strand, symbol, alias, map)
 ```
 
-
-### Organism.dplyr exercises
+## Organism.dplyr exercises
 
 * How many supported organisms are implemented in Organism.dplyr?
 
@@ -555,76 +499,63 @@ inner_join(tbl(src, "id"), tbl(src, "ranges_gene")) %>%
 
 * Display Gene ontology (GO) information for gene symbol “NAT2”.
 
-
-
-### BSgenome packages
+# BSgenome packages
 
 BSgenome packages contain sequence information for a given
 species/build. There are many such packages - you can get a listing
 using `BiocManager::available()`
 
 ```{r, warning = FALSE}
-
 library(BSgenome)
 BiocManager::available("BSgenome.Hsap")
 length(BiocManager::available("BSgenome."))
-
 ```
-### BSgenome packages
+
+## BSgenome packages
 
 We can load and inspect a BSgenome package
 
 ```{r, warning = FALSE}
-
 library(BSgenome.Hsapiens.UCSC.hg19)
 Hsapiens
-
 ```
 
-### BSgenome packages
+## BSgenome packages
 
 The main accessor is `getSeq`, and you can get data by sequence (e.g.,
 entire chromosome or unplaced scaffold), or by
 passing in a GRanges object, to get just a region.
 
 ```{r, warning = FALSE}
-
 getSeq(Hsapiens, "chr1")
 getSeq(Hsapiens, gns["5467",])
-
-
 ```
+
 The Biostrings package contains most of the code for dealing with
 these `*StringSet` objects - please see the Biostrings vignettes and
 help pages for more information.
 
-### BSgenome exercises
+## BSgenome exercises
 
 * Get the sequences for all transcripts of the TP53 gene
 
-### AnnotationHub
+# AnnotationHub
 
 AnnotationHub is a package that allows us to query and download many
 different annotation objects, without having to explicitly install
 them.
 
 ```{r, include = FALSE}
-
 library(AnnotationHub)
 hub <- AnnotationHub()
-
-
 ```
 
 ```{r, warning = FALSE}
-
 library(AnnotationHub)
 hub <- AnnotationHub()
 hub
-
-
 ```
-### Querying AnnotationHub
+## Querying AnnotationHub
 
 Finding the 'right' resource on AnnotationHub is like using Google - a
 well posed query is necessary to find what you are after. Useful
@@ -639,75 +570,57 @@ queries are based on
 * Data source
 
 ```{r, warning = FALSE}
-
 names(mcols(hub))
-
 ```
 
-
-### AnnotationHub Data providers
+## AnnotationHub Data providers
 
 ```{r, warning = FALSE}
-
 unique(hub$dataprovider)
-
 ```
 
-### AnnotationHub Data classes
+## AnnotationHub Data classes
 
 ```{r, warning = FALSE}
-
 unique(hub$rdataclass)
 
 ```
-### AnnotationHub Species
+## AnnotationHub Species
 
 ```{r, warning = FALSE}
-
 head(unique(hub$species))
 length(unique(hub$species))
-
-
 ```
-### AnnotationHub Data sources
+## AnnotationHub Data sources
 
 ```{r, warning = FALSE}
-
 unique(hub$sourcetype)
-
 ```
-### AnnotationHub query
+
+## AnnotationHub query
 
 ```{r, warning = FALSE}
-
 qry <- query(hub, c("granges","homo sapiens","ensembl"))
 qry
-
 ```
-### AnnotationHub query
 
 ```{r, warning = FALSE}
-
 qry$sourceurl
-
 ```
 
-### Selecting AnnotationHub resource
+## Selecting AnnotationHub resource
 
 ```{r, message = FALSE, warning = FALSE}
-
 whatIwant <- qry[["AH50377"]]
-
 ```
 We can use these data as they are, or convert to a TxDb format:
 
 ```{r, warning = FALSE}
-
 GRCh38TxDb <- makeTxDbFromGRanges(whatIwant)
 GRCh38TxDb
-
 ```
-### AnnotationHub exercises
+
+## AnnotationHub exercises
 
 * How many resources are on AnnotationHub for Atlantic salmon (Salmo
   salar)?
@@ -715,38 +628,35 @@ GRCh38TxDb
 * Get the most recent Ensembl build for domesticated dog (Canis
   familiaris) and make a TxDb
 
-### biomaRt
+# biomaRt
 
 The biomaRt package allows queries to an Ensembl Biomart server. We
 can see the choices of servers that we can use:
 
 ```{r, warning = FALSE}
-
 library(biomaRt)
 listMarts()
-
 ```
-### biomaRt data sets
+
+## biomaRt data sets
 
 And we can then check for the available data sets on a particular
 server.
 
 ```{r, warning = FALSE}
-
 mart <- useMart("ENSEMBL_MART_ENSEMBL")
 head(listDatasets(mart))
-
 ```
-### biomaRt queries
+
+## biomaRt queries
 
 After setting up a `mart` object pointing to the server and data set
 that we care about, we can make queries. We first set up the `mart` object.
 
 ```{r, warning = FALSE}
-
 mart <- useMart("ENSEMBL_MART_ENSEMBL","hsapiens_gene_ensembl")
-
 ```
+
 Queries are of the form
 
 getBM(*attributes*, *filters*, *values*, *mart*)
@@ -761,34 +671,30 @@ where
 
 * mart is the `mart` object we set up
 
-### biomaRt attributes and filters
+## biomaRt attributes and filters
 
 Both attributes and filters have rather inscrutable names, but a
 listing can be accessed using
 
 ```{r, warning = FALSE}
-
 atrib <- listAttributes(mart)
 filts <- listFilters(mart)
 head(atrib)
 head(filts)
-
-
 ```
 
-### biomaRt query
+## biomaRt query
 
 A simple example query
 
 ```{r, warning = FALSE}
-
 afyids <- c("1000_at","1001_at","1002_f_at","1007_s_at")
 getBM(c("affy_hg_u95av2", "hgnc_symbol"), c("affy_hg_u95av2"), afyids, mart)
-
 ```
 
-### biomaRt exercises
+## biomaRt exercises
 
-* Get the Ensembl gene IDs and HUGO symbol for Entrez Gene IDs 672, 5468 and 7157
+* Get the Ensembl gene IDs and HUGO symbol for Entrez Gene IDs 672,
+  5468 and 7157.
 
 * What do you get if you query for the 'gene_exon' for GAPDH?
