@@ -1,0 +1,30 @@
+---
+title: "Bioconductor for Everyone: Exploring, Analyzing, and Visualizing Large Data Sets with R"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Comprehensive Cancer Center
+output:
+  BiocStyle::html_document
+abstract: |
+  We'll take a fast-paced tour through R and the software project I
+  work on, Bioconductor (https://bioconductor.org), learning how to
+  explore and visualize large cancer-related data sets. We'll work
+  through two particular analyses. In the process, we'll learn some
+  pretty significant new R skills. For instance, we will learn about
+  formal classes for representing complex data, strategies for
+  iteration and parallel processing, and accessing 'remote' resources
+  accessible through web-based interfaces. This workshop should be
+  interesting to people who know a bit of R, and want to learn more!
+vignette: |
+  %\VignetteIndexEntry{Bioconductor for Everyone}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+# Session info {.unnumbered}
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
