@@ -1,0 +1,477 @@
+---
+title: "Robust and efficient code"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Comprehensive Cancer Center
+output:
+  BiocStyle::html_document
+abstract: |
+  We'll take a fast-paced tour through R and the software project I
+  work on, Bioconductor (https://bioconductor.org), learning how to
+  explore and visualize large cancer-related data sets. We'll work
+  through two particular analyses. In the process, we'll learn some
+  pretty significant new R skills. For instance, we will learn about
+  formal classes for representing complex data, strategies for
+  iteration and parallel processing, and accessing 'remote' resources
+  accessible through web-based interfaces. This workshop should be
+  interesting to people who know a bit of R, and want to learn more!
+vignette: |
+  %\VignetteIndexEntry{Bioconductor for Everyone}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+```
+
+# Goal
+
+## Party trick
+
+A fun party trick is to take vector and order it using `order()`
+
+```{r}
+x <- runif(5)
+x
+xo <- x[order(x)]
+xo
+```
+
+The original order can the be retrieved by applying `order()` twice
+
+```{r}
+xo[order(order(x))]
+```
+
+Neat, eh? The ordered vector `xo` can be transformed in a way that might be difficult for the original data, for instance finding differences between ordered values
+
+```{r}
+diff(c(0, xo))[order(order(x))]
+```
+
+or transforming numeric values into sequences of letters
+
+```{r}
+LETTERS[seq_along(xo)][order(order(x))]
+```
+
+## Quantile normalization
+
+Create a matrix with two columns representing 'gene expression' of 100 (actually, 10,000's of) genes in two samples. The idea is that 'base-line' expression follows some kind of exponential distributition
+
+```{r}
+set.seed(123)
+n_genes <- 1000
+base <- 2 + rexp(n_genes)
+```
+
+and that the expression observed in each sample is the baseline plus some (normally distributed) error. The following assumes that the size of the measurement error decreases as the gene expression increases; sample `y` has (e.g., because of sample processing) a consistently stronger signal than sample `x`.
+
+```{r}
+expression <- data.frame(
+    x = base + rnorm(n_genes, 0.3) / base,
+    y = 1.1 * base + rnorm(n_genes, 0.4) / base
+)
+```
+
+Visualize the expression of each gene in the two samples...
+
+```{r}
+library(ggplot2)
+ggplot(expression, aes(x, y)) + geom_point()
+```
+
+and the distribution of expression values across all genes
+
+```{r}
+df <- reshape::melt(expression)
+ggplot(df, aes(x = value, colour = factor(variable))) + 
+    geom_density()
+```
+
+A commmon hypothesis in, e.g., RNA-seq, is that the expression of most genes is unchanged, and differences between distributions are due to technical artifacts. Under this assumption, we expect the distributions in the second figure, above, to be identical. So we could try to _normalize_ samples so that the _distributions_ of each sample look about the same. _Quantile normalization_ is an extreme form of this normalization, and makes the distributions _exactly_ the same.
+
+1. Place each column in order
+
+    ```{r}
+    x <- expression$x
+    xo <- x[order(x)]
+    y <- expression$y
+    yo <- y[order(y)]
+    ```
+    
+   For our sample of 100, `x[1]` is the first quantile, `x[2]` the second, etc.
+
+2. Calculate the mean (or more robust, e.g., median) statistic for each quantile
+
+    ```{r}
+    mo <- sapply(seq_along(xo), function(i) mean(c(xo[i], yo[i])))
+    ```
+    
+3. Use the mean of each quantile in the original vector
+
+    ```{r}
+    normalized <- data.frame(
+        x = mo[order(order(x))],
+        y = mo[order(order(y))]
+    )
+    ```
+    
+Visualize normalized data -- same overall relationship between expression in two samples
+
+```{r}
+ggplot(normalized, aes(x, y)) + geom_point()
+```
+
+...but now identical distributions
+
+```{r}
+df <- reshape::melt(normalized)
+ggplot(df, aes(x = value, colour = factor(variable))) + 
+    geom_density()
+```
+
+# From one-off script to reusable function
+
+## Functions
+
+We could write a script, copy/pasting each time we wanted to use this
+
+```{r}
+x <- expression$x
+xo <- x[order(x)]
+y <- expression$y
+yo <- y[order(y)]
+mo <- sapply(seq_along(xo), function(i) mean(c(xo[i], yo[i])))
+normalized <- data.frame(
+    x = mo[order(order(x))],
+    y = mo[order(order(y))]
+)
+```
+
+It would be better to write a function
+
+```{r}
+quantile_normalize <- 
+    function(expression)
+{
+    x <- expression$x
+    xo <- x[order(x)]
+    y <- expression$y
+    yo <- y[order(y)]
+    mo <- sapply(seq_along(xo), function(i) mean(c(xo[i], yo[i])))
+    data.frame(
+        x = mo[order(order(x))],
+        y = mo[order(order(y))]
+    )
+}
+```
+
+and use that on different data sets.
+
+```{r}
+normalized <- quantile_normalize(expression)
+```
+
+## Testing
+
+We're going to update our function to be more efficient, general, and robust, but we want to have some confidence that the function still works as expected. So we'll make a much smaller data set that we can verify 'by hand' and use as a test case.
+
+```{r}
+expression <- data.frame(
+    x = c(1, 2, 4, 7),
+    y = c(3, 2, 5, 8)
+)
+quantile_normalize(expression)
+```
+
+We can use a formal concept called a 'unit test' to check that our code is correct
+
+```{r}
+library(testthat)
+test_that("quantile_normalize() works", {
+    ## calculate simple example 'by hand'...
+    x <- c(1, 2, 4, 7)
+    y <- c(3, 2, 5, 8)
+    xo <- x[order(x)]
+    yo <- y[order(y)]
+    mo <- sapply(seq_along(x), function(i) mean(c(xo[i], yo[i])))
+    expected <- data.frame(x = mo[order(order(x))], y = mo[order(order(y))])
+
+    ## compare to outcome of our function
+    expression <- data.frame(x = x, y = y)
+    observed <- quantile_normalize(expression)
+    expect_equal(observed, expected)      # other expectations possible
+})
+```
+
+# A little more...
+
+## Efficient
+
+`sapply()` is an _iteration_ -- the function is called once for each element of `xo`. If we had a matrix of expression values, then we could use `rowMeans()`, which is vectorized and makes only one function call for the entire data. This is more efficient in R, so let's try to modify our function
+
+```{r}
+quantile_normalize <- 
+    function(expression)
+{
+    x <- expression$x
+    xo <- x[order(x)]
+    y <- expression$y
+    yo <- y[order(y)]
+    m <- cbind(xo, yo)
+
+    mo <- rowMeans(m)
+
+    data.frame(
+        x = mo[order(order(x))],
+        y = mo[order(order(y))]
+    )
+}
+```
+Our unit test still works
+```{r}
+test_that("quantile_normalize() works", {
+    x <- c(1, 2, 4, 7)
+    y <- c(3, 2, 5, 8)
+    xo <- x[order(x)]
+    yo <- y[order(y)]
+    mo <- sapply(seq_along(x), function(i) mean(c(xo[i], yo[i])))
+    expected <- data.frame(x = mo[order(order(x))], y = mo[order(order(y))])
+
+    expression <- data.frame(x = x, y = y)
+    observed <- quantile_normalize(expression)
+    expect_equal(observed, expected)
+})
+```
+so we have some confidence that we've changed our implementation without changing the outcome.
+
+## General
+
+Our function assumes that there are exactly two samples, and that the two samples are labelled `x` and `y`. Let's try and generalize our function using `apply()` to order an arbitrary number of columns,
+
+```{r}
+m <- apply(expression, 2, function(v) v[order(v)])
+m
+```
+
+and apply the same sort of logic to reconstruct the quantiles
+
+```{r}
+quantile_normalize <- 
+    function(expression)
+{
+    m <- apply(expression, 2, function(v) v[order(v)])
+    mo <- rowMeans(m)
+    apply(expression, 2, function(v, mo) mo[order(order(v))], mo)
+}
+```
+
+Our unit test will fail, because the original function returned a data.frame, whereas the current function returns a matrix. Let's update the unit test (we could also coerce the matrix to a data.frame before returning from `quantile_normalize()`).
+
+```{r}
+test_that("quantile_normalize() works", {
+    x <- c(1, 2, 4, 7)
+    y <- c(3, 2, 5, 8)
+    xo <- x[order(x)]
+    yo <- y[order(y)]
+    mo <- sapply(seq_along(x), function(i) mean(c(xo[i], yo[i])))
+    expected <- cbind(x = mo[order(order(x))], y = mo[order(order(y))])
+
+    expression <- data.frame(x = x, y = y)
+    observed <- quantile_normalize(expression)
+    expect_equal(observed, expected)
+})
+```
+
+## Robust
+
+Good functions provide something like a contract -- if certain types of arguments are provided, then the function will return a certain type of value. In our case we might think of the contract as "if you provide me with a data.frame with all numeric columns, or a numeric matrix, I'll provide you with a matrix of quantile-normalized columns". There could be additional constraints on the contract, for instance "the input cannot have NA values" or "dimnames of the input are the same as dimnames of the output". Checking that the inputs satisfy the contract greatly simplifies our function, and typically provides the user with helpful indications _before_ things go wrong in a cryptic way. So it seems like we should validate the inputs of the function as soon as possible.
+
+```{r}
+quantile_normalize <-
+    function(expression)
+{
+    ## so long as the input can be coerced to a matrix...
+    expression <- as.matrix(expression)
+
+    ## and can be validated to conform to our contract...
+    stopifnot(
+        is.numeric(expression),
+        !anyNA(expression)
+    )
+
+    ## ...we have confidence that we will satisfy the return value
+    m <- apply(expression, 2, function(v) v[order(v)])
+    mo <- rowMeans(m)
+    apply(expression, 2, function(v, mo) mo[order(order(v))], mo)
+}
+```
+
+We can check that our original unit test is satisfied, but also add aditional tests...
+
+```{r}
+test_that("'quantile_normalize()' validates inputs", {
+    m <- cbind(letters, LETTERS)
+    expect_error(quantile_normalize(m))
+    
+    df <- data.frame(x=rnorm(26), y = letters)
+    expect_error(quantile_normalize(df))
+    
+    m <- matrix(rnorm(10), nrow = 5)
+    m[1,1] <- NA
+    expect_error(quantile_normalize(m))
+})
+```
+
+It seems like our function should preserve dimnames on the original object. The function requires modification, and we can write a new unit test
+
+```{r}
+quantile_normalize <-
+    function(expression)
+{
+    ## validate inputs
+    expression <- as.matrix(expression)
+    stopifnot(
+        is.numeric(expression),
+        !anyNA(expression)
+    )
+
+    ## quantile normalization
+    m <- apply(expression, 2, function(v) v[order(v)])
+    mo <- rowMeans(m)
+    result <- apply(expression, 2, function(v, mo) mo[order(order(v))], mo)
+    
+    ## propagate dimnames
+    dimnames(result) <- dimnames(expression)
+    result
+}
+```
+
+```{r}
+test_that("'quantile_normalize()' propagates dimnames", {
+    m <- matrix(rnorm(10), 5, dimnames=list(LETTERS[1:5], letters[1:2]))
+    observed <- quantile_normalize(m)
+    expect_identical(dimnames(observed), dimnames(m))
+})
+```
+
+We can also check that our function is robust to less common cases, like inputs with 0 rows and / or 0 columns. These tests lead to additional modifications -- `apply()` does not always return a matrix!
+
+```{r}
+quantile_normalize <-
+    function(expression)
+{
+    ## validate inputs
+    expression <- as.matrix(expression)
+    stopifnot(
+        is.numeric(expression),
+        !anyNA(expression)
+    )
+
+    ## quantile normalize
+    m <- apply(expression, 2, function(v) v[order(v)])
+    dim(m) <- dim(expression)    # apply() doesn't always return a matrix!
+
+    mo <- rowMeans(m)
+
+    result <- apply(expression, 2, function(v, mo) mo[order(order(v))], mo)
+    dim(result) <- dim(expression)
+
+    ## propagate dimnames
+    dimnames(result) <- dimnames(expression)
+    result
+}
+```
+
+```{r}
+test_that("'quantile_normalize()' works with edge cases", {
+    m <- matrix(rnorm(5), nrow = 5)
+    expect_identical(m, quantile_normalize(m))
+
+    m <- matrix(rnorm(5), ncol = 5)
+    expect_identical(matrix(mean(m), ncol = 5), quantile_normalize(m))
+    
+    m <- matrix(0, 0, 0)
+    expect_identical(m, quantile_normalize(m))
+})
+```
+
+# Performance
+
+We'd like to get a sense of how our algorithm performs for various sized problems. We could use `system.time()` to evalute expressions, but a slightly more sophisticated approach replicates each timing to average over differences unrelated to our algorithm.
+
+```{r}
+library(microbenchmark)
+
+n_genes <- 10000
+g10 <- matrix(rnorm(n_genes * 10), ncol = 10)
+g100 <- matrix(rnorm(n_genes * 100), ncol = 100)
+g1000 <- matrix(rnorm(n_genes * 1000), ncol = 1000)
+g10000 <- matrix(rnorm(n_genes * 10000), ncol = 10000)
+
+times <- microbenchmark(
+    quantile_normalize(g10),
+    quantile_normalize(g100),
+    quantile_normalize(g1000),
+    quantile_normalize(g10000),
+    times = 20
+)
+
+times
+plot(times, log = "y")
+```
+
+The results show that the time to execute the algoritm scales linearly with the number of samples. Even 1000 samples takes only 3.5 seconds to normalize. Our implementation is 'fast enough' for many purposes.
+
+`Rprof()` can be used to see where our alorithm spends its time
+
+```
+Rprof()        # start profiling
+result <- quantile_normalize(g10000)
+Rprof(NULL)    # stop profiling
+summaryRprof()$by.total
+```
+
+The output looks like
+
+```
+                     total.time total.pct self.time self.pct
+"quantile_normalize"      32.30    100.00      0.00     0.00
+"apply"                   31.92     98.82      2.92     9.04
+"FUN"                     23.42     72.51      6.22    19.26
+"order"                   17.20     53.25     16.50    51.08
+"aperm.default"            2.46      7.62      2.46     7.62
+"aperm"                    2.46      7.62      0.00     0.00
+"unlist"                   1.80      5.57      1.80     5.57
+"array"                    1.32      4.09      1.32     4.09
+"vapply"                   0.34      1.05      0.24     0.74
+"match.arg"                0.34      1.05      0.16     0.50
+"rowMeans"                 0.22      0.68      0.22     0.68
+"anyNA"                    0.16      0.50      0.16     0.50
+"...elt"                   0.16      0.50      0.00     0.00
+"stopifnot"                0.16      0.50      0.00     0.00
+"formals"                  0.10      0.31      0.02     0.06
+"match.fun"                0.08      0.25      0.08     0.25
+"eval"                     0.08      0.25      0.04     0.12
+"sys.function"             0.08      0.25      0.02     0.06
+"sys.parent"               0.06      0.19      0.06     0.19
+"all"                      0.02      0.06      0.02     0.06
+"c"                        0.02      0.06      0.02     0.06
+"is.list"                  0.02      0.06      0.02     0.06
+"logical"                  0.02      0.06      0.02     0.06
+```
+
+The top to bottom order represent the approximate time spent 'inside' each function. Note the large different 'inside' `order()`, versus insides `aperm()` (our code doesn't use `aperm()`, but some code our code calls does...) and the `self.pct` of `order()`. This suggests that about 50\% of the time is spent performing `order()`, and if we could identify ways to avoid calling `order()`, or calling `order()` more efficiently (e.g., once, rather than 10000 times), our algorithm might increase in speed. Such cleverness usually increases the complexity of the code, and in our case there is no real value in pursuing faster execution time. 
+
+# Limitations & directions
+
+# Session info {.unnumbered}
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
