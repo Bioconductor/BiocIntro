@@ -470,6 +470,85 @@ The top to bottom order represent the approximate time spent 'inside' each funct
 
 # Limitations & directions
 
+There are several issues apparent in the code
+
+- `order()` is called multiple times, including twice on the same data; it seems like we should be able to do a better job of that.
+
+- `apply()` is an iteration, and therefore slower than 'vectorized' calls. It seems like we could get around the use of `apply()` with clever use of functions in the [matrixStats][] package.
+
+- We make several copies of the data -- each return value is a copy, updating `dim()` and `dimnames()` likely also makes copies -- and this will be expensive both in terms of memory use and time (to allocate and clean up the additional memory).
+
+If it were important enough, each of these areas could be the subject of more detailed effort.
+
+Our approach uses 'base' _R_ functionality. Generally, this requires a pretty high level of understanding and abstract thinking, e.g., about `apply()` and it's `FUN` and `...` arguments. We also have to think about different data structures -- data.frame, matrix, vector, .... A different and recently popular approach is to use 'tidy' data. The idea is to always aim for a data representation where a single type of measurement (e.g., gene expression) occupies a single column, with other columns serving to partition the data into groups; the `%>%` is a 'pipe' that takes the output of the left-hand side and uses it as the input to the right-hand side
+
+```{r}
+library(tidyverse)
+library(reshape)
+
+expression
+tidy <- melt(expression) %>% as_tibble()
+tidy
+```
+
+Tidy analysis emphasize a few 'verbs' that have very stereotyped behavior, always returning a 'tibble' in long form. So we could use `group_by` and `mutate()` to update our `tbl` with columns representing the `order()` step of our normalization
+
+```{r}
+tidy <- tidy %>% 
+    group_by(variable) %>%
+    mutate(o = order(value))
+tidy
+```
+
+Quantile means can be calculated by group using `summary()`
+
+```{r}
+quantile_mean <- tidy %>% 
+    group_by(o) %>% 
+    summarize(m = mean(value))
+quantile_mean
+```
+
+The row means can be joined to our tidy data, and the join (using the common column `o` to join the two tibbles)
+
+```{r}
+left_join(tidy, quantile_mean)
+```
+
+This gives us our normalized data in the column `m`! As a function, we might have
+
+```{r}
+tidy_quantile_normalize <-
+    function(tbl)
+{
+    ## need to validate...
+    
+    ## quantile normalize
+    tidy <- tidy %>%
+        group_by(variable) %>%
+        mutate(o = order(value))
+
+    quantile_mean <- tidy %>%
+        group_by(o) %>% 
+        summarize(m = mean(value))
+
+    left_join(tidy, quantile_mean) %>%
+        ## prepare result
+        select(variable, value = m) %>%
+        ungroup()
+}
+```
+
+In action, we have
+```{r, message = FALSE}
+tbl <- melt(expression) %>% as_tibble()
+tidy_quantile_normalize(tbl)
+```
+
+
+
+[matrixStats]: https://cran.r-project.org/?package=matrixStats
+
 # Session info {.unnumbered}
 
 ```{r sessionInfo, echo=FALSE}
