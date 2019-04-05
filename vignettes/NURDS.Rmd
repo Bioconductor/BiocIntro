@@ -56,7 +56,7 @@ xo <- x[order(x)]
 xo
 ```
 
-The original order can the be retrieved by applying `order()` twice
+The original order can the be retrieved by applying `order()` twice, and using the result to order `xo`
 
 ```{r}
 xo[order(order(x))]
@@ -68,7 +68,7 @@ Neat, eh? The ordered vector `xo` can be transformed in a way that might be diff
 diff(c(0, xo))[order(order(x))]
 ```
 
-or transforming numeric values into sequences of letters
+or transforming numeric values into letters, such that the smallest value of `x` is given the first letter, etc.
 
 ```{r}
 LETTERS[seq_along(xo)][order(order(x))]
