@@ -24,7 +24,7 @@ Recent courses:
 [NURDS-Apr-2019]: https://github.com/Bioconductor/BiocIntro/blob/NURDS-Apr-2019/README.md
 [BiocAsia-2018]: https://github.com/Bioconductor/BiocIntro/blob/BiocAsia-2017/README.md
 [RPCI-Epigenome-Sept-2018]: https://github.com/Bioconductor/BiocIntro/blob/RPCI-Epigenome-Sept-2018/README.md
-[Visby-2018]: https://github.com/Bioconductor/BiocIntro/blob/Visby-2018/README.md
+[Visby-2018]: https://github.com/Bioconductor/BiocIntro/blob/visby-2018/README.md
 [OMRF-2017]: https://github.com/Bioconductor/BiocIntro/blob/OMRF-2017/README.md
 [UPSTAT-2017]: https://github.com/Bioconductor/BiocIntro/blob/UP-STAT-2017/vignettes/UPSTAT.Rmd
 [CDSE-2017]: https://github.com/Bioconductor/BiocIntro/blob/R-HTG-CDSE-Apr-2017/vignettes/R_HTS.Rmd
