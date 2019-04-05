@@ -1,20 +1,35 @@
 ---
-title: "Robust and efficient code"
+title: "Developing robust and efficient code"
 author:
 - name: Martin Morgan
   affiliation: Roswell Park Comprehensive Cancer Center
 output:
   BiocStyle::html_document
 abstract: |
-  We'll take a fast-paced tour through R and the software project I
-  work on, Bioconductor (https://bioconductor.org), learning how to
-  explore and visualize large cancer-related data sets. We'll work
-  through two particular analyses. In the process, we'll learn some
-  pretty significant new R skills. For instance, we will learn about
-  formal classes for representing complex data, strategies for
-  iteration and parallel processing, and accessing 'remote' resources
-  accessible through web-based interfaces. This workshop should be
-  interesting to people who know a bit of R, and want to learn more!
+  Did you know that for any numeric vector `x`, if you take the order
+  of the order of `x` and use that to order the vector `x` ordered by
+  order `x`, you end up with the original vector `x`? This fun fact
+  helps us to implement 'quantile normalization', an approach used in
+  early microarray analyses to make the distribution of gene
+  expression values in two samples identical (consistent with
+  underlying model assumptions) without eliminating between-sample
+  variation of individual genes. We write a short script to perform
+  quantile normalization on two samples, and then modify our work to
+  illustrate approaches to robust and efficient code. We (a)
+  encapsulate the script in a function, to allow convenient re-use;
+  (b) write a simple 'unit test' to make sure that our function
+  calculates the correct answer; (c) generalize the script to operate
+  on any number of samples using `apply()` on a matrix rather
+  reference to specific columns in a data frame; (d) improve the
+  efficiency of the script by replacing an expensive `apply()` with
+  potentially 10's of thousands of calls to `mean()` with a single
+  call to `rowMeans()`; (e) and make our function more robust by
+  validating the inputs before performing computations. At each of
+  these stages we use unit tests to make sure that our improvemments
+  do not undermine the correctness of the original approach. Finally,
+  we take a quick look at performance to identify possible future
+  improvements, and take a quick pass through a 'tidy' implementation
+  of quantile normalization.
 vignette: |
   %\VignetteIndexEntry{Bioconductor for Everyone}
   %\VignetteEngine{knitr::rmarkdown}
