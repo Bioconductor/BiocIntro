@@ -21,7 +21,212 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 
+# Biology
 
+Gene expression
+
+RNA-seq
+
+Single-cell technologies
+
+# Large data
+
+## What and how
+
+What is it?
+
+- Doesn't fit in memory
+- Computationally expensive to process
+
+Common use cases
+
+- Query -- in this haystack, where is my needle
+- Processing -- e.g., reduction to summary statistics
+
+## Strategies
+
+Queries
+
+- e.g., of data bases
+
+Processing
+
+- Iteration & chunk-wise
+- Distributed / parallel
+
+# Real-world: objects
+
+## Objects
+
+```{r setup, message=FALSE}
+dir <- "~/extdata"
+library(airway)
+data(airway)
+write.table(colData(airway), file.path(dir, "samples.csv"))
+write.table(assay(airway), file.path(dir, "expression.csv"))
+```
+
+Related data elements
+
+```{r}
+samples <- read.table(file.path(dir, "samples.csv"))
+counts <- read.table(file.path(dir, "expression.csv"))
+```
+
+Coordinate data management
+
+```{r, message=FALSE}
+library(SummarizedExperiment)
+counts <- as.matrix(counts)
+se <- SummarizedExperiment(
+    assays = list(counts = counts),
+    colData = samples
+)
+```
+
+Matrix-like 'interface' and accessors
+
+Data manipulation, e.g., non-zero rows
+
+```{r}
+idx <- rowSums(assay(se)) > 0
+se[idx,]
+```
+
+Simple visualize
+
+# Tidy data and the tidyverse
+
+```{r, message = FALSE}
+library(dplyr)
+library(tibble)
+```
+
+The pipe, `%>%`
+
+Data representation
+
+- A `tibble` is like a user-friendly `data.frame`
+
+    ```{r}
+    as_tibble(mtcars)
+    ```
+
+- Row names are just another column
+
+    ```{r}
+    sample <- tibble::rownames_to_column(
+        as.data.frame(colData(se)),
+        var="Accession"
+    ) %>% as_tibble()
+    ```
+
+
+- Data is represented in 'long-form'
+
+    ```{r}
+    count <- reshape::melt(assay(se), c("Feature", "Accession")) %>%
+        as_tibble()
+    colnames(count)[3] = "Count"
+    count
+    ```
+
+Endomorphism
+
+# Data base
+
+## Data base representation
+
+```{r setup, message = FALSE}
+library(RSQLite)
+airway_db <- file.path(dir, "airway.sqlite")
+con <- dbConnect(SQLite(), airway_db)
+sample <- tibble::rownames_to_column(
+    as.data.frame(colData(se)),
+    var="Accession"
+)
+dbWriteTable(con, "sample", sample)
+count <- reshape::melt(assay(se), c("Feature", "Accession"))
+colnames(count)[3] = "Count"
+dbWriteTable(con, "count", count)
+dbListTables(con)
+dbGetQuery(con, "SELECT * FROM Sample;")
+dbGetQuery(con, "SELECT Accession, cell, dex FROM Sample;")
+dbGetQuery(con, "SELECT * FROM Count LIMIT 3;")
+dbDisconnect(con)
+```
+
+```{r, message = FALSE}
+library(dplyr)
+library(dbplyr)
+
+src <- src_sqlite(airway_db)
+tbl(src, "Sample")
+tbl(src, "Sample") %>% select(Accession, cell, dex)
+tbl(src, "Sample") %>% filter(dex == "trt") %>% collect()
+tbl(src, "Count")
+tbl(src, "Count") %>%
+    group_by(Accession) %>%
+    summarize(library_size = SUM(Count)) %>%
+    collect()
+left_join(tbl(src, "Count"), tbl(src, "Sample"))
+left_join(
+    tbl(src, "Count"),
+    tbl(src, "Sample") %>% select(Accession, cell, dex)
+)
+```
+
+Library size
+
+```{r}
+tbl(src, "Count") %>%
+    group_by(Accession) %>%
+    summarize(library_size = SUM(Count))
+```
+
+Filter features with 0 counts?
+
+```{r}
+keep <- tbl(src, "Count") %>%
+    group_by(Feature) %>%
+    summarize(row_sum = SUM(Count)) %>%
+    filter(row_sum > 0) %>%
+    select(Feature)
+left_join(keep, tbl(src, "Count"))
+```
+
+## Aside: SRAdb
+
+```{r setup)
+if (nrow(bfcquery(query="SRAdb", fields = "rname") == 0L) {
+    fl <- SRAdb::getSRAdbFile(tempdir())
+    BiocFileCache::bfcadd(rname = "SRAdb", fpath = fl, action = "move")
+}
+```
+
+```{r}
+fl <- BiocFileCache::bfcrpath(rnames = "SRAdb")
+src <- src_sqlite(fl)
+tbl(src, "study")
+tbl(src, "study") %>%
+    filter(study_title %like% "%ovarian%")
+```
+
+# Other on-disk or remote representations
+
+## hdf5
+
+```{r setup, message = FALSE}
+library(rhdf5)
+```
+
+## TENxBrainData
+
+```{r setup, message = FALSE}
+library(TENxBrainData)
+```
+
+## restfulSE
 
 # Session info {.unnumbered}
 
