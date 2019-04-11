@@ -8,5 +8,7 @@ Authors@R: c(
 Description: Vignettes and resources to support introductory R
     training courses.
 Suggests: BiocStyle, knitr
+    airway, SummarizedExperiment, dplyr, tibble, ggplot2, RSQLite,
+    dplyr, dbplyr, rhdf5, TENxBrainData
 License: Artistic-2.0
 VignetteBuilder: knitr

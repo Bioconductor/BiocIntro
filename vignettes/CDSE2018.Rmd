@@ -65,6 +65,8 @@ Processing
 
 ## Objects
 
+We'll set up some data to use (pay no attention to this!)
+
 ```{r setup, message=FALSE}
 dir <- "~/extdata"
 library(airway)
@@ -77,21 +79,42 @@ Related data elements
 
 ```{r}
 samples <- read.table(file.path(dir, "samples.csv"))
+samples
 counts <- read.table(file.path(dir, "expression.csv"))
+head(counts)
+counts <- as.matrix(counts)
 ```
 
 Coordinate data management
 
+- separately 'managing' `samples` and `counts` is error-prone, e.g. subset
+  `samples` but not `counts`, and the association of sample rows and count
+  columns is distrupted.
+
 ```{r, message=FALSE}
 library(SummarizedExperiment)
-counts <- as.matrix(counts)
+SummarizedExperiment()
+```
+
+An 'S4' object for coordinating 'assay' matrices with row and column annotations
+
+```{r}
 se <- SummarizedExperiment(
     assays = list(counts = counts),
     colData = samples
 )
 ```
 
-Matrix-like 'interface' and accessors
+Classes allow the developer to make data access easy
+
+- e.g., matrix-like 'interface'
+- Accessors, so internal representation can be chosen for efficiency while
+  user interface remains easy to use
+
+```{r}
+se$dex
+se[, se$dex == "trt"]
+```
 
 Data manipulation, e.g., non-zero rows
 
@@ -102,7 +125,36 @@ se[idx,]
 
 Simple visualize
 
+```{r}
+dotplot(colSums(assay(se)))
+```
+
+```{r}
+expr <- rowSums(assay(se))
+plot(density(expr[expr > 0]))
+```
+
 # Tidy data and the tidyverse
+
+Not 'better', but different
+
+Challenges in base R and formal objects
+
+- Many different types -- vector, data.frame, matrix, SummarizedExperiment --
+  all with different operations
+- Each function is somehow different, e.g., `[` applied to a matrix usually (!)
+  returns a matrix, whereas `rowSums()` returns a vector
+
+'tidy' analysis
+
+- Consistent representation of data -- data.frame
+- Consistent methods
+
+  - First argument is always 'the data',
+  - Tidy functions are always 'endomorphisms' -- the class of the input data is
+    the same as the class of the result
+  - Only a few standard 'verbs' -- `filter()`, `select()`, `group_by()`,
+    `count()`, `summarize()`, `mutate()`, ...
 
 ```{r, message = FALSE}
 library(dplyr)
@@ -110,6 +162,26 @@ library(tibble)
 ```
 
 The pipe, `%>%`
+
+- Base R: reasoning 'inside out'
+
+    ```{r}
+    x <- runif(10, 1, 5)
+    log(ceiling(x))
+    ```
+
+- Procedural R
+
+    ```
+    x1 <- ceiling(x)
+    log(x1)
+    ```
+
+- Tidy R -- use `%>%` so that operations read left-to-right
+
+    ```
+    x %>% ceiling() %>% log()
+    ```
 
 Data representation
 
@@ -138,24 +210,58 @@ Data representation
     count
     ```
 
-Endomorphism
+Endomorphism: tibble in, tibble out
+
+```{r}
+cars <- rownames_to_column(mtcars, "make") %>%
+    as_tibble()
+cars %>% filter(cyl >= 6)
+cars %>% select(make, mpg, cyl, disp)
+```
+
+Generally, playing well with other packages in the 'tidyverse'
+
+```{r setup, message=FALSE}
+library(ggplot2)
+```
+
+```{r}
+cars %>% ggplot(aes(x = factor(cyl), y = mpg)) + geom_boxplot()
+```
 
 # Data base
 
 ## Data base representation
 
+Create a sqlite data base
+
 ```{r setup, message = FALSE}
 library(RSQLite)
 airway_db <- file.path(dir, "airway.sqlite")
 con <- dbConnect(SQLite(), airway_db)
+```
+
+Add a sample table
+
+```{r}
 sample <- tibble::rownames_to_column(
     as.data.frame(colData(se)),
     var="Accession"
 )
 dbWriteTable(con, "sample", sample)
+```
+
+Add a count table, in 'tidy' form
+
+```{r}
 count <- reshape::melt(assay(se), c("Feature", "Accession"))
 colnames(count)[3] = "Count"
 dbWriteTable(con, "count", count)
+```
+
+Extract data using SQL statements
+
+```{r}
 dbListTables(con)
 dbGetQuery(con, "SELECT * FROM Sample;")
 dbGetQuery(con, "SELECT Accession, cell, dex FROM Sample;")
@@ -163,19 +269,38 @@ dbGetQuery(con, "SELECT * FROM Count LIMIT 3;")
 dbDisconnect(con)
 ```
 
+## dbplyr
+
+Open data base
+
 ```{r, message = FALSE}
 library(dplyr)
 library(dbplyr)
-
 src <- src_sqlite(airway_db)
+src
+```
+
+Manipulations on "Sample" table -- standard verbs, plus `collect()`
+
+```{r}
 tbl(src, "Sample")
 tbl(src, "Sample") %>% select(Accession, cell, dex)
 tbl(src, "Sample") %>% filter(dex == "trt") %>% collect()
+```
+
+Manipulations on "Count" table
+
+```{r}
 tbl(src, "Count")
 tbl(src, "Count") %>%
     group_by(Accession) %>%
     summarize(library_size = SUM(Count)) %>%
     collect()
+```
+
+Relations between tables
+
+```{r}
 left_join(tbl(src, "Count"), tbl(src, "Sample"))
 left_join(
     tbl(src, "Count"),
@@ -185,22 +310,30 @@ left_join(
 
 Library size
 
-```{r}
-tbl(src, "Count") %>%
-    group_by(Accession) %>%
-    summarize(library_size = SUM(Count))
-```
+- Find column (Accession) counts
 
-Filter features with 0 counts?
+    ```{r}
+    tbl(src, "Count") %>%
+        group_by(Accession) %>%
+        summarize(library_size = SUM(Count))
+    ```
 
-```{r}
-keep <- tbl(src, "Count") %>%
-    group_by(Feature) %>%
-    summarize(row_sum = SUM(Count)) %>%
-    filter(row_sum > 0) %>%
-    select(Feature)
-left_join(keep, tbl(src, "Count"))
-```
+Filter rows with non-zero counts
+
+- Rows with non-zero counts
+
+    ```{r}
+    keep <- tbl(src, "Count") %>%
+        group_by(Feature) %>%
+        summarize(row_sum = SUM(Count)) %>%
+        filter(row_sum > 0) %>%
+        select(Feature)
+    ```
+- `left_join()` to keep only these rows
+
+    ```{r}
+    left_join(keep, tbl(src, "Count"))
+    ```
 
 ## Aside: SRAdb
 
@@ -221,16 +354,56 @@ tbl(src, "study") %>%
 
 # Other on-disk or remote representations
 
+Data bases are appropriate for 'relational' data.
+
+The 'big' part of scientific data is often not relational
+
+- E.g., an expression _matrix_
+
+Access patterns for databases adn scientific data often differ.
+
+- database: query
+- scientific data: process all data
+
+Strategy for processing data: iterate through the file
+
+- In python, other languages: iterate one record (e.g., sample) at a time.
+- In R: iterate in chunks to allow vector processing.
+
 ## hdf5
 
 ```{r setup, message = FALSE}
 library(rhdf5)
 ```
 
+Fast 'block-wise' access
+
 ## TENxBrainData
 
 ```{r setup, message = FALSE}
 library(TENxBrainData)
+tenx <- TENxBrainData()
+```
+
+Illusions...
+
+```{r}
+log(assay(tenx))
+```
+
+Subset
+
+```{r}
+tenx_subset <- tenx[, sample(ncol(tenx), 200)]
+count < as.matrix(assay(tenx_subset))
+dotplot(colSums(count))
+hist(log(1 + rowSums(count)))
+```
+
+Actually, though, chunk-wise data processing is transparent
+
+```{r}
+dotplot(colSums(assay(tenx_subset)))
 ```
 
 ## restfulSE
