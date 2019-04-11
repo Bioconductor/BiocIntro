@@ -68,7 +68,7 @@ Processing
 We'll set up some data to use (pay no attention to this!)
 
 ```{r setup-airway, message=FALSE}
-dir <- "~/extdata"
+dir <- tempdir()
 if (!dir.exists(dir))
     dir.create(dir)
 library(airway)
@@ -418,7 +418,25 @@ dotchart(
 
 ## restfulSE
 
-# Session info {.unnumbered}
+# End matter
+
+## Acknowledgements
+
+A portion of this work is supported by the Chan Zuckerberg Initiative
+DAF, an advised fund of Silicon Valley Community Foundation.
+
+Research reported in this presentation was supported by the NHGRI and
+NCI of the National Institutes of Health under award numbers
+U41HG004059, U24CA180996, and U24CA232979. The content is solely the
+responsibility of the authors and does not necessarily represent the
+official views of the National Institutes of Health.
+
+This work was performed on behalf of the SOUND Consortium and funded
+under the EU H2020 Personalizing Health and Care Program, Action
+contract number 633974.
+
+
+## Session info {.unnumbered}
 
 ```{r sessionInfo, echo=FALSE}
 sessionInfo()
