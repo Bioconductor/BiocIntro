@@ -67,8 +67,10 @@ Processing
 
 We'll set up some data to use (pay no attention to this!)
 
-```{r setup, message=FALSE}
+```{r setup-airway, message=FALSE}
 dir <- "~/extdata"
+if (!dir.exists(dir))
+    dir.create(dir)
 library(airway)
 data(airway)
 write.table(colData(airway), file.path(dir, "samples.csv"))
@@ -103,6 +105,7 @@ se <- SummarizedExperiment(
     assays = list(counts = counts),
     colData = samples
 )
+se
 ```
 
 Classes allow the developer to make data access easy
@@ -126,12 +129,12 @@ se[idx,]
 Simple visualize
 
 ```{r}
-dotplot(colSums(assay(se)))
+dotchart(colSums(assay(se)), xlab = "Library size")
 ```
 
 ```{r}
 expr <- rowSums(assay(se))
-plot(density(expr[expr > 0]))
+plot(density(log(expr[expr > 0])), ylab = "log expression")
 ```
 
 # Tidy data and the tidyverse
@@ -221,7 +224,7 @@ cars %>% select(make, mpg, cyl, disp)
 
 Generally, playing well with other packages in the 'tidyverse'
 
-```{r setup, message=FALSE}
+```{r setup-ggplot2, message=FALSE}
 library(ggplot2)
 ```
 
@@ -235,7 +238,7 @@ cars %>% ggplot(aes(x = factor(cyl), y = mpg)) + geom_boxplot()
 
 Create a sqlite data base
 
-```{r setup, message = FALSE}
+```{r setup-RSQLite, message = FALSE}
 library(RSQLite)
 airway_db <- file.path(dir, "airway.sqlite")
 con <- dbConnect(SQLite(), airway_db)
@@ -337,10 +340,11 @@ Filter rows with non-zero counts
 
 ## Aside: SRAdb
 
-```{r setup)
-if (nrow(bfcquery(query="SRAdb", fields = "rname") == 0L) {
+```{r setup-SRAdb)
+library(BiocFileCache)
+if (nrow(bfcquery(query="SRAdb", field = "rname")) == 0L) {
     fl <- SRAdb::getSRAdbFile(tempdir())
-    BiocFileCache::bfcadd(rname = "SRAdb", fpath = fl, action = "move")
+    bfcadd(rname = "SRAdb", fpath = fl, action = "move")
 }
 ```
 
@@ -372,7 +376,7 @@ Strategy for processing data: iterate through the file
 
 ## hdf5
 
-```{r setup, message = FALSE}
+```{r setup-rhdf5, message = FALSE}
 library(rhdf5)
 ```
 
@@ -380,7 +384,7 @@ Fast 'block-wise' access
 
 ## TENxBrainData
 
-```{r setup, message = FALSE}
+```{r setup-TENxBrainData, message = FALSE}
 library(TENxBrainData)
 tenx <- TENxBrainData()
 ```
@@ -396,14 +400,14 @@ Subset
 ```{r}
 tenx_subset <- tenx[, sample(ncol(tenx), 200)]
 count < as.matrix(assay(tenx_subset))
-dotplot(colSums(count))
+dotchart(colSums(count), xlab = "Library size")
 hist(log(1 + rowSums(count)))
 ```
 
 Actually, though, chunk-wise data processing is transparent
 
 ```{r}
-dotplot(colSums(assay(tenx_subset)))
+dotchart(colSums(assay(tenx_subset)), xlab = "Library size")
 ```
 
 ## restfulSE
