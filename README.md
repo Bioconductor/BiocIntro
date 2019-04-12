@@ -4,7 +4,7 @@
 
 Recent courses:
 
-- [UB-CDSE-Apr-2019][] - 2 hour tour of exploring large (cancer-related) data sets.
+- UB-CDSE-Apr-2019 -- vignette [html][html] [Rmd][rmd] - 2 hour tour of exploring large (cancer-related) data sets.
 - [NURDS-Apr-2019][] - 2 hour Developing robust and efficient code.
 - [BiocAsia-2018][] - 2 two-hour sessions on Annotation resources and package development.
 - [RPCI-Epigenome-Sept-2018][] - 1/2 day tour of _Bioconductor_ packages for epigenomics.
@@ -20,6 +20,8 @@ Recent courses:
 - [Technion-2016][] -- 3 three-hour sessions introducing
   _Bioconductor_ (and _R_).
 
+[html]: 
+[rmd]: https://github.com/Bioconductor/BiocIntro/blob/UB-CDSE-Apr-2019/vignettes/CDSE2019.Rmd
 [UB-CDSE-Apr-2019]: https://github.com/Bioconductor/BiocIntro/blob/UB-CDSE-Apr-2019/README.md
 [NURDS-Apr-2019]: https://github.com/Bioconductor/BiocIntro/blob/NURDS-Apr-2019/README.md
 [BiocAsia-2018]: https://github.com/Bioconductor/BiocIntro/blob/BiocAsia-2017/README.md
