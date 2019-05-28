@@ -26,9 +26,11 @@ knitr::opts_chunk$set(
 options(width = 75)
 ```
 
-# Overview
+# _R_ / _Bioconductor_ for Everyone
 
-## Description
+## Overview
+
+### Description
 
 This workshop is intended for those with little or no experience using
 _R_ or _Bioconductor_. In the first portion of the workshop, we will
@@ -43,7 +45,7 @@ which _Bioconductor_ represents genomic data. The workshop will
 primarily be instructor-led live demos, with participants following
 along in their own _RStudio_ sessions.
 
-## Pre-requisites
+### Pre-requisites
 
 This workshop is meant to be introductory, and has no pre-requisites.
 
@@ -53,12 +55,12 @@ elementary instructions for using _R_, such as the
 
 [introductory course]: https://www.datacamp.com/courses/free-introduction-to-r
 
-## Participation
+### Participation
 
 Participants will use _RStudio_ interactively as the instructor moves
 carefully through short examples of _R_ and _Bioconductor_ code.
 
-## _R_ / _Bioconductor_ packages used
+### _R_ / _Bioconductor_ packages used
 
 - Base _R_ packages, e.g., `stats`, `graphics`; [ggplot2][]
 - Essential _Bioconductor_ packages, e.g., [rtracklayer][], [GenomicRanges][], [SummarizedExperiment][]
@@ -68,7 +70,7 @@ carefully through short examples of _R_ and _Bioconductor_ code.
 [rtracklayer]: https://bioconductor.org/packages/rtracklayer
 [SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
 
-## Time outline
+### Time outline
 
 | Activity                         | Time |
 |:---------------------------------|:-----|
@@ -83,9 +85,9 @@ carefully through short examples of _R_ and _Bioconductor_ code.
 | - Discovering and using packages |      |
 | - Working with objects           |      |
 
-## Workshop goals and objectives
+### Workshop goals and objectives
 
-## Learning goals
+### Learning goals
 
 Part 1: _R_
 
@@ -100,7 +102,7 @@ Part 2: _Bioconductor_
 - Import and manipulate genomic files and _Bioconductor_ data objects.
 - Start an RNA-seq differential expression work flow.
 
-## Learning objectives
+### Learning objectives
 
 Part 1: _R_
 
@@ -124,13 +126,13 @@ Part 2: _Bioconductor_
 
 [DESeq2]: https://bioconductor.org/packages/DESeq2
 
-# Introduction to _R_
+## Introduction to _R_
 
-## _RStudio_ orientation
+### _RStudio_ orientation
 
-![](./RStudio.png)
+`r knitr::include_graphics(system.file(package='BiocIntro', 'vignettes', 'RStudio.png'))`
 
-## Very basics
+### Very basics
 
 _R_ works by typing into the console. A very simple example is to add the numbers 1 and 2.
 
@@ -171,7 +173,7 @@ y <- log(x)
 y
 ```
 
-## Data input and manipulation
+### Data input and manipulation
 
 **Read data files into _R_ `data.frame` objects**. We start by reading a simple file into _R_. The file is a 'csv' (comma-separated value) file that could have been exported from a spreadsheet. The first few lines of the file include:
 
@@ -201,7 +203,7 @@ fname
 ```
 
 ```{r, echo = FALSE}
-fname <- "./ALL-phenoData.csv"
+fname <- system.file(package="BiocIntro", "vignettes", "ALL-phenoData.csv")
 ```
 
 Confirm that the file exists using the `file.exists()` command.
@@ -381,9 +383,9 @@ t.test(age ~ mol.biol, bcrabl)
 
 It might be surprising that the `df` (degrees of freedom) are not a round number, but 68.592. This is because by default _R_ performs a t-test that allows for variances to differ between groups. Consult the `?t.test` help page to figure out to perform a simpler form of the t-test, where variances are equal.
 
-## Writing _R_ scripts
+### Writing _R_ scripts
 
-## Using packages
+### Using packages
 
 _R_ functions are made available in _packages_. All the functions that we have used so far are implemented in packages that are distributed with _R_. There are actually more than 15,000 _R_ packages available for a wide variety of purposes. The general challenge we explore here is how to discover, install, and use one of these packages.
 
@@ -402,7 +404,7 @@ The large number of _R_ packages can make finding the 'best' packages for a part
 One useful packages have been identified, they need to be installed into _R_. This only needs to be done once per _R_ installation. The following installs the [ggplot2][] and [tibble][] packages; you DO NOT need to do this command because [ggplot2][] is already installed on your AMI.
 
 ```{r, eval = FALSE}
-## No need to do this...
+### No need to do this...
 install.packages(c("ggplot2", "tibble"))
 ```
 
@@ -432,13 +434,13 @@ Use `xlab()` and `ylab()` to enhance the plot with more meaning x and y labels; 
 
 The grammar of graphics implemented by [ggplot2][] is a very powerful and expressive system for producing appealing visualizations, and is widely used in the _R_ community.
 
-# Introduction to _Bioconductor_
+## Introduction to _Bioconductor_
 
 _Bioconductor_ is a collection of more than 1,500 packages for the statistical analysis and comprehension of high-throughput genomic data. Originally developed for microarrays, _Bioconductor_ packages are now used in a wide range of analyses, including bulk and single-cell RNA-seq, ChIP seq, copy number analysis, microarray methylation and classic expression analysis, flow cytometry, and many other domains. 
 
 This section of the workshop introduces the essential of _Bioconductor_ package discovery, installation, and use.
 
-## Discovering, installing, and learning how to use _Bioconductor_ packages
+### Discovering, installing, and learning how to use _Bioconductor_ packages
 
 **Discovery**
 
@@ -506,7 +508,7 @@ Users can get support on using packages at https://support.bioconductor.org, a q
 [work flows]: https://bioconductor.org/packages/release/BiocViews.html#___Workflow
 [course material]: https://bioconductor.org/help/course-materials
 
-## Working with Genomic Ranges
+### Working with Genomic Ranges
 
 This section introduces two useful packages for general-purpose work on genomic coordinates. The [rtracklayer][] package provides the `import()` function to read many types of genomic files (e.g., BED, GTF, VCF, FASTA) into _Bioconductor_ objects. The [GenomicRanges][] package provides functions for manipulating genomic ranges, i.e., descriptions of exons, genes, ChIP peaks, called variants, ... as coordinates in genome space.
 
@@ -539,7 +541,9 @@ fname <- file.choose()   # CpGislands.Hsapiens.hg38.UCSC.bed
 ```
 
 ```{r, echo = FALSE}
-fname <- "./CpGislands.Hsapiens.hg38.UCSC.bed"
+fname <- system.file(
+    package = "BiocIntro", "vignettes", "CpGislands.Hsapiens.hg38.UCSC.bed"
+)
 ```
 
 ```{r}
@@ -634,11 +638,11 @@ subset(tx, cpgOverlaps > 10)
 
 Can you think of other situations where one might calculate derived values and couple these with `GRanges` or similar objects?
 
-## Working with summarized experimental data
+### Working with summarized experimental data
 
 This section introduces another broadly useful package and data structure, the [SummarizedExperiment][] package and `SummarizedExperiment` object. 
 
-![](./SummarizedExperiment.png)
+`r knitr::include_graphics(system.file(package='BiocIntro', 'vignettes', 'SummarizedExperiment.png'))`
 
 The `SummarizedExperiment` object has matrix-like properties -- it has two dimensions and can be subset by 'rows' and 'columns'. The `assay()` data of a `SummarizedExperiment` experiment contains one or more matrix-like objects where rows represent features of interest (e.g., genes), columns represent samples, and elements of the matrix represent results of a genomic assay (e.g., counts of reads overlaps genes in each sample of an bulk RNA-seq differential expression assay.
 
@@ -652,7 +656,7 @@ fname
 ```
 
 ```{r, echo=FALSE}
-fname <- "./airway_colData.csv"
+fname <- system.file(package = "BiocIntro", "vignettes", "airway_colData.csv")
 ```
 We want the first column the the data to be treated as row names (sample identifiers) in the `data.frame`, so `read.csv()` has an extra argument to indicate this.
 
@@ -678,7 +682,7 @@ fname
 ```
 
 ```{r, echo=FALSE}
-fname <- "./airway_counts.csv"
+fname <- system.file(package="BiocIntro", "vignettes", "airway_counts.csv")
 ```
 
 ```{r}
@@ -738,7 +742,7 @@ se$lib.size <- colSums(assay(se))
 colData(se)
 ```
 
-## Down-stream analysis
+### Down-stream analysis
 
 In this final section we quickly hint at down-stream analysis, and the way in which skills learned in working with _Bioconductor_ objects in one package translate to working with objects in other packages.
 
@@ -769,4 +773,4 @@ A table summarizing measures of differential expression can be extracted from th
 results(dds)
 ```
 
-# Summary
+## Summary
