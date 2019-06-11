@@ -1,12 +1,14 @@
 Package: BiocIntro
 Type: Package
 Title: Training Material for Introductory R Courses
-Version: 0.0.7.2
+Version: 0.0.7.3
 Authors@R: c(
     person("Martin", "Morgan", role=c("aut", "cre"),
         email="martin.morgan@roswellpark.org"))
 Description: Vignettes and resources to support introductory R
     training courses.
-Suggests: BiocStyle, knitr
+Suggests: BiocStyle, knitr, BiocManager, DESeq2, GenomicRanges,
+     SummarizedExperiment, TxDb.Hsapiens.UCSC.hg38.knownGene, ggplot2,
+     rtracklayer
 License: Artistic-2.0
 VignetteBuilder: knitr
