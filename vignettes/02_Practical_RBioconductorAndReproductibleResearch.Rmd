@@ -1,0 +1,39 @@
+---
+title: "Practical: R / Bioconductor and Reproducible Research"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Comprehensive Cancer Center
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+  %\VignetteIndexEntry{02: Practical: R / Bioconductor and Reproducible Research}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: true
+---
+
+Last modified: 23 June, 2019
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+options(width = 75)
+```
+
+# Start a your own markdown document
+
+# Use base _R_ commands for data manipulation
+
+# Tidy data!
+
+# Bioconductor objects
+
+# Provenance
+
+```{r}
+sessionInfo()
+```

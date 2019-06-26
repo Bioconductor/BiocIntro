@@ -1,0 +1,86 @@
+---
+title: "Core approaches in _Bioconductor_"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Comprehensive Cancer Center
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+  %\VignetteIndexEntry{03: Core approaches in Bioconductor}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: true
+---
+
+Last modified: 23 June, 2019
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+options(width = 75)
+```
+
+# S4 Objects
+
+Why?
+
+- Interoperability
+- Robustness
+
+What?
+
+- _Interface_ (what you want to know about) and _implementation_ (what
+  you don't want to know about!)
+  
+```{r, message = FALSE}
+library(Biostrings)
+head( methods(class = "DNAStringSet") )
+methods(generic = "reverseComplement")
+```
+
+- Caveats
+
+# Genomic Ranges
+
+Ranges
+
+```{r, message = FALSE}
+library(IRanges)
+```
+
+Genomic ranges
+
+```{r, message = FALSE}
+library(GenomicRanges)
+```
+
+```{r}, message = FALSE}
+library(rtracklayer)
+```
+
+Genomic features
+
+```{r, message = FALSE}
+library(GenomicFeatures)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+```
+
+# Summarized Experiment
+
+```{r, message = FALSE}
+library(SummarizedExperiment)
+```
+
+```{r, message = FALSE}
+library(MultiAssayExperiment)
+```
+
+# Provenance
+
+```{r}
+sessionInfo()
+```

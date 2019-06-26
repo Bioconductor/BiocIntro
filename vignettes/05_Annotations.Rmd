@@ -1,0 +1,71 @@
+---
+title: "_Bioconductor_ Annotation Resources"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Comprehensive Cancer Center
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+  %\VignetteIndexEntry{05: Bioconductor Annotation Resources}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: true
+---
+
+Last modified: 23 June, 2019
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+options(width = 75)
+```
+
+# Mapping between symbols
+
+```{r, message = FALSE}
+library(org.Hs.eg.db)
+```
+
+Gene sets
+
+```{r, message = FALSE}
+library(GO.db)
+```
+
+# Transcript annotations
+
+```{r, message = FALSE}
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+```
+
+# Accessing online resources
+
+## \Biocpkg{biomaRt}
+
+```{r, message = FALSE}
+library(biomaRt)
+```
+
+## \Biocpkg{KEGGREST}
+
+```{r, message = FALSE}
+library(KEGGREST)
+```
+
+# Solving some common questions
+
+```{r, message = FALSE}
+library(GenomicFeatures)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(BSgenome.Hsapiens.UCSC.hg38)
+```
+
+# Provenance
+
+```{r}
+sessionInfo()
+```

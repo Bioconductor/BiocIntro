@@ -1,0 +1,54 @@
+---
+title: "Practical: Core Approaches in _Bioconductor_"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Comprehensive Cancer Center
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+  %\VignetteIndexEntry{04: Practical: Core Approaches in Bioconductor}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: true
+---
+
+Last modified: 23 June, 2019
+
+```{r style, echo = FALSE, results = 'asis'}
+knitr::opts_chunk$set(
+    eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
+    cache=as.logical(Sys.getenv("KNITR_CACHE", "TRUE"))
+)
+options(width = 75)
+```
+
+# Answering useful questions with \Biocpkg{GenomicRanges}
+
+```{r, message = FALSE}
+library(GenomicRanges)
+library(GenomicAlignments)
+library(rtracklayer)
+```
+
+# Organizing data with \Biocpkg{SummarizedExperiment}
+
+```{r, message = FALSE}
+library(SummarizedExperiment)
+library(DESeq2)
+library(SingleCellExperiment)
+```
+
+# Integrative analysis with \Biocpkg{MultiAssayExperiment}
+
+```{r, message = FALSE}
+library(MultiAssayExperiment)
+library(curatedTCGAData)
+```
+
+# Provenance
+
+```{r}
+sessionInfo()
+```
