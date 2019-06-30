@@ -26,11 +26,80 @@ options(width = 75)
 
 # Mapping between symbols
 
+## [org.Hs.eg.db][]
+
+The `org` packages contain information to map between different symbols. Here check for available `org` packages.
+
+```{r}
+BiocManager::available("^org\\.")
+```
+
+The regular expression `"^org\\.")` insists that the package names
+starts with `org` (`"^org"`) followed by a literal period rather than
+a wild-card representing any letter (`"\\."`).
+
+In addition to these packages, many `org` resources are available from [AnnotationHub][], described below
+
+```{r, message = FALSE}
+library(AnnotationHub)
+```
+```{r}
+query(AnnotationHub(), "^org\\.")
+```
+
+The naming convention of `org` objects uses a two-letter code to
+represent species, e.g., `Hs` is _Homo sapiens_ followed by the
+_central_ identifier used to map to and from other symbols; for
+`org.Hs.eg.db`, the central identifier is the Entrez gene identifier,
+and to map from, say HGNC Symbol to Ensembl identifier, a map must
+exist between the gene symbol and the Entrez identifier, and then from
+the Entrez identifier to the Ensembl identifier.
+
+Many additional `org` packages are available on [AnnotationHub][], as
+mentioned briefly below.
+
 ```{r, message = FALSE}
 library(org.Hs.eg.db)
 ```
 
-Gene sets
+We can discover available `keytypes()` for querying the database, and
+`columns()` to map to, e.g.,
+
+```{r}
+head(keys(org.Hs.eg.db))
+```
+
+Here are a handful of ENTREZID keys
+
+```{r}
+eid <- sample(keys(org.Hs.eg.db), 10)
+```
+
+Two main functions are `select()` and `mapIds()`. `mapIds()` is more
+focused. It guarantees a one-to-one mapping between keys a single
+selected column. By defaul, if a key maps to multiple values, then the
+'first' value returned by the database is used. The return value is a
+named vector; the 1:1 mapping between query and return value makes
+this function particularly useful in pipelines where a single mapping
+must occur.
+
+```{r}
+mapIds(org.Hs.eg.db, eid, "SYMBOL", "ENTREZID")
+```
+
+`select()` is more general, returning a data.frame of keys, plus one
+or more columns. If a key maps to multiple values, then multiple rows
+are returned.
+
+```{r}
+map <- select(org.Hs.eg.db, eid, c("SYMBOL", "GO"), "ENTREZID")
+dim(map)
+head(map)
+```
+
+## [GO.db][]
+
+[GO.db][]
 
 ```{r, message = FALSE}
 library(GO.db)
@@ -38,30 +107,220 @@ library(GO.db)
 
 # Transcript annotations
 
+## [TxDb.Hsapiens.UCSC.hg38.knownGene][]
+
+`TxDb` packages contain information about gene models (exon, gene,
+transcript coordinates). There are a number of `TxDb` packages
+available to install
+
+```{r}
+BiocManager::available("^TxDb") %>%
+    tibble::enframe(name = NULL)
+```
+
+and to download from [AnnotationHub][]
+
+```{r}
+query(AnnotationHub(), "^TxDb\\.")
+```
+
+Here we load the `TxDb` object containing gene models for _Homo
+sapiens_ using annotations provided by UCSC for the hg38 genome build,
+using the `knownGene` annotation track.
+
 ```{r, message = FALSE}
 library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 ```
 
+## `exons()`, `transcripts()`, `genes()`
+
+The coordinates of annotated exons can be extracted as a `GRanges` object
+
+```{r}
+exons(TxDb.Hsapiens.UCSC.hg38.knownGene)
+```
+
+Additional information is also present in the database, for instance
+the GENEID (Entrez gene id for these TxDb)
+
+```{r}
+ex <- exons(TxDb.Hsapiens.UCSC.hg38.knownGene, columns = "GENEID")
+ex
+```
+
+Note that the object reports "595 sequences"; this is because the
+exons include both standard chromosomes and partially assembled
+contigs. Use `keepStandardChromosomes()` to update the object to
+contain only exons found on the 'standard' chromomes; the
+`pruning.mode=` argument determines whether sequence names that are
+'in use' (have exons associated with them) can be dropped.
+
+```{r}
+std_ex <- keepStandardChromosomes(ex, pruning.mode="coarse")
+std_ex
+```
+
+It is then possible to ask all sorts of question, e.g., the number of
+exons on each chromosome
+
+```{r}
+table(seqnames(std_ex))
+```
+
+or the identity the exons with more than 10000 nucleotides.
+
+```{r}
+std_ex[width(std_ex) > 10000]
+```
+
+and of course more scientifically relevant questions.
+
+## `exonsBy()`, `transcriptsBy()`, etc
+
+## [ensembldb][]
+
+The [ensembldb][] package provides access to similar, but more rich,
+information from Ensembl, with most data resources available via
+[AnnotationHub][]; the AnnotationHub query asks for records that
+include both `EnsDb` and a particular Ensembl release.
+
+```{r, message = FALSE}
+library(ensembldb)
+```
+```{r}
+query(AnnotationHub(), c("^EnsDb\\.", "Ensembl 96"))
+```
+
 # Accessing online resources
 
-## \Biocpkg{biomaRt}
+## [biomaRt][]
 
 ```{r, message = FALSE}
 library(biomaRt)
 ```
 
-## \Biocpkg{KEGGREST}
+## [KEGGREST][]
 
 ```{r, message = FALSE}
 library(KEGGREST)
 ```
 
-# Solving some common questions
+## [AnnotationHub][]
+
+[AnnotationHub][] provides a resource of annotations that are
+available without requiring an annotation package.
 
 ```{r, message = FALSE}
-library(GenomicFeatures)
-library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-library(BSgenome.Hsapiens.UCSC.hg38)
+library(AnnotationHub)
+ah <- AnnotationHub()
+```
+
+One example of such annotations are `org`-style data resources for
+less-model organisms. Discover available resources using the flexible
+`query()` command.
+
+```{r}
+query(ah, "^org\\.")
+```
+
+Find out more about a particular resource using `[` to select just
+that resource, or use `mcols()` on a subset of resources.  identifier,
+e.g.,
+
+```{r}
+ah["AH70563"]
+```
+
+Retrieve and use a resource by using `[[` with the corresponding
+
+```{r}
+org <- ah[["AH70563"]]
+org
+```
+
+Determine the central key, and the columns that can be mapped between
+
+```{r}
+chooseCentralOrgPkgSymbol(org)
+columns(org)
+```
+
+Here are some Entrez identifiers, and their corresponding symbols for
+_Anopheles gambiae_, either allowing for 1:many maps (`select()`) or
+enforcing 1:1 maps. We use `AnnotationDbi::select()` to disambiguate
+between the `select()` generic defined in `AnnotationDbi` and the
+`select()` generic defined in `dplyr`: theses methods have
+incompatible signatures and 'contracts', and so must be invoked in a
+way that resolves our intention explicitly.
+
+```{r, message = FALSE}
+library(dplyr)    # for `%>%`
+```
+
+```{r}
+eid <- head(keys(org))
+AnnotationDbi::select(org, eid, "SYMBOL", "ENTREZID")
+eid %>%
+    mapIds(x = org, "SYMBOL", "ENTREZID") %>%
+    tibble::enframe("ENTREZID", "SYMBOL")
+```
+
+## [ExperimentHub][]
+
+[ExperimentHub][] is analogous to [AnnotationHub][], but contains
+curated experimental results. Increasingly, [ExperimentHub][] packages
+are provided to document and ease access to these resources. A great
+example of an [ExperimentHub][] package is [curatedTCGAData][].
+
+```{r, message = FALSE}
+library(ExperimentHub)
+library(curatedTCGAData)
+```
+
+The [curatedTCGAData][] package provides an interface to a collection
+of resources available through ExperimentHub. The interface is
+straigth-forward. Use `curatedTCGAData()` to discover available types
+of data, choosing assay types after identifying cancer types.
+
+```{r}
+curatedTCGAData()
+curatedTCGAData("BRCA")
+curatedTCGAData("BRCA", c("RNASeqGene", "CNVSNP"))
+```
+
+Adding `dry.run = FALSE` triggers the actual download (first time
+only) of the data from ExperimentHub, and presentation to the user as
+a `MultiAssayExperiment`.
+
+```{r}
+mae <- curatedTCGAData("BRCA", c("RNASeqGene", "CNVSNP"), dry.run=FALSE)
+mae
+```
+
+It is then easy to work with these data, via individual assays or in a
+more integrative analysis. For example, the distribution of library
+sizes in the RNASeq data can be visualized with.
+
+```{r}
+mae[["BRCA_RNASeqGene-20160128"]] %>%
+    assay() %>%
+    colSums() %>%
+    density() %>%
+    plot(main = "TCGA BRCA RNASeq Library Size")
+```
+
+# Annotating variants
+
+## [VariantAnnotation][]
+
+```{r, message = FALSE}
+library(VariantAnnotation)
+```
+
+## [ensemblVEP][]
+
+```{r, message = FALSE}
+library(ensemblVEP)
 ```
 
 # Provenance
@@ -69,3 +328,15 @@ library(BSgenome.Hsapiens.UCSC.hg38)
 ```{r}
 sessionInfo()
 ```
+
+[org.Hs.eg.db]: https://bioconductor.org/packages/org.Hs.eg.db
+[GO.db]: https://bioconductor.org/packages/GO.db
+[GSEABase]: https://bioconductor.org/packages/GSEABase
+[TxDb.Hsapiens.UCSC.hg38.knownGene]: https://bioconductor.org/packages/TxDb.Hsapiens.UCSC.hg38.knownGene
+[biomaRt]: https://bioconductor.org/packages/biomaRt
+[KEGGREST]: https://bioconductor.org/packages/KEGGREST
+[VariantAnnotation]: https://bioconductor.org/packages/VariantAnnotation
+[ensemblVEP]: https://bioconductor.org/packages/ensemblVEP
+[ensembldb]: https:/bioconductor.org/packages/ensembldb
+[AnnotationHub]: https:/bioconductor.org/packages/AnnotationHub
+[ExperimentHub]: https:/bioconductor.org/packages/ExperimentHub

@@ -153,6 +153,27 @@ chr14 <- as(seqinfo(rowRanges(airway)), "GRanges")["14"]
 airway[airway %over% chr14,]
 ```
 
+The object allows very easy access to the assay, for instance to
+determine library size (total number of mapped reads in each sample)
+
+```{r}
+colSums(assay(airway))
+```
+
+and average log count number across genes with non-zero counts
+
+```{r, message=FALSE}
+library(ggplot2)
+```
+
+```{r}
+ridx <- rowSums(assay(airway)) > 0
+se <- airway[ridx,]
+ave_log_expr <- rowMeans(log(1 + assay(se)))
+tbl <- tibble::enframe(ave_log_expr, "gene", "ave_log_expr")
+ggplot(tbl, aes(ave_log_expr)) + geom_density()
+```
+
 # From files to _Bioconductor_ objects
 
 ## BED, GFF, GTF, WIG import and export
@@ -305,57 +326,6 @@ airway[airway %over% chr14,]
 - `locateVariants()`: annotate in relation to genes, etc; see also
   [ensemblVEP][], [VariantFiltering][]
 - `filterVcf()`: flexible filtering
-
-# [SummarizedExperiment][]
-
-```{r, message = FALSE}
-library(SummarizedExperiment)
-```
-
-```{r, eval = FALSE}
-pdata_file <- file.choos()    # airway-sample-sheet.csv
-counts_file <- file.choose()  # airway-read-counts.csv
-```
-```{r, echo = FALSE}
-pdata_file <-
-    system.file(package="BiocIntro", "extdata", "airway-sample-sheet.csv")
-counts_file <-
-    system.file(package="BiocIntro", "extdata", "airway-read-counts.csv")
-```
-
-Base _R_ `read.csv()`, so that specific columns can be treated as row names.
-
-```{r}
-pdata <- read.csv(pdata_file, row.names = "Run", stringsAsFactors = FALSE)
-counts <- read.csv(counts_file, row.names = "Run")
-```
-
-Assemble `SummarizedExperiment` from transposed `counts` and `pdata`
-
-```{r}
-se <- SummarizedExperiment(t(counts), colData = pdata)
-se
-```
-
-`SummarizedExperiment` does the book-keeping
-
-```{r}
-lib_size <- colSums(assay(se))
-lib_size
-```
-
-```{r, message=FALSE}
-library(ggplot2)
-```
-```{r}
-ave_log_expr <- rowMeans(log(1 + assay(se)))
-tbl <- tibble::enframe(ave_log_expr, "gene", "ave_log_expr")
-ggplot(tbl, aes(ave_log_expr)) + geom_density()
-```
-
-```{r, message = FALSE}
-library(MultiAssayExperiment)
-```
 
 # Provenance
 

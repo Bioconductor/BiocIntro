@@ -127,21 +127,26 @@ counts_file <-
     system.file(package="BiocIntro", "extdata", "airway-read-counts.csv")
 ```
 
-1. Use base _R_ `read.csv()` to import the sample sheet and read
-   counts. Use the argument `row.names=` to specific the `Run` column
-   to be used as row names
+**Exercise** Use base _R_ `read.csv()` to import the sample sheet and
+read counts. Use the argument `row.names=` to specific the `Run`
+column to be used as row names
 
     ```{r}
     pdata <- read.csv(pdata_file, row.names = "Run", stringsAsFactors = FALSE)
     counts <- read.csv(counts_file, row.names = "Run")
     ```
 
-2. Assemble `SummarizedExperiment` from transposed `counts` and `pdata`
+**Exercise** Assemble `SummarizedExperiment` from transposed `counts`
+and `pdata`.
 
     ```{r}
     se <- SummarizedExperiment(t(counts), colData = pdata)
     se
     ```
+
+**Exercise** Following examples from the lectures, calculate total
+library size and plot averge log gene expression from you
+newly-created `SummarizedExperiment`.
 
 # Integrative analysis with [MultiAssayExperiment][]
 
