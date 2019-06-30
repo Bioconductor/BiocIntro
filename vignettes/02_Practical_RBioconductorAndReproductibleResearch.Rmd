@@ -26,9 +26,23 @@ options(width = 75)
 
 # Start a your own markdown document
 
-# Use base _R_ commands for data manipulation
+# Working with data
 
-# Tidy data!
+## Input
+
+```{r}
+fl <- system.file(package="BiocIntro", "extdata", "ALL-sample-sheet.csv")
+```
+
+```{r}
+library(readr)
+library(dplyr)
+pdata <- read_csv(fl)
+```
+
+## Exploration
+
+## Visualization
 
 # Bioconductor objects
 

@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 options(width = 75)
 ```
 
-# Answering useful questions with \Biocpkg{GenomicRanges}
+# Answering useful questions with [GenomicRanges][]
 
 ```{r, message = FALSE}
 library(GenomicRanges)
@@ -32,7 +32,7 @@ library(GenomicAlignments)
 library(rtracklayer)
 ```
 
-# Organizing data with \Biocpkg{SummarizedExperiment}
+# Organizing data with [SummarizedExperiment][]
 
 ```{r, message = FALSE}
 library(SummarizedExperiment)
@@ -40,7 +40,110 @@ library(DESeq2)
 library(SingleCellExperiment)
 ```
 
-# Integrative analysis with \Biocpkg{MultiAssayExperiment}
+## Working with an existing `SummarizedExperiment` object
+
+The [airway][] experiment data package summarizes an RNA-seq
+experiment investigating human smooth-muscle airway cell lines treated
+with dexamethasone. Load the library and data set.
+
+```{r}
+library(airway)
+data(airway)
+airway
+```
+
+`airway` is an example of the _SummarizedExperiment_ class. Explore
+its `assay()` (the matrix of counts of reads overlapping genomic
+regions of interest in each sample), `colData()` (a description of
+each sample), and `rowRanges()` (a description of each region of
+interest; here each region is an ENSEMBL gene).
+
+```{r}
+x <- assay(airway)
+class(x)
+dim(x)
+head(x)
+colData(airway)
+rowRanges(airway)
+```
+
+It's easy to subset a _SummarizedExperiment_ on rows, columns and
+assays, e.g., retaining just those samples in the `trt` level of the
+`dex` factor. Accessing elements of the column data is common, so
+there is a short-cut.
+
+```{r}
+cidx <- colData(airway)$dex %in% "trt"
+airway[, cidx]
+## shortcut
+airway[, airway$dex %in% "trt"]
+```
+
+It's also easy to perform range-based operations on
+`SummarizedExperiment` objects, e.g., querying for range of chromosome
+14 and then subsetting to contain only genes on this chromosome. Range
+operations on rows are very common, so there are shortcuts here, too.
+
+```{r}
+chr14 <- as(seqinfo(rowRanges(airway)), "GRanges")["14"]
+ridx <- rowRanges(airway) %over% chr14
+airway[ridx,]
+## shortcut
+chr14 <- as(seqinfo(airway), "GRanges")["14"]
+airway[airway %over% chr14,]
+```
+
+The matrix of counts is available using the `assay()` accessor
+
+```{r}
+head(assay(airway))
+```
+
+1. Use the `assay()` and `rowSums()` function to remove all rows from
+   the `airway` object that have 0 reads overlapping all
+   samples. Summarize the library size (column sums of `assay()`) and
+   plot a histogram of the distribution of reads per feature of
+   interest.
+
+2. Use `colSums()` to calculate the library size of each sample.
+
+3. If `m` were a matrix, then `1 + m` would return another matrix with
+   1 added to each element, and `log(m)` would return another matrix
+   with log-transformed elements. Use these observations and
+   `rowMeans()` to calculate a vector of average expression values of
+   each gene. Visualize the result using `hist()`, `plot(density())`,
+   or `ggplot2::ggplot() + geom_density()`.
+
+## Constructing a `SummarizedExperiment` object 'by hand'
+
+```{r, eval = FALSE}
+pdata_file <- file.choos()    # airway-sample-sheet.csv
+counts_file <- file.choose()  # airway-read-counts.csv
+```
+```{r, echo = FALSE}
+pdata_file <-
+    system.file(package="BiocIntro", "extdata", "airway-sample-sheet.csv")
+counts_file <-
+    system.file(package="BiocIntro", "extdata", "airway-read-counts.csv")
+```
+
+1. Use base _R_ `read.csv()` to import the sample sheet and read
+   counts. Use the argument `row.names=` to specific the `Run` column
+   to be used as row names
+
+    ```{r}
+    pdata <- read.csv(pdata_file, row.names = "Run", stringsAsFactors = FALSE)
+    counts <- read.csv(counts_file, row.names = "Run")
+    ```
+
+2. Assemble `SummarizedExperiment` from transposed `counts` and `pdata`
+
+    ```{r}
+    se <- SummarizedExperiment(t(counts), colData = pdata)
+    se
+    ```
+
+# Integrative analysis with [MultiAssayExperiment][]
 
 ```{r, message = FALSE}
 library(MultiAssayExperiment)
