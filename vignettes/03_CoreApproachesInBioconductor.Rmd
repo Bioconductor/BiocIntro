@@ -1,5 +1,5 @@
 ---
-title: "Core approaches in _Bioconductor_"
+title: "03: Core approaches in _Bioconductor_"
 author:
 - name: Martin Morgan
   affiliation: Roswell Park Comprehensive Cancer Center
@@ -149,7 +149,7 @@ airway
 colData(airway)
 head(assay(airway))
 airway[, airway$dex %in% "trt"]
-chr14 <- as(seqinfo(airway), "GRanges")["14"]
+chr14 <- as(seqinfo(rowRanges(airway)), "GRanges")["14"]
 airway[airway %over% chr14,]
 ```
 
@@ -306,7 +306,7 @@ airway[airway %over% chr14,]
   [ensemblVEP][], [VariantFiltering][]
 - `filterVcf()`: flexible filtering
 
-# [Summarized Experiment][]
+# [SummarizedExperiment][]
 
 ```{r, message = FALSE}
 library(SummarizedExperiment)
@@ -380,3 +380,4 @@ sessionInfo()
 [airway]: https://bioconductor.org/packages/airway
 [ensemblVEP]: https://bioconductor.org/packages/ensemblVEP
 [rtracklayer]: https://bioconductor.org/packages/rtracklayer
+[HDF5Array]: https://bioconductor.org/packages/HDF5Array

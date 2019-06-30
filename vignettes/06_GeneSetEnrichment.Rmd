@@ -1,5 +1,5 @@
 ---
-title: "Gene Set Enrichment Analysis"
+title: "06: Gene Set Enrichment Analysis"
 author:
 - name: Martin Morgan
   affiliation: Roswell Park Comprehensive Cancer Center

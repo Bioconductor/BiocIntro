@@ -1,5 +1,5 @@
 ---
-title: "Introduction to _R_ and _Bioconductor_"
+title: "01: Introduction to _R_ and _Bioconductor_"
 author:
 - name: Martin Morgan
   affiliation: Roswell Park Comprehensive Cancer Center
@@ -191,6 +191,10 @@ data
 ```
 
 Gathering
+
+```{r, message = FALSE}
+library(tidyr)
+```
 
 ```{r}
 tbl <- gather(data, "Gene", "Count", -(1:3))

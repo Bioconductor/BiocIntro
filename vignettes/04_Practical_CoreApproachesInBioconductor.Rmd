@@ -1,5 +1,5 @@
 ---
-title: "Practical: Core Approaches in _Bioconductor_"
+title: "04: Practical: Core Approaches in _Bioconductor_"
 author:
 - name: Martin Morgan
   affiliation: Roswell Park Comprehensive Cancer Center
@@ -89,7 +89,7 @@ chr14 <- as(seqinfo(rowRanges(airway)), "GRanges")["14"]
 ridx <- rowRanges(airway) %over% chr14
 airway[ridx,]
 ## shortcut
-chr14 <- as(seqinfo(airway), "GRanges")["14"]
+chr14 <- as(seqinfo(rowRanges(airway)), "GRanges")["14"]
 airway[airway %over% chr14,]
 ```
 
@@ -155,3 +155,10 @@ library(curatedTCGAData)
 ```{r}
 sessionInfo()
 ```
+
+[GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
+[SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
+[MultiAssayExperiment]: https://bioconductor.org/packages/MultiAssayExperiment
+[airway]: https://bioconductor.org/packages/airway
+[]: https://bioconductor.org/packages/
+[]: https://bioconductor.org/packages/

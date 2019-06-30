@@ -1,5 +1,5 @@
 ---
-title: "Practical: R / Bioconductor and Reproducible Research"
+title: "02: Practical: R / Bioconductor and Reproducible Research"
 author:
 - name: Martin Morgan
   affiliation: Roswell Park Comprehensive Cancer Center
@@ -14,7 +14,7 @@ output:
     toc: true
 ---
 
-Last modified: 23 June, 2019
+Last modified: 30 June, 2019
 
 ```{r style, echo = FALSE, results = 'asis'}
 knitr::opts_chunk$set(
@@ -24,30 +24,467 @@ knitr::opts_chunk$set(
 options(width = 75)
 ```
 
-# Start a your own markdown document
+# Start your markdown document
 
 # Working with data
 
-## Input
+## `library()`, `install.packages()`, and `BiocManager::install()`
 
-```{r}
-fl <- system.file(package="BiocIntro", "extdata", "ALL-sample-sheet.csv")
-```
+We'll use the following libraries; attach them to your current _R_
+session.
 
-```{r}
+```{r, message = FALSE}
 library(readr)
 library(dplyr)
-pdata <- read_csv(fl)
 ```
 
-## Exploration
+If _R_ responds 
 
-## Visualization
+```
+Error in library(readr) : there is no package called 'readr'
+```
 
-# Bioconductor objects
+or similar, it means that the library needs to be installed. The
+'_Bioconductor_' way of library installation (able to install _CRAN_
+and _Bioconductor_ packages) is to use the [BiocManager][]
+package. Make sure you have the `BiocManager` package installed
 
-# Provenance
+```{r, eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+```
+
+then install the packages you need
+
+```{r, eval = FALSE}
+BiocManager::install(c("readr", "dplyr"))
+```
+
+## `read_csv()`
+
+Find the data file "ALL-sample-sheet.csv"
+
+```{r, eval = FALSE}
+pdata_file <- file.choose()
+```
+```{r, echo = FALSE}
+pdata_file <-
+    system.file(package="BiocIntro", "extdata", "ALL-sample-sheet.csv")
+```
+
+then input the data using `read_csv()`
+
+```{r}
+pdata <- read_csv(pdata_file)
+```
+
+If _R_ responds
+
+```
+Error in read_csv() : could not find function "read_csv"
+```
+
+this means that the `readr` package has not been attached to the _R_
+session; remedy with `library(readr)`.
+
+Take a peak at the data to see what we have
+
+```{r}
+pdata
+```
+
+This represents 22 variables collected on 128 samples from a classic
+microarray experiment. Some of the column names are cryptic; we'll
+only focus on a few.
+
+# Update your markdown document
+
+# Working with data (continued): exploration
+
+## `arrange()`
+
+Use `arrange()` to order the rows from youngest to oldest individual
+
+```{r}
+pdata %>% arrange(age)
+```
+
+If _R_ responds with
+
+```
+> pdata %>% arrange(age)
+Error in pdata %>% summarize(n = n()) : could not find function "%>%"
+```
+
+then we need to attach the `dplyr` package, `library(dplyr)`.
+
+Arrange from oldest to youngest with
+
+```{r}
+pdata %>% arrange(desc(age))
+```
+
+**Exercise** How would you use `arrange()` to order the samples from
+youngest to oldest, with individuals of equal `age` ordered by `sex`?
+
+## `summarize()` and `group_by()`
+
+Let's ask the average age of males and females. First, use
+`summarize()` and the `n()` function to create a tibble with the
+number of samples of each sex.
+
+```{r}
+pdata %>% summarize(n = n())
+```
+
+We now know how many samples there are. Use `group_by()` to tell
+`dplyr` to separately consider each sex
+
+```{r, eval = FALSE}
+pdata %>% group_by(sex)
+```
+
+and then perform the summary operation...
+
+```{r}
+pdata %>% group_by(sex) %>% summarize(n = n())
+```
+
+**Exercise** What is the `NA` sex? Use `filter()` to identify the 3
+records with `is.na(sex)`.
+
+**Exercise** Use `arrange()` and `desc()` to arrange the summary table
+from most to least frequent.
+   
+**Exercise** Add another column `ave_age` to `summarize()`, using
+`mean()` to calculate the average age by sex. You'll need to use the
+`na.rm = TRUE` argument to calculate an average age in the face of
+missing values.
+
+## `t.test()`, an untidy function
+
+We'd like to compare the average age of males and females in the study
+using `t.test()`. `t.test()` takes a formula `age ~ sex` (`age` as a
+function of `sex`) describing the comparison that we'd like to
+make. It also takes an argument `data=` that contains the data we'd
+like to perform the t-test on. Unlike functions we've encountered so
+far where the data to be processed is the first argument, `t.test()`
+expects the data as the second argument. To adapt `t.test()` for use,
+we need to explicitly indicate that the data should be the second
+argument. One way of doing this is to use the special symbol `.` to
+represent the location of the incoming data, invoking `t.test(age ~
+sex, data = .)`:
+
+```{r, eval = FALSE}
+pdata %>% t.test(age ~ sex, data = .)
+```
+
+**Exercise** Perform a t-test to ask whether there is evidence of
+differences in ages between the sexes. How can we change the default
+value of `var.equal` to `TRUE`? Is this appropriate?
+
+**Exercise (advanced)** The return value of `t.test()` doesn't fit
+well with `tidy` data analysis, because it is a complicated object
+that is not represented as a `tibble` and hence cannot be computed
+upon using the common tidy verbs. Write a simple function `t_test()`
+that is more tidy-friendly, accepting `data = ` as it's first argument,
+using `t.test()` internally to compute results, and returning a
+`tibble` containing results formatted for subsequent
+computation. Explore the [broom][]`::tidy()` function as a way to
+transform many base _R_ objects into tidy-friendly data structures.
+
+## `filter()` and `%in%`
+
+Take a look at the `mol.biol` column, using `group_by()` and the
+convenience function `count()`
+
+```{r}
+pdata %>%
+    group_by(mol.biol) %>%
+    count()
+```
+
+These represent chromosomal events such as the presence of the BCR/ABL
+fusion gene, or NEG (standard) chromosomes. 
+
+**Exercise** Use `filter()` to create a new data set `bcrabl` that
+contains all 22 columns but only the BCR/ABL and NEG rows. It will be
+helpful to use the `%in%` operator, which returns TRUE when an object
+in the set on the left-hand side is present in the object on the
+right-hand side.
+
+```{r}
+c("a", "b", "c", "b", "a") %in% c("a", "c")
+```
+
+**Exercise** Use `t.test()` to ask whether there are age differences
+between these molecular biologies.
+
+# Update your markdown document
+
+# Working with data (continued): visualization
+
+## `ggplot()`
+
+Load the `ggplot2` library.
+
+```{r, message = FALSE}
+library(ggplot2)
+```
+
+Plots are created by providing a source for the data to be displayed,
+as well as 'aesthetics' `aes()` describing the data to be used.
+
+```{r}
+ggplot(pdata, aes(x = sex, y = age))
+```
+
+## `geom_boxplot()`
+
+This is enough to determine the overall dimensions of the display, but
+we still need to add 'geometric' `geom_*()` objects that display the
+relationships of interest. Add a boxplot geom for an initial
+visualization.
+
+```{r}
+ggplot(pdata, aes(x = sex, y = age)) + 
+    geom_boxplot()
+```
+
+## `geom_jitter()`
+
+Add a second layer that superimposes the actual data using
+`geom_jitter()` invoked so that the `sex` value is displaced a random
+amount about its horizontal location (`width = .1`) while the age is
+plotted at its actual vertical location (`height = 0`).
+
+```{r}
+ggplot(pdata, aes(x = sex, y = age)) + 
+    geom_boxplot() + 
+    geom_jitter(width = .1, height = 0)
+```
+
+**Exercise** How might `pdata` be filtered so that the samples with
+unknown age are excluded, and hence there are only two categories on
+the x-axis?
+   
+**Exercise** Are there other displays that convey both the summary of
+results and the actual data?
+
+# Update your markdown document
+
+# Working with data (continued): _Bioconductor_ objects
+
+Create a short character vector of DNA sequences.
+
+```{r}
+sequences <- c("AAATCGA", "ATACAACAT", "TTGCCA")
+```
+
+In base _R_ we can ask about properties of these sequences and perform
+some operations
+
+```{r}
+sequences
+length(sequences)
+nchar(sequences)
+sequences[c(1, 3)]
+sample(sequences)
+```
+
+Base _R_ has no notion of operations relevant to DNA sequences, e.g.,
+
+```{r, eval=FALSE}
+reverseComplement(sequences)
+```
+
+fails. Likewise, we can name a variable anything, the semantic meaning
+of the variable name is not enforced by _R_
+
+```{r}
+my_sequence <-
+    "All the world's a stage, And all the men and women merely players"
+```
+
+## `library(Biostrings)`
+
+Load the [Biostrings][] library
+
+```{r, message = FALSE}
+library(Biostrings)
+```
+
+If _R_ responds with
+
+```
+> library(Biostrings)
+Error in library(Biostrings) : there is no package called 'Biostrings'
+```
+
+then it is necessary to install the package first (make sure you've
+spelt the package name correctly, including capitalization!)
+
+```{r, eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Biostrings")
+library(Biostrings)
+```
+
+## `DNAStringSet()`
+
+Create a `DNAStringSet` from our character vector
+
+```{r}
+dna <- DNAStringSet(sequences)
+dna
+```
+
+**Exercise** Does the object `dna` support the operations illustrated
+above for a character vector, especially `length()`, `nchar()`, `[`,
+and `sample()`?
+
+**Exercise** Prove to yourself that at least some other useful,
+DNA-specific, functions exist, e.g., `reverse()` and
+`reverseComplement()`.
+
+**Exercise** What happens when you try to create a `DNAStringSet()`
+from an object such as `my_sequence`, defined above, that does not
+contain a DNA sequence? Warning: the message is quite cryptic, can you
+provide a 'human' translation?
+
+**Exercise** Why does `DNAStringSet("ACGTMRW")` not create an error,
+since `MRW` are not standard nucleotides? For hints, see the section
+'The DNA alphabet:" on the help page `?DNAString`.
+
+## `methods()`, help, and `browseVignettes()`
+
+The function `DNAStringSet()` returns an _object_ that has a
+particular class
+
+```{r}
+class(dna)
+```
+
+Associated with the class are a series of _methods_ that operate on
+the class. 
+
+**Exercise** Discover many (unfortunately, not all) methods acting on
+an object of class `DNAStringSet` using `methods(class =
+"DNAStringSet")`. Verify that `reverseComplement` is among those
+methods.
+
+Help pages describing a particular method can be found using `?`, with
+the search query quoted and with tab-completion providing hints on
+what the appropriate help topic is.
+
+**Exercise** Find the help page for the `reverseComplement` method
+operating on a `DNAStringSet` object, using
+`?"reverseComplement,DNAStringSet-method"`.
+
+Help pages provide a description of the technical details required for
+creating classes and using methods. Vignettes provide a more narrative
+description of overall package use.
+
+**Exercise** Use `browseVignettes(package = "Biostrings")` to see
+vignettes available for this package; explore a few vignettes to get a
+sense of possible content.
+
+## `readDNAStringSet()`
+
+It is unlikely that we would enter 1000's of DNA sequences 'by
+hand'. Instead, we might read the data from a standard file
+format. For DNA sequences the standard file format is often a 'FASTA'
+file, sometimes abbreviated with an extension `.fa` and often
+compressed with an additional extension `.fa.gz`. An example of a
+FASTA file containing DNA sequences of the 2000bp upstream nucleotides
+of all genes annotated in the _Drosophila melanogaster_ `dm3` genome
+build, is distributed with the [Biostrings][] package. Here's the path
+to the FASTA file.
+
+```{r}
+fa_file <-
+    system.file(package="Biostrings", "extdata", "dm3_upstream2000.fa.gz")
+```
+
+**Exercise** Take a peak at the structure of a FASTA file by looking at the
+first five lines.
+
+```{r}
+readLines(fa_file, 5)
+```
+
+The first line is an identifier, containing information about the gene
+`NM_078863` as well as the genomic coordinates of the sequence
+`chr2L:16764737-16766736`. The next lines are the DNA sequence. After
+a certain number of lines, a new record starts.
+
+```{r}
+tail(readLines(fa_file, 44), 5)
+```
+
+We could fairly 'easily' write our own parser for this format, but
+this would be error-prone and unnecessary.
+
+**Exercise** Input the file 
+
+```{r}
+dna <- readDNAStringSet(fa_file)
+dna
+```
+
+**Exercise** Query the object for basic properties, e.g., it's
+`length()` and that the number of characters in each sequence is 2000
+`unique(nchar(dna))`.
+
+## `letterFrequency()`: calculate GC content
+
+**Exercise** Use `letterFrequency()` to determine GC content of each
+of the DNA sequences in `dna`. The `letters` argument should be
+`"GC"`; `as.prob = TRUE` returns values between 0 and 1. The data is
+returned as a matrix with 1 column.
+
+**Exercise** Plot the distribution of GC frequencies in the `dna`
+object using base graphics `hist()` and `plot(density())`, and using
+`ggplot()`.
+
+## Tidy _Bioconductor_?
+
+Although _Bioconductor_ emphasizes formal objects like `DNAStringSet`
+rather than `tibble`-like data frames, some of the ways one interacts
+with tidy data can be applied to _Bioconductor_ objects. For instance,
+the GC content example might be written in 'traditional' form as
+
+```{r}
+gc <- letterFrequency(dna, "GC", as.prob = TRUE)
+```
+
+but could be written using pipes and to reesult in a tibble for easier
+down-stream manipulation
+
+```{r}
+gc <- 
+    dna %>%
+    letterFrequency("GC", as.prob = TRUE) %>%
+    tibble::as_tibble()
+gc
+```
+
+**Exercise** Revise other code, above, to follow this style of
+analysis. Are there merits / limitations of base verses 'tidy'
+approaches?
+
+**Exercise** Are there reasons why we did not just put our `sequences`
+vector of DNA sequences into a `tibble`, and go from there?
+
+# Update your markdown document
+
+# Provenance: finish your markdown document
 
 ```{r}
 sessionInfo()
 ```
+
+[BiocManager]: https://CRAN.r-project.org/package=BiocManager
+[broom]: https://CRAN.r-project.org/package=broom
+[Biostrings]: https://bioconductor.org/packages/Biostrings

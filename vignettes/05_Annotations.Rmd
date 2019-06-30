@@ -1,5 +1,5 @@
 ---
-title: "_Bioconductor_ Annotation Resources"
+title: "05: _Bioconductor_ Annotation Resources"
 author:
 - name: Martin Morgan
   affiliation: Roswell Park Comprehensive Cancer Center
