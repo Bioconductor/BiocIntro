@@ -14,8 +14,6 @@ output:
     toc: true
 ---
 
-Last modified: 23 June, 2019
-
 ```{r style, echo = FALSE, results = 'asis'}
 knitr::opts_chunk$set(
     eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
@@ -112,6 +110,10 @@ library(GO.db)
 `TxDb` packages contain information about gene models (exon, gene,
 transcript coordinates). There are a number of `TxDb` packages
 available to install
+
+```{r, message=FALSE}
+library(dplyr)    # for `%>%`
+```
 
 ```{r}
 BiocManager::available("^TxDb") %>%

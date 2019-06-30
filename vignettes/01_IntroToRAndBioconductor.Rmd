@@ -14,8 +14,6 @@ output:
     toc: true
 ---
 
-Last modified: 23 June, 2019
-
 ```{r style, echo = FALSE, results = 'asis'}
 knitr::opts_chunk$set(
     eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),

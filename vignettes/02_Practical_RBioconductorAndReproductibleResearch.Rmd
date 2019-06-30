@@ -14,8 +14,6 @@ output:
     toc: true
 ---
 
-Last modified: 30 June, 2019
-
 ```{r style, echo = FALSE, results = 'asis'}
 knitr::opts_chunk$set(
     eval=as.logical(Sys.getenv("KNITR_EVAL", "TRUE")),
@@ -25,6 +23,41 @@ options(width = 75)
 ```
 
 # Start your markdown document
+
+Create a new `.Rmd` file
+
+- Select the RStudio menu item "File" -> "New File" -> "R Markdown..."
+- Fill in the Title and Author fields, and select an "HTML" document
+
+Process the `.Rmd` file
+
+- Click on the "Knit" icon
+- At prompt, save file with name "Notes.Rmd" somewhere on your
+  computer.
+
+Anatomy
+
+- 'YAML' header with information about the document
+
+    ```
+    ---
+    title: "Notes"
+    author: "Martin Morgan"
+    date: "6/30/2019"
+    output: html_document
+    ---
+    ```
+
+- Plain text 'markdown'
+
+    - `#`: top level heading; `##` second level heading, ...
+    - Plain text paragraphs, separated by empty lines
+    - _R_ code chunks
+
+More help on markdown under "Help" -> "Markdown Quick Reference
+
+**Exercise** To get going, leave the YAML header, but remove
+everything else.
 
 # Working with data
 
@@ -98,6 +131,40 @@ microarray experiment. Some of the column names are cryptic; we'll
 only focus on a few.
 
 # Update your markdown document
+
+Add a top-level section title (start a line with `#`)  like
+
+```
+# Day 1: R / Bioconductor practical
+```
+
+Add notes about the key functions you've learned about so far, using a
+bulleted list like
+
+```
+Key functions: 
+
+- `file.choose()`: interactively choose a file location.
+- `library(readr)`: attach the readr package to the current _R_ session
+- `read_csv()`
+```
+    
+Press the 'Knit' button, debugging any errors that occur.
+
+Create a code chunk containing instructions for data input, using a
+'fence' followed by `{r}`
+
+<pre>
+```&#123;r&#125;
+library(readr)
+pdata_file = "path/to/file"
+pdata <- readr(pdata_file)
+pdata
+```
+</pre>
+
+Press the 'Knit' button. Note that the code is actually evaluated, and
+when correct will import the data from the `pdata_file`.
 
 # Working with data (continued): exploration
 
@@ -221,6 +288,11 @@ c("a", "b", "c", "b", "a") %in% c("a", "c")
 between these molecular biologies.
 
 # Update your markdown document
+
+Continue your markdown document by summarizing in a bulleted list the
+key functions covered in this section. Include examples of code inside
+fences, and make sure the code is evaluated when the "Knit" button is
+pressed.
 
 # Working with data (continued): visualization
 
@@ -479,7 +551,21 @@ vector of DNA sequences into a `tibble`, and go from there?
 
 # Update your markdown document
 
+Add further notes to the markdown document summarizing the functions
+and objects you've learned in this practical.
+
 # Provenance: finish your markdown document
+
+Finish your markdown document with a fenced section that evaluates the
+`sessionInfo()` command.
+
+<pre>
+```&#123;r&#125;
+sessionInfo()
+```
+</pre>
+
+Here are the packages used for this practical:
 
 ```{r}
 sessionInfo()
