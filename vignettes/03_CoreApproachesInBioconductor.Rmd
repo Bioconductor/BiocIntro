@@ -118,10 +118,6 @@ findOverlaps(snps, gr)                  # between-range
 setdiff(range(gr), gr)                  # 'introns'
 ```
 
-## _GenomicAlignments_
-
-Representation of aligned reads. See exercises below.
-
 ## _SummarizedExperiment_
 
 ### The [SummarizedExperiment][] package
@@ -167,52 +163,96 @@ library(ggplot2)
 ```{r}
 ridx <- rowSums(assay(airway)) > 0
 se <- airway[ridx,]
+
 ave_log_expr <- rowMeans(log(1 + assay(se)))
 tbl <- tibble::enframe(ave_log_expr, "gene", "ave_log_expr")
-ggplot(tbl, aes(ave_log_expr)) + geom_density()
+ggplot(tbl, aes(ave_log_expr)) + 
+    geom_density()
 ```
 
 # From files to _Bioconductor_ objects
 
 ## BED, GFF, GTF, WIG import and export
 
-- Genome annotations: BED, WIG, GTF, etc. files. E.g., GTF:
+### Format
+
+- Genome annotations: BED, WIG, GTF, etc. files.
+- See [UCSC][] data file format descriptions
+
+[UCSC]: https://genome.ucsc.edu/FAQ/FAQformat.html
+
+E.g., GTF:
 
 - Component coordinates
 
-        7   protein_coding  gene        27221129    27224842    .   -   . ...
-        ...
-        7   protein_coding  transcript  27221134    27224835    .   -   . ...
-        7   protein_coding  exon        27224055    27224835    .   -   . ...
-        7   protein_coding  CDS         27224055    27224763    .   -   0 ...
-        7   protein_coding  start_codon 27224761    27224763    .   -   0 ...
-        7   protein_coding  exon        27221134    27222647    .   -   . ...
-        7   protein_coding  CDS         27222418    27222647    .   -   2 ...
-        7   protein_coding  stop_codon  27222415    27222417    .   -   0 ...
-        7   protein_coding  UTR         27224764    27224835    .   -   . ...
-        7   protein_coding  UTR         27221134    27222414    .   -   . ...
+    ```
+    7   protein_coding  gene        27221129    27224842    .   -   . ...
+    ...
+    7   protein_coding  transcript  27221134    27224835    .   -   . ...
+    7   protein_coding  exon        27224055    27224835    .   -   . ...
+    7   protein_coding  CDS         27224055    27224763    .   -   0 ...
+    7   protein_coding  start_codon 27224761    27224763    .   -   0 ...
+    7   protein_coding  exon        27221134    27222647    .   -   . ...
+    7   protein_coding  CDS         27222418    27222647    .   -   2 ...
+    7   protein_coding  stop_codon  27222415    27222417    .   -   0 ...
+    7   protein_coding  UTR         27224764    27224835    .   -   . ...
+    7   protein_coding  UTR         27221134    27222414    .   -   . ...
+    ```
 
 - Annotations
 
-        gene_id "ENSG00000005073"; gene_name "HOXA11"; gene_source "ensembl_havana"; gene_biotype "protein_coding";
-        ...
-        ... transcript_id "ENST00000006015"; transcript_name "HOXA11-001"; transcript_source "ensembl_havana"; tag "CCDS"; ccds_id "CCDS5411";
-        ... exon_number "1"; exon_id "ENSE00001147062";
-        ... exon_number "1"; protein_id "ENSP00000006015";
-        ... exon_number "1";
-        ... exon_number "2"; exon_id "ENSE00002099557";
-        ... exon_number "2"; protein_id "ENSP00000006015";
-        ... exon_number "2";
-        ...
+    ```
+    gene_id "ENSG00000005073"; gene_name "HOXA11"; gene_source "ensembl_havana"; gene_biotype "protein_coding";
+    ...
+    ... transcript_id "ENST00000006015"; transcript_name "HOXA11-001"; transcript_source "ensembl_havana"; tag "CCDS"; ccds_id "CCDS5411";
+    ... exon_number "1"; exon_id "ENSE00001147062";
+    ... exon_number "1"; protein_id "ENSP00000006015";
+    ... exon_number "1";
+    ... exon_number "2"; exon_id "ENSE00002099557";
+    ... exon_number "2"; protein_id "ENSP00000006015";
+    ... exon_number "2";
+    ...
+    ```
 
 ### The [rtracklayer][] package
 
 - `import()`: import various formats to `GRanges` and similar instances
 - `export()`: transform from `GRanges` and similar types to BED, GTF, ...
+- Respects _Bioconductor_ 1-based convention for nucleotide numbering
 - Also, functions to interactively drive UCSC genome browser with data
   from _R_ / _Bioconductor_
+  
+```{r, message = FALSE}
+library(rtracklayer)
+```
+
+```{r}
+data(cpgIslands, package="Gviz")
+cpgIslands$name <- letters[1:10]
+cpgIslands$score <- sample(10)
+cpgIslands
+
+bed_file <- tempfile(fileext = ".bed")
+basename(bed_file)
+
+export(cpgIslands, bed_file)
+cat(readLines(bed_file), sep = "\n")
+import(bed_file)
+```
+
+```{r}
+gtf <- system.file(
+    package = "airway", 
+    "extdata", "Homo_sapiens.GRCh37.75_subset.gtf"
+)
+import(gtf)
+
+## see also `GenonmicFeatures::makeTxDbFromGFF()`
+```
 
 ## FASTQ files
+
+### Format
 
 - Sequenced reads: FASTQ files
 
@@ -270,11 +310,19 @@ ggplot(tbl, aes(ave_log_expr)) + geom_density()
 - `readGAlignments()`: Single-end reads
 - `readGAlignmentPairs()`, `readGAlignmentsList()`: paired end reads
 
-### Working with large files
 
-- `ScanBamParam()`: restrict input
-- `BamFile(, yieldSize=)`: iteration
-- [GenomicFiles][] provides useful helpers, e.g., `reduceByYield()`
+```{r}
+library(GenomicAlignments)
+```
+
+```{r}
+fls <- dir(
+    system.file(package = "airway", "extdata"),
+    pattern = "bam",
+    full.names = TRUE
+)
+readGAlignments(fls[1])
+```
 
 ## Called variants: VCF files
 
@@ -324,6 +372,15 @@ ggplot(tbl, aes(ave_log_expr)) + geom_density()
 - `locateVariants()`: annotate in relation to genes, etc; see also
   [ensemblVEP][], [VariantFiltering][]
 - `filterVcf()`: flexible filtering
+
+
+# Working with large files
+
+Example: BAM file
+
+- `ScanBamParam()`: restrict input
+- `BamFile(, yieldSize=)`: iteration
+- [GenomicFiles][] provides useful helpers, e.g., `reduceByYield()`
 
 # Provenance
 

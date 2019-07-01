@@ -28,6 +28,8 @@ options(width = 75)
 library(GenomicRanges)
 library(GenomicAlignments)
 library(rtracklayer)
+library(readr)
+library(tibble)
 ```
 
 The [IRanges][] package defines an important class for specifying
@@ -195,7 +197,7 @@ head(assay(airway))
    with log-transformed elements. Use these observations and
    `rowMeans()` to calculate a vector of average expression values of
    each gene. Visualize the result using `hist()`, `plot(density())`,
-   or `ggplot2::ggplot() + geom_density()`.
+   or `ggplot() + geom_density()`.
 
 ## Constructing a `SummarizedExperiment` object 'by hand'
 
@@ -214,18 +216,20 @@ counts_file <-
 read counts. Use the argument `row.names=` to specific the `Run`
 column to be used as row names
 
-    ```{r}
-    pdata <- read.csv(pdata_file, row.names = "Run", stringsAsFactors = FALSE)
-    counts <- read.csv(counts_file, row.names = "Run")
-    ```
+```{r}
+pdata <- read_csv(pdata_file)
+counts <- read_csv(counts_file)
+```
 
 **Exercise** Assemble `SummarizedExperiment` from transposed `counts`
-and `pdata`.
+and `pdata`. The "Run" column needs to be made into rownames.
 
-    ```{r}
-    se <- SummarizedExperiment(t(counts), colData = pdata)
-    se
-    ```
+```{r}
+pdata <- column_to_rownames(pdata, "Run")
+counts <- column_to_rownames(counts, "Run")
+se <- SummarizedExperiment(t(counts), colData = pdata)
+se
+```
 
 **Exercise** Following examples from the lectures, calculate total
 library size and plot averge log gene expression from you
