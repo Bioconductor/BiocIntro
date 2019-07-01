@@ -30,6 +30,91 @@ library(GenomicAlignments)
 library(rtracklayer)
 ```
 
+The [IRanges][] package defines an important class for specifying
+integer ranges, e.g.,
+```{r iranges}
+library(IRanges)
+ir <- IRanges(start=c(10, 20, 30), width=5)
+ir
+```
+
+There are many interesting operations to be performed on ranges, e.g,
+`flank()` identifies adjacent ranges
+```{r iranges-flank}
+flank(ir, 3)
+```
+
+The `IRanges` class is part of a class hierarchy. To see this, ask R for
+the class of `ir`, and for the class definition of the `IRanges` class
+```{r iranges-class}
+class(ir)
+getClass(class(ir))
+```
+
+Notice that `IRanges` extends the `Ranges` class. Now try entering
+`?flank` (`?"flank,<tab>"` if not using _RStudio_, where `<tab>` means
+to press the tab key to ask for tab completion). You can see that
+there are help pages for `flank` operating on several different
+classes. Select the completion
+
+```{r iranges-flank-method, eval=FALSE}
+?"flank,Ranges-method"
+```
+
+and verify that you're at the page that describes the method relevant
+to an `IRanges` instance.  Explore other range-based operations.
+
+The [GenomicRanges][] package extends the notion of ranges to include
+features relevant to application of ranges in sequence analysis,
+particularly the ability to associate a range with a sequence name
+(e.g., chromosome) and a strand. Create a `GRanges` instance based on
+our `IRanges` instance, as follows
+```{r granges}
+library(GenomicRanges)
+gr <- GRanges(c("chr1", "chr1", "chr2"), ir, strand=c("+", "-", "+"))
+gr
+```
+
+The notion of flanking sequence has a more nuanced meaning in
+biology. In particular we might expect that flanking sequence on the
+`+` strand would precede the range, but on the minus strand would
+follow it. Verify that `flank` applied to a `GRanges` object has this
+behavior.
+```{r granges-flank}
+flank(gr, 3)
+```
+
+Discover what classes `GRanges` extends, find the help page
+documenting the behavior of `flank` when applied to a `GRanges` object,
+and verify that the help page documents the behavior we just observed.
+```{r granges-class}
+class(gr)
+getClass(class(gr))
+```
+```{r granges-flank-method, eval=FALSE}
+?"flank,GenomicRanges-method"
+```
+Notice that the available `flank()` methods have been augmented by the
+methods defined in the _GenomicRanges_ package.
+
+It seems like there might be a number of helpful methods available for
+working with genomic ranges; we can discover some of these from the
+command line.
+
+```{r granges-methods, eval=FALSE}
+methods(class="GRanges")
+```
+
+Use `help()` to list the help pages in the `GenomicRanges` package,
+and `vignettes()` to view and access available vignettes; these are
+also available in the RStudio 'Help' tab.
+
+```{r granges-man-and-vignettes, eval=FALSE}
+help(package="GenomicRanges")
+vignette(package="GenomicRanges")
+vignette(package="GenomicRanges", "GenomicRangesHOWTOs")
+```
+
 # Organizing data with [SummarizedExperiment][]
 
 ```{r, message = FALSE}

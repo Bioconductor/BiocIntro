@@ -201,6 +201,34 @@ query(AnnotationHub(), c("^EnsDb\\.", "Ensembl 96"))
 library(biomaRt)
 ```
 
+
+Visit the [biomart website][] and figure out how to browse data to
+retrieve, e.g., genes on chromosomes 21 and 22. You'll need to browse
+to the ensembl mart, _Homo spaiens_ data set, establish filters for
+chromosomes 21 and 22, and then specify that you'd like the Ensembl
+gene id attribute returned.
+
+Now do the same process in [biomaRt][]:
+
+```{r biomart, eval=FALSE}
+library(biomaRt)
+head(listMarts(), 3)                      ## list marts
+head(listDatasets(useMart("ensembl")), 3) ## mart datasets
+ensembl <-                                ## fully specified mart
+    useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+head(listFilters(ensembl), 3)             ## filters
+myFilter <- "chromosome_name"
+substr(filterOptions(myFilter, ensembl), 1, 50) ## return values
+myValues <- c("21", "22")
+head(listAttributes(ensembl), 3)          ## attributes
+myAttributes <- c("ensembl_gene_id","chromosome_name")
+
+## assemble and query the mart
+res <- getBM(attributes =  myAttributes, filters =  myFilter,
+             values =  myValues, mart = ensembl)
+```
+
 ## [KEGGREST][]
 
 ```{r, message = FALSE}
@@ -342,3 +370,5 @@ sessionInfo()
 [ensembldb]: https:/bioconductor.org/packages/ensembldb
 [AnnotationHub]: https:/bioconductor.org/packages/AnnotationHub
 [ExperimentHub]: https:/bioconductor.org/packages/ExperimentHub
+
+[biomart website]: http://biomart.org
