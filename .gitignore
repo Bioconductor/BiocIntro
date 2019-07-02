@@ -3,3 +3,12 @@ vignettes/*R
 vignettes/*_cache/
 vignettes/*_files/
 vignettes/Rplots.pdf
+vignettes/*aux
+vignettes/*log
+vignettes/*nav
+vignettes/*out
+vignettes/*snm
+vignettes/*tex
+vignettes/*toc
+vignettes/*vrb
+vignettes/*pdf

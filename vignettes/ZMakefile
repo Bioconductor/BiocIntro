@@ -1,4 +1,5 @@
 SOURCES = $(shell ls *Rmd)
+SOURCES_RNW = $(shell ls *Rnw)
 
 %.html: %.Rmd
 	@echo "KNITR_CACHE=TRUE Sweave $<"
@@ -8,7 +9,12 @@ SOURCES = $(shell ls *Rmd)
 	@echo "KNITR_CACHE=FALSE Stangle $<"
 	@KNITR_CACHE=FALSE && "$(R_HOME)"/bin/R --vanilla CMD Stangle $<
 
-all: $(SOURCES:.Rmd=.html)
+%.pdf: %.Rnw
+	@echo "KNITR_CACHE=TRUE Sweave $<"
+	@KNITR_CACHE=TRUE "$(R_HOME)"/bin/R --vanilla CMD Sweave --pdf $<
+
+all: $(SOURCES:.Rmd=.html) $(SOURCES_RNW:.Rnw=.pdf)
 
 clean:
-	rm -rf Rplots* *html *R *.md *_cache/ *_files/ figure/
+	rm -rf Rplots* *html *R *.md *_cache/ *_files/ figure/ \
+		*pdf *snm *tex *toc *vrb *aux *log *nav *out
