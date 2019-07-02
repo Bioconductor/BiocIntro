@@ -382,6 +382,41 @@ Example: BAM file
 - `BamFile(, yieldSize=)`: iteration
 - [GenomicFiles][] provides useful helpers, e.g., `reduceByYield()`
 
+Restrict input:
+
+```{r, message = FALSE}
+library(GenomicAlignments)
+```
+
+```{r}
+fl <- dir(
+    system.file(package = "airway", "extdata"),
+    pattern = "bam", full.name = TRUE
+)
+fl[1]
+readGAlignments(fl[1])
+
+which <- GRanges(c("1:11053773-11072770", "1:11362290-11386194"))
+param <- ScanBamParam(which = which, what = "seq")
+readGAlignments(fl[1], param = param)
+```
+
+Iterate:
+
+```{r}
+bf <- BamFile(fl[1], yieldSize = 5000)
+
+open(bf)
+repeat {
+    galn <- readGAlignments(bf)
+    if (length(galn) == 0)
+        break
+    ## do work
+    message(length(galn))
+}
+close(bf)
+```
+
 # Provenance
 
 ```{r}
