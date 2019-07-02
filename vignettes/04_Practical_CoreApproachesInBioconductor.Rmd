@@ -22,73 +22,349 @@ knitr::opts_chunk$set(
 options(width = 75)
 ```
 
-# Answering useful questions with [GenomicRanges][]
+# Organizing data with [SummarizedExperiment][]
+
+## Working with an existing `SummarizedExperiment` object
 
 ```{r, message = FALSE}
-library(GenomicRanges)
-library(GenomicAlignments)
-library(rtracklayer)
+library(SummarizedExperiment)
+```
+
+The [airway][] experiment data package summarizes an RNA-seq
+experiment investigating human smooth-muscle airway cell lines treated
+with dexamethasone. Load the library and data set.
+
+```{r}
+library(airway)
+data(airway)
+airway
+```
+
+### Three main parts of a `SummarizedExperiment`
+
+**Exercise** What are the `dim()` and `dimnames()` of the airway
+object? What do the rows and columns correspond to in terms of the
+original experiment? Hint: use `dplyr::glimpse()` to look at the first
+few elements of each `dimnames`.
+
+**Exercise** Use the functions `assay()`, `colData()`, `rowRanges()`
+to extract the three major components of the `airway` data
+set. `assay()` is large, so interogate it using `class()`, `dim()` and
+`head()` rather than simply printing it to the screen. What do each of
+these parts corresspond to in terms of the RNASeq experiment
+summarized in this object?
+
+### The matrix-like behavior of `SummarizedExperiment`
+
+As a quick refresher, an _R_ `matrix`
+
+```{r}
+set.seed(123)
+m <- matrix(
+    rnorm(12), nrow = 4, ncol = 3,
+    dimnames = list(letters[1:4], LETTERS[1:3])
+)
+m
+```
+
+has three main components to it's interface, `dim()`, `dimnames()`,
+and two-dimensional `[`-subsetting.
+
+```{r}
+dim(m)
+dimnames(m)
+m[1:2, 2:1]
+m[1:2,]
+```
+
+A tricky, and unfortunate, behavior is that subsetting a single row or
+column of a matrix results, by default in the matrix being coerced to
+a vector
+
+```{r}
+m[1,]
+m[,1]
+```
+
+Avoid this behavior using the `drop = FALSE` argument.
+
+```{r}
+m[ 1, , drop = FALSE]
+```
+
+`SummarizedExperiment` implements the 'matrix-like' interface. This
+means that it supports the functions `dim()`, `dimnames()`, and
+two-dimensional `[`-subsetting.
+
+**Exercise** Subset `airway` to contain the first 5 rows and first 4
+columns. Check out the `colData()`, `rowRanges()`, and `assay()` of
+the resulting object.
+
+### Basic summaries of `assay()` values
+
+Returning to our simple matrix
+
+```{r}
+m
+```
+
+It is straight-forward to transform a matrix, e.g., by adding 1
+
+```{r}
+m + 1
+```
+
+or applying a transformation
+
+```{r}
+abs(m + 1)
+```
+
+There are special functions for row- and column-wise operations that
+are often performed on matrices (check out the [matrixStats][] package
+for further mathematical operations), e.g.,
+
+```{r}
+colSums(m)
+rowMeans(m)
+```
+
+[matrixStats]: https://cran.r-project.org/package=matrixStats
+
+**Exercise** Extract the `assay()` component of `airway` and calculate
+the column sums. What do these numbers represent?
+
+**Exercise** Transform the `assay()` matrix by adding 1 and taking the
+natural `log()`, then create a vector representing the average of each
+row of this transformed matrix. What does this vector represent?
+Visualize it in a histogram, density plot, or other representation.
+
+### Subsetting `SummarizedExperiment`
+
+We mentioned that the summarized experiment implements the matrix-like
+two-dimensional `[` subsetting interface. 
+
+The `colData()` of `airway` contains information about experimental
+design, for instance the cell line and dexamethasone treatment level
+of each sample.
+
+```{r}
+colData(airway)
+```
+
+There's a short-cut to accessing each column, e.g.,
+
+```{r}
+airway$dex
+```
+
+**Exercies** Use this shortcut to quickly subset `airway` so that it
+has only the `untrt` samples present. Verify that the `assay()` data
+have also been subset correctly.
+
+When working with a matrix, common scenario is to manipulate groups
+of rows based on some criterion, e.g., if one wished to keep rows with
+mean above 0, one might
+
+```{r}
+ridx <- rowMeans(m) > 0
+m[ridx, , drop = FALSE]
+```
+
+**Exercise** Remove all the rows from `airway` that had no gene
+expression across all samples. How many rows had no expression?
+Re-calculate the histogram of log-transoformed average expression with
+these rows excluded.
+
+### The list-like interface of `GRangesList`
+
+An _R_ `list()` is an object that contain different types of vectors,
+including other lists. Here's a simple example
+
+```{r}
+l <- list(a = 1:5, b = month.abb)
+```
+
+The interface to a list allows for `length()`, `[` (to return a subset
+of the original list) and `[[` (to extract a single element of the
+list, either by name or by position). The elements of the list can,
+but do not have to be, named.
+
+```{r}
+names(l)
+length(l)
+l[c(2, 1)]
+l[2]        # list of length 1, containing element 2 of original list
+l[[2]]      # element 2 of original list
+```
+
+One useful function is `lengths()`, which returns a vector of the
+length of each element in the lsit
+
+```{r}
+lengths(l)
+```
+
+The [IRanges][], [S4Vectors][], and [GenomicRanges][] packages
+implement several classes that implement this list-like interface; the
+classes all end with name `*List`, e.g., `GRangesList`.
+
+**Exercise** Extract the row ranges from `airway`, use `class()` to
+discover the type of object. What does each element of the list
+represent? What does the entire list represent?
+
+```{r}
+r <- rowRanges(airway)
+```
+
+**Exercise** Prove to yourself that the object implements a list-like
+interface, supporting `length()`, `[` and `[[` subsetting.
+
+**Exercise** Use `lengths()` to determine the number of exons in each
+gene. How many genes are there with a single exon? What gene has the
+largest number of exons?
+
+### Provenance in `GRangesList`
+
+`GRanges` / `GRangesList` objects contain provenance information about
+the genome to which the ranges refer, accessible using `seqinfo()`. 
+
+**Exercise** Use `seqinfo(r)` to extract the information about the
+sequences the genomic ranges are based on.
+
+**Exercise** Note that the `genome` is always `NA`. Take a quick look
+at the vignette `browseVignettes("airway")`, scaning down to the
+'Aligning reads' section. We're told that the reference genome used
+for alignments is "GRCh37". Update the row range to contain this
+information
+
+```{r}
+genome(r) <- "GRCh37"
+seqinfo(r)
+```
+
+Update the `rowRanges()` of `airway` with this more complete
+information.
+
+```{r}
+rowRanges(airway) <- r
+```
+
+Note that `SummarizedExperiment` has convenience functions that
+allow direct access to provenance
+
+```{r}
+seqinfo(airway)
+```
+
+**Exercise** Use `as()` to coerce the sequence info to a `GRanges`
+object, and select the genomic range corressponding to chromosome 14.
+
+```{r, message = FALSE}
+library(dplyr)    # %>%
+```
+
+```{r}
+chr14 <- 
+    seqinfo(r) %>%
+    as("GRanges") %>%
+    subset(seqnames == "14")
+```
+
+### Subsetting by overlaps
+
+The `%over%` function returns TRUE for each range on the left of the
+operator that overlaps a range on the right of the operator. Thus the
+row ranges overlapping chromosome 14 are
+
+```{r}
+idx <- r %over% chr14
+r[idx]
+```
+
+**Exercise** How many ranges of `r` overlap chromosome 14?
+
+**Exercise** Use `idx` to subset `airway` to contain only genes on
+chromosome 14.
+
+**Exercise** We took a long route to get to this subset-by-overlap;
+summarize our story with two lines of code that allow us to subset
+`airway` by overlap.
+
+## Constructing a `SummarizedExperiment` object 'by hand'
+
+```{r, message = FALSE}
 library(readr)
 library(tibble)
 ```
 
-The [IRanges][] package defines an important class for specifying
-integer ranges, e.g.,
-```{r iranges}
-library(IRanges)
-ir <- IRanges(start=c(10, 20, 30), width=5)
-ir
+```{r, eval = FALSE}
+pdata_file <- file.choos()    # airway-sample-sheet.csv
+counts_file <- file.choose()  # airway-read-counts.csv
+```
+```{r, echo = FALSE}
+pdata_file <-
+    system.file(package="BiocIntro", "extdata", "airway-sample-sheet.csv")
+counts_file <-
+    system.file(package="BiocIntro", "extdata", "airway-read-counts.csv")
 ```
 
-There are many interesting operations to be performed on ranges, e.g,
-`flank()` identifies adjacent ranges
-```{r iranges-flank}
-flank(ir, 3)
+**Exercise** Use `read_csv()` to import the sample sheet and
+read counts.
+
+```{r}
+pdata <- read_csv(pdata_file)
+counts <- read_csv(counts_file)
 ```
 
-The `IRanges` class is part of a class hierarchy. To see this, ask R for
-the class of `ir`, and for the class definition of the `IRanges` class
-```{r iranges-class}
-class(ir)
-getClass(class(ir))
+**Exercise** Assemble `SummarizedExperiment` from transposed `counts`
+and `pdata`. The `"Run"` column needs to be made into rownames on both
+the `pdata` and `counts` object.
+
+```{r}
+pdata <- column_to_rownames(pdata, "Run")
+counts <- column_to_rownames(counts, "Run")
+se <- SummarizedExperiment(t(counts), colData = pdata)
+se
 ```
 
-Notice that `IRanges` extends the `Ranges` class. Now try entering
-`?flank` (`?"flank,<tab>"` if not using _RStudio_, where `<tab>` means
-to press the tab key to ask for tab completion). You can see that
-there are help pages for `flank` operating on several different
-classes. Select the completion
+**Exercise** Following examples from the lectures, calculate total
+library size and plot average log gene expression from you
+newly-created `SummarizedExperiment`.
 
-```{r iranges-flank-method, eval=FALSE}
-?"flank,Ranges-method"
+# Answering useful questions with [GenomicRanges][]
+
+```{r, message = FALSE}
+library(GenomicRanges)
 ```
 
-and verify that you're at the page that describes the method relevant
-to an `IRanges` instance.  Explore other range-based operations.
-
-The [GenomicRanges][] package extends the notion of ranges to include
-features relevant to application of ranges in sequence analysis,
+The [GenomicRanges][] package use the notion of ranges to describe
+features relevant to many aspects of sequence analysis,
 particularly the ability to associate a range with a sequence name
 (e.g., chromosome) and a strand. Create a `GRanges` instance based on
 our `IRanges` instance, as follows
+
 ```{r granges}
 library(GenomicRanges)
 gr <- GRanges(c("chr1", "chr1", "chr2"), ir, strand=c("+", "-", "+"))
 gr
 ```
 
-The notion of flanking sequence has a more nuanced meaning in
-biology. In particular we might expect that flanking sequence on the
-`+` strand would precede the range, but on the minus strand would
-follow it. Verify that `flank` applied to a `GRanges` object has this
+The notion of flanking sequence has a nuanced meaning in biology. In
+particular we might expect that flanking sequence on the `+` strand
+would precede the range, but on the minus strand would follow
+it. Verify that `flank` applied to a `GRanges` object has this
 behavior.
+
 ```{r granges-flank}
 flank(gr, 3)
 ```
 
 Discover what classes `GRanges` extends, find the help page
-documenting the behavior of `flank` when applied to a `GRanges` object,
-and verify that the help page documents the behavior we just observed.
+documenting the behavior of `flank` when applied to a `GRanges`
+object, and verify that the help page documents the behavior we just
+observed.
+
 ```{r granges-class}
 class(gr)
 getClass(class(gr))
@@ -96,8 +372,9 @@ getClass(class(gr))
 ```{r granges-flank-method, eval=FALSE}
 ?"flank,GenomicRanges-method"
 ```
-Notice that the available `flank()` methods have been augmented by the
-methods defined in the _GenomicRanges_ package.
+
+Notice that the available `flank()` methods have been augmented by
+the methods defined in the _GenomicRanges_ package.
 
 It seems like there might be a number of helpful methods available for
 working with genomic ranges; we can discover some of these from the
@@ -113,133 +390,8 @@ also available in the RStudio 'Help' tab.
 
 ```{r granges-man-and-vignettes, eval=FALSE}
 help(package="GenomicRanges")
-vignette(package="GenomicRanges")
+browseVignettes(package="GenomicRanges")
 vignette(package="GenomicRanges", "GenomicRangesHOWTOs")
-```
-
-# Organizing data with [SummarizedExperiment][]
-
-```{r, message = FALSE}
-library(SummarizedExperiment)
-library(DESeq2)
-library(SingleCellExperiment)
-```
-
-## Working with an existing `SummarizedExperiment` object
-
-The [airway][] experiment data package summarizes an RNA-seq
-experiment investigating human smooth-muscle airway cell lines treated
-with dexamethasone. Load the library and data set.
-
-```{r}
-library(airway)
-data(airway)
-airway
-```
-
-`airway` is an example of the _SummarizedExperiment_ class. Explore
-its `assay()` (the matrix of counts of reads overlapping genomic
-regions of interest in each sample), `colData()` (a description of
-each sample), and `rowRanges()` (a description of each region of
-interest; here each region is an ENSEMBL gene).
-
-```{r}
-x <- assay(airway)
-class(x)
-dim(x)
-head(x)
-colData(airway)
-rowRanges(airway)
-```
-
-It's easy to subset a _SummarizedExperiment_ on rows, columns and
-assays, e.g., retaining just those samples in the `trt` level of the
-`dex` factor. Accessing elements of the column data is common, so
-there is a short-cut.
-
-```{r}
-cidx <- colData(airway)$dex %in% "trt"
-airway[, cidx]
-## shortcut
-airway[, airway$dex %in% "trt"]
-```
-
-It's also easy to perform range-based operations on
-`SummarizedExperiment` objects, e.g., querying for range of chromosome
-14 and then subsetting to contain only genes on this chromosome. Range
-operations on rows are very common, so there are shortcuts here, too.
-
-```{r}
-chr14 <- as(seqinfo(rowRanges(airway)), "GRanges")["14"]
-ridx <- rowRanges(airway) %over% chr14
-airway[ridx,]
-## shortcut
-chr14 <- as(seqinfo(rowRanges(airway)), "GRanges")["14"]
-airway[airway %over% chr14,]
-```
-
-The matrix of counts is available using the `assay()` accessor
-
-```{r}
-head(assay(airway))
-```
-
-1. Use the `assay()` and `rowSums()` function to remove all rows from
-   the `airway` object that have 0 reads overlapping all
-   samples. Summarize the library size (column sums of `assay()`) and
-   plot a histogram of the distribution of reads per feature of
-   interest.
-
-2. Use `colSums()` to calculate the library size of each sample.
-
-3. If `m` were a matrix, then `1 + m` would return another matrix with
-   1 added to each element, and `log(m)` would return another matrix
-   with log-transformed elements. Use these observations and
-   `rowMeans()` to calculate a vector of average expression values of
-   each gene. Visualize the result using `hist()`, `plot(density())`,
-   or `ggplot() + geom_density()`.
-
-## Constructing a `SummarizedExperiment` object 'by hand'
-
-```{r, eval = FALSE}
-pdata_file <- file.choos()    # airway-sample-sheet.csv
-counts_file <- file.choose()  # airway-read-counts.csv
-```
-```{r, echo = FALSE}
-pdata_file <-
-    system.file(package="BiocIntro", "extdata", "airway-sample-sheet.csv")
-counts_file <-
-    system.file(package="BiocIntro", "extdata", "airway-read-counts.csv")
-```
-
-**Exercise** Use base _R_ `read.csv()` to import the sample sheet and
-read counts. Use the argument `row.names=` to specific the `Run`
-column to be used as row names
-
-```{r}
-pdata <- read_csv(pdata_file)
-counts <- read_csv(counts_file)
-```
-
-**Exercise** Assemble `SummarizedExperiment` from transposed `counts`
-and `pdata`. The "Run" column needs to be made into rownames.
-
-```{r}
-pdata <- column_to_rownames(pdata, "Run")
-counts <- column_to_rownames(counts, "Run")
-se <- SummarizedExperiment(t(counts), colData = pdata)
-se
-```
-
-**Exercise** Following examples from the lectures, calculate total
-library size and plot averge log gene expression from you
-newly-created `SummarizedExperiment`.
-
-# Integrative analysis with [MultiAssayExperiment][]
-
-```{r, message = FALSE}
-library(MultiAssayExperiment)
-library(curatedTCGAData)
 ```
 
 # Provenance
