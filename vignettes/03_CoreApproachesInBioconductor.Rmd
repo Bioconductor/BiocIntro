@@ -425,6 +425,9 @@ fl <- dir(
 fl[1]
 readGAlignments(fl[1])
 
+## hack: index the bam file in-place
+invisible(indexBam(fl[1]))
+
 which <- GRanges(c("1:11053773-11072770", "1:11362290-11386194"))
 param <- ScanBamParam(which = which, what = "seq")
 readGAlignments(fl[1], param = param)
