@@ -322,7 +322,7 @@ Adding `dry.run = FALSE` triggers the actual download (first time
 only) of the data from ExperimentHub, and presentation to the user as
 a `MultiAssayExperiment`.
 
-```{r}
+```{r, message = FALSE}
 mae <- curatedTCGAData("BRCA", c("RNASeqGene", "CNVSNP"), dry.run=FALSE)
 mae
 ```

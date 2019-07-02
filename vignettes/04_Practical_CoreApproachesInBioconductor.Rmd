@@ -1,11 +1,11 @@
 ---
-title: "04: Practical: Core Approaches in _Bioconductor_"
+title: "04: Practical: Organizing data with _SummarizedExperiment_"
 author:
 - name: Martin Morgan
   affiliation: Roswell Park Comprehensive Cancer Center
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 vignette: >
-  %\VignetteIndexEntry{04: Practical: Core Approaches in Bioconductor}
+  %\VignetteIndexEntry{04: Practical: Organizing data with SummarizedExperiment}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
@@ -22,9 +22,28 @@ knitr::opts_chunk$set(
 options(width = 75)
 ```
 
-# Organizing data with [SummarizedExperiment][]
+# What is a `SummarizedExperiment`?
 
-## Working with an existing `SummarizedExperiment` object
+![Alt SummarizedExperiment](our_figures/SummarizedExperiment.png)
+
+- `assay()`, `assays()`: A `matrix`-like or list of `matrix`-like
+  objects of identical dimension
+  - `matrix`-like: implements `dim()`, `dimnames()`, and 2-dimensional
+    `[`, `[<-` methods.
+  - rows: genes, genomic coordinates, etc.
+  - columns: samples, cells, etc.
+- `colData()`: Annotations on each column, as a `DataFrame`.
+  - E.g., description of each sample
+- `rowData()` and / or `rowRanges()`: Annotations on each row.
+  - E.g., `rowRanges()`: coordinates of gene / exons in transcripts /
+    etc.
+  - E.g., `rowData()`:_P_-values and log-fold change of each gene
+    after differential expresssion analysis.
+- `metadata()`: List of unstructured metadata describing the overall
+  content of the object.
+
+
+# Working with an existing `SummarizedExperiment` object
 
 ```{r, message = FALSE}
 library(SummarizedExperiment)
@@ -40,7 +59,7 @@ data(airway)
 airway
 ```
 
-### Three main parts of a `SummarizedExperiment`
+## Three main parts of a `SummarizedExperiment`
 
 **Exercise** What are the `dim()` and `dimnames()` of the airway
 object? What do the rows and columns correspond to in terms of the
@@ -54,7 +73,7 @@ set. `assay()` is large, so interogate it using `class()`, `dim()` and
 these parts corresspond to in terms of the RNASeq experiment
 summarized in this object?
 
-### The matrix-like behavior of `SummarizedExperiment`
+## The matrix-like behavior of `SummarizedExperiment`
 
 As a quick refresher, an _R_ `matrix`
 
@@ -100,7 +119,7 @@ two-dimensional `[`-subsetting.
 columns. Check out the `colData()`, `rowRanges()`, and `assay()` of
 the resulting object.
 
-### Basic summaries of `assay()` values
+## Basic summaries of `assay()` values
 
 Returning to our simple matrix
 
@@ -139,7 +158,7 @@ natural `log()`, then create a vector representing the average of each
 row of this transformed matrix. What does this vector represent?
 Visualize it in a histogram, density plot, or other representation.
 
-### Subsetting `SummarizedExperiment`
+## Subsetting `SummarizedExperiment`
 
 We mentioned that the summarized experiment implements the matrix-like
 two-dimensional `[` subsetting interface. 
@@ -176,7 +195,7 @@ expression across all samples. How many rows had no expression?
 Re-calculate the histogram of log-transoformed average expression with
 these rows excluded.
 
-### The list-like interface of `GRangesList`
+## The list-like interface of `GRangesList`
 
 An _R_ `list()` is an object that contain different types of vectors,
 including other lists. Here's a simple example
@@ -224,7 +243,7 @@ interface, supporting `length()`, `[` and `[[` subsetting.
 gene. How many genes are there with a single exon? What gene has the
 largest number of exons?
 
-### Provenance in `GRangesList`
+## Provenance in `GRangesList`
 
 `GRanges` / `GRangesList` objects contain provenance information about
 the genome to which the ranges refer, accessible using `seqinfo()`. 
@@ -271,7 +290,7 @@ chr14 <-
     subset(seqnames == "14")
 ```
 
-### Subsetting by overlaps
+## Subsetting by overlaps
 
 The `%over%` function returns TRUE for each range on the left of the
 operator that overlaps a range on the right of the operator. Thus the
@@ -291,7 +310,7 @@ chromosome 14.
 summarize our story with two lines of code that allow us to subset
 `airway` by overlap.
 
-## Constructing a `SummarizedExperiment` object 'by hand'
+# Constructing a `SummarizedExperiment` object 'by hand'
 
 ```{r, message = FALSE}
 library(readr)
@@ -331,68 +350,6 @@ se
 **Exercise** Following examples from the lectures, calculate total
 library size and plot average log gene expression from you
 newly-created `SummarizedExperiment`.
-
-# Answering useful questions with [GenomicRanges][]
-
-```{r, message = FALSE}
-library(GenomicRanges)
-```
-
-The [GenomicRanges][] package use the notion of ranges to describe
-features relevant to many aspects of sequence analysis,
-particularly the ability to associate a range with a sequence name
-(e.g., chromosome) and a strand. Create a `GRanges` instance based on
-our `IRanges` instance, as follows
-
-```{r granges}
-library(GenomicRanges)
-gr <- GRanges(c("chr1", "chr1", "chr2"), ir, strand=c("+", "-", "+"))
-gr
-```
-
-The notion of flanking sequence has a nuanced meaning in biology. In
-particular we might expect that flanking sequence on the `+` strand
-would precede the range, but on the minus strand would follow
-it. Verify that `flank` applied to a `GRanges` object has this
-behavior.
-
-```{r granges-flank}
-flank(gr, 3)
-```
-
-Discover what classes `GRanges` extends, find the help page
-documenting the behavior of `flank` when applied to a `GRanges`
-object, and verify that the help page documents the behavior we just
-observed.
-
-```{r granges-class}
-class(gr)
-getClass(class(gr))
-```
-```{r granges-flank-method, eval=FALSE}
-?"flank,GenomicRanges-method"
-```
-
-Notice that the available `flank()` methods have been augmented by
-the methods defined in the _GenomicRanges_ package.
-
-It seems like there might be a number of helpful methods available for
-working with genomic ranges; we can discover some of these from the
-command line.
-
-```{r granges-methods, eval=FALSE}
-methods(class="GRanges")
-```
-
-Use `help()` to list the help pages in the `GenomicRanges` package,
-and `vignettes()` to view and access available vignettes; these are
-also available in the RStudio 'Help' tab.
-
-```{r granges-man-and-vignettes, eval=FALSE}
-help(package="GenomicRanges")
-browseVignettes(package="GenomicRanges")
-vignette(package="GenomicRanges", "GenomicRangesHOWTOs")
-```
 
 # Provenance
 

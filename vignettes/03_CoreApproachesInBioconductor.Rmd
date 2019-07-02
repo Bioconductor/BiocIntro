@@ -60,12 +60,12 @@ in [01: Introdction to R and Bioconductor][].
   genes, regulatory marks, ...) and data (called peaks, variants,
   aligned reads)
 
-    ![Alt GRanges](our_figures/GRanges.png)
+![Alt GRanges](our_figures/GRanges.png)
 
 - `GRangesList()`: genomic coordinates grouped into list elements
   (e.g., paired-end reads; exons grouped by transcript)
 
-    ![Alt GRangesList](our_figures/GRangesList.png)
+![Alt GRangesList](our_figures/GRangesList.png)
 
 ### Range operations
 
@@ -168,6 +168,35 @@ ave_log_expr <- rowMeans(log(1 + assay(se)))
 tbl <- tibble::enframe(ave_log_expr, "gene", "ave_log_expr")
 ggplot(tbl, aes(ave_log_expr)) + 
     geom_density()
+```
+
+## S4Vectors
+
+`NumericList` and friend
+
+- List of elements of the same type
+- Useful functions projected into list elements
+- `unlist()` / `relist()` for fast operations
+
+```{r}
+il = IntegerList(sample(26, 5), sample(26, 7))
+il > 7
+any(il > 7)
+il[il > 7]
+relist(letters[unlist(il)], il)
+```
+
+`DataFrame`
+
+- Columns can be anything with a `length()`, `[`, and `[<-` methods.
+
+```{r}
+DataFrame(
+    i = 1:2,
+    il = IntegerList(sample(5), sample(7)),
+    dna = DNAStringSet(c("ATCG", "AAACGGG")),
+    gr = GRanges(c("chr1:1-20", "chr20:10-30"))
+)
 ```
 
 # From files to _Bioconductor_ objects
