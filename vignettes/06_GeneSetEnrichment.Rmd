@@ -84,7 +84,7 @@ Requires ENTREZ identifiers
 
 ```{r}
 library(org.Hs.eg.db)
-tbl <- tbl %>% 
+tbl <- tbl %>%
     mutate(
         ENTREZID = mapIds(
             org.Hs.eg.db, ENSEMBL, "ENTREZID", "ENSEMBL"
@@ -96,7 +96,7 @@ tbl
 Universe -- must be testable for DE
 
 ```{r}
-tbl <- tbl %>% 
+tbl <- tbl %>%
     filter(!is.na(padj), !is.na(ENTREZID))
 tbl
 ```
@@ -105,7 +105,7 @@ tbl
 
 ```{r}
 library(limma)
-go <- 
+go <-
     goana(tbl$ENTREZID[tbl$padj < .05], tbl$ENTREZID, "Hs") %>%
     as_tibble()
 ```
@@ -114,14 +114,14 @@ Hmm, `goana()` returns GO terms, but we also need GO identifiers
 
 ```{r}
 library(GO.db)
-go <- 
+go <-
     go %>%
     mutate(
         GOID = mapIds(
             GO.db, .$Term, "GOID", "TERM"
         ) %>% unname()
     ) %>%
-    select(GOID, everything()) %>% 
+    dplyr::select(GOID, everything()) %>%
     arrange(P.DE)
 ```
 
@@ -134,10 +134,10 @@ go %>% filter(grepl("glucocorticoid", Term))
 What genes in set?
 
 ```{r}
-genesets <- 
+genesets <-
     AnnotationDbi::select(org.Hs.eg.db, tbl$ENTREZID, "GO", "ENTREZID") %>%
     as_tibble() %>%
-    select(ENTREZID, GO, ONTOLOGY) %>%
+    dplyr::select(ENTREZID, GO, ONTOLOGY) %>%
     distinct()
 genesets
 ```
