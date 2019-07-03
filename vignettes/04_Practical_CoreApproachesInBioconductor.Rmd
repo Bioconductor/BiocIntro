@@ -357,9 +357,9 @@ newly-created `SummarizedExperiment`.
 sessionInfo()
 ```
 
+[IRanges]: https://bioconductor.org/packages/IRanges
+[S4Vectors]: https://bioconductor.org/packages/S4Vectors
 [GenomicRanges]: https://bioconductor.org/packages/GenomicRanges
 [SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
 [MultiAssayExperiment]: https://bioconductor.org/packages/MultiAssayExperiment
 [airway]: https://bioconductor.org/packages/airway
-[]: https://bioconductor.org/packages/
-[]: https://bioconductor.org/packages/

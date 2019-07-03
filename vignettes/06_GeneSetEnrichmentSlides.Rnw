@@ -9,7 +9,7 @@
   Roswell Park Cancer Institute \\
   Buffalo, NY, USA
 }
-\date{13 July, 2018}
+\date{3 July, 2019}
 
 \begin{document}
 
@@ -29,6 +29,7 @@
   \item Functional class scoring (FCS) -- summarize statistic of DE of
     genes in a set, and compare to null
   \item Issues with sequence data?
+  \item Issues with single-cell data?
   \end{itemize}
 \end{frame}
 
@@ -60,7 +61,7 @@
   Pathways
   \begin{itemize}
   \item \href{http://www.broadinstitute.org/gsea/msigdb/}{MSigDb}
-  \item \href{http://genome.jp/kegg}{KEGG} (no longer freely available)
+  \item \href{http://genome.jp/kegg}{KEGG}
   \item \href{http://reactome.org}{reactome}
   \item \href{http://pantherdb.org}{PantherDB}
   \item \ldots
@@ -218,7 +219,10 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Approach 6: \emph{de novo} discovery}
+\begin{frame}{Approach 6: issues with single-cell data?}
+\end{frame}
+
+\begin{frame}{Approach 7: \emph{de novo} discovery}
   \begin{itemize}
   \item So far: analogous to supervised machine learning, where
     pathways are known in advance
@@ -265,76 +269,6 @@
     Visualization & \Biocpkg{pathview} \\
     \hline
   \end{tabular}
-\end{frame}
-
-<<echo=FALSE>>=
-suppressPackageStartupMessages({
-    library(DESeq2)
-    library(airway)
-    library(org.Hs.eg.db)
-    library(limma)
-})
-@ 
-
-\begin{frame}[fragile, allowframebreaks]{Example -- \Biocpkg{DESeq2} lab}
-  Example: hypergeometric test using \Biocpkg{limma}\Rcode{::goana()}
-  \begin{itemize}
-    \item Data input and massage
-<<input>>=
-library(DESeq2)
-library(airway)
-data(airway)
-airway$dex <- relevel(airway$dex, "untrt")
-@ 
-
-\framebreak
-    \item Differential expression analysis
-<<de>>=
-des <- DESeqDataSet(airway, design = ~ cell + dex)
-des <- DESeq(des)
-res <- results(des)
-@ 
-
-\framebreak
-    \item Need 'entrez' identifiers, but have 'ensembl'
-<<mapIds>>=
-library(org.Hs.eg.db)
-res$egid <- mapIds(
-  org.Hs.eg.db, rownames(res), "ENTREZID", "ENSEMBL"
-)
-@ 
-
-    \item Trim 'universe' to those genes that can be assessed for
-      differential expression (i.e., \Rcode{!is.na(padj)}) and
-      assigned to gene set (\Rcode{!is.na(entre)})
-<<trim>>=
-table(is.na(res$padj), is.na(res$egid))
-res <- subset(res, !is.na(padj) & !is.na(egid))
-dim(res)
-@ 
-
-\framebreak
-    \item Test and order
-<<goana>>=
-library(limma)
-go <- goana(res$egid[res$padj < .05], res$egid, "Hs")
-go <- go[ order(go$P.DE), ]
-t(go[1,])
-@  
-
-\framebreak
-    \item Sanity check -- glucocorticoid sets present?
-<<sanity>>=
-head(subset(go, grepl("glucocorticoid", Term)), 3)
-@       
-      \item What genes in gene sets?
-<<term-id-mapping>>=
-map <- select(
-  org.Hs.eg.db, res$egid, "GO", "ENTREZID"
-)
-head(map)
-@ 
-  \end{itemize}
 \end{frame}
 
 \begin{frame}{References}

@@ -22,15 +22,94 @@ knitr::opts_chunk$set(
 options(width = 75)
 ```
 
+# Theory
+
+See [slides][]
+
+<!-- [slides]: https:// -->
+
+# Practice
+
+```{r, message = FALSE, echo = FALSE}
+library(DESeq2)
+library(airway)
+library(org.Hs.eg.db)
+library(limma)
+```
+
+Data input and massage
+
+```{r}
+library(airway)
+data(airway)
+airway$dex <- relevel(airway$dex, "untrt")
+```
+
+Differential expression analysis
+
+```{r}
+library(DESeq2)
+des <- DESeqDataSet(airway, design = ~ cell + dex)
+des <- DESeq(des)
+res <- results(des)
+```
+
+Map identifiers
+
+```{r}
+library(org.Hs.eg.db)
+res$egid <- mapIds(
+  org.Hs.eg.db, rownames(res), "ENTREZID", "ENSEMBL"
+)
+```
+
+## Example: hypergeometric test using \Biocpkg{limma}\Rcode{::goana()}
+
+Universe -- must be testable for DE
+
+```{r}
+table(is.na(res$padj), is.na(res$egid))
+res <- subset(res, !is.na(padj) & !is.na(egid))
+dim(res)
+```
+
+[limma][]`::goana()` -- Hypergeometric
+
+```{r}
+library(limma)
+go <- goana(res$egid[res$padj < .05], res$egid, "Hs")
+go <- go[ order(go$P.DE), ]
+t(go[1,])
+```
+
+Sanity check
+
+```{r}
+head(subset(go, grepl("glucocorticoid", Term)), 3)
+```
+
+What genes in set?
+
+```{r}
+map <- select(
+  org.Hs.eg.db, res$egid, "GO", "ENTREZID"
+)
+head(map)
+```
+
 # A recent tweet...
+
+A recent [tweet][] provides a nice summary of recent efforts to
+benchmark gene set enrichement analysis methods using the
+[GSEABenchmarkR][] package.
+
+[tweet]: https://twitter.com/LeviWaldron1/status/1142092301403115521
+
+[GSEABenchmarkR]: https://bioconductor.org/packages/GSEABenchmarkR
 
 ```{r, message=FALSE}
 library(EnrichmentBrowser)
 ```
-
-# Theory: types of gene sets
-
-# Practice
 
 # Provenance
 
