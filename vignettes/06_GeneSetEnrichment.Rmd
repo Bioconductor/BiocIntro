@@ -28,12 +28,24 @@ See [slides][]
 
 <!-- [slides]: https:// -->
 
+## Benchmarking: a recent tweet...
+
+A recent [tweet][] provides a nice summary of efforts to benchmark
+gene set enrichement analysis methods using the [GSEABenchmarkR][]
+package.
+
+```{r, message=FALSE}
+library(EnrichmentBrowser)
+```
+
 # Practice
 
 ```{r, message = FALSE, echo = FALSE}
 library(DESeq2)
 library(airway)
+library(dplyr)
 library(org.Hs.eg.db)
+library(GO.db)
 library(limma)
 ```
 
@@ -54,61 +66,80 @@ des <- DESeq(des)
 res <- results(des)
 ```
 
-Map identifiers
+Transition to tidy data
+
+```{r}
+library(dplyr)
+library(tibble)
+tbl <- res %>%
+    as.data.frame() %>%
+    rownames_to_column("ENSEMBL") %>%
+    as_tibble()
+tbl
+```
+
+## Example: hypergeometric test using [limma][]`::goana()`
+
+Requires ENTREZ identifiers
 
 ```{r}
 library(org.Hs.eg.db)
-res$egid <- mapIds(
-  org.Hs.eg.db, rownames(res), "ENTREZID", "ENSEMBL"
-)
+tbl <- tbl %>% 
+    mutate(
+        ENTREZID = mapIds(
+            org.Hs.eg.db, ENSEMBL, "ENTREZID", "ENSEMBL"
+        ) %>% unname()
+    )
+tbl
 ```
-
-## Example: hypergeometric test using \Biocpkg{limma}\Rcode{::goana()}
 
 Universe -- must be testable for DE
 
 ```{r}
-table(is.na(res$padj), is.na(res$egid))
-res <- subset(res, !is.na(padj) & !is.na(egid))
-dim(res)
+tbl <- tbl %>% 
+    filter(!is.na(padj), !is.na(ENTREZID))
+tbl
 ```
 
 [limma][]`::goana()` -- Hypergeometric
 
 ```{r}
 library(limma)
-go <- goana(res$egid[res$padj < .05], res$egid, "Hs")
-go <- go[ order(go$P.DE), ]
-t(go[1,])
+go <- 
+    goana(tbl$ENTREZID[tbl$padj < .05], tbl$ENTREZID, "Hs") %>%
+    as_tibble()
+```
+
+Hmm, `goana()` returns GO terms, but we also need GO identifiers
+
+```{r}
+library(GO.db)
+go <- 
+    go %>%
+    mutate(
+        GOID = mapIds(
+            GO.db, .$Term, "GOID", "TERM"
+        ) %>% unname()
+    ) %>%
+    select(GOID, everything()) %>% 
+    arrange(P.DE)
 ```
 
 Sanity check
 
 ```{r}
-head(subset(go, grepl("glucocorticoid", Term)), 3)
+go %>% filter(grepl("glucocorticoid", Term))
 ```
 
 What genes in set?
 
 ```{r}
-map <- select(
-  org.Hs.eg.db, res$egid, "GO", "ENTREZID"
-)
-head(map)
-```
-
-# A recent tweet...
-
-A recent [tweet][] provides a nice summary of recent efforts to
-benchmark gene set enrichement analysis methods using the
-[GSEABenchmarkR][] package.
-
-[tweet]: https://twitter.com/LeviWaldron1/status/1142092301403115521
-
-[GSEABenchmarkR]: https://bioconductor.org/packages/GSEABenchmarkR
-
-```{r, message=FALSE}
-library(EnrichmentBrowser)
+genesets <- 
+    AnnotationDbi::select(org.Hs.eg.db, tbl$ENTREZID, "GO", "ENTREZID") %>%
+    as_tibble() %>%
+    select(ENTREZID, GO, ONTOLOGY) %>%
+    distinct()
+genesets
 ```
 
 # Provenance
@@ -116,3 +147,7 @@ library(EnrichmentBrowser)
 ```{r}
 sessionInfo()
 ```
+
+[limma]: https://bioconductor.org/packages/limma
+[GSEABenchmarkR]: https://bioconductor.org/packages/GSEABenchmarkR
+[tweet]: https://twitter.com/LeviWaldron1/status/1142092301403115521

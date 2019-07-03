@@ -219,10 +219,7 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Approach 6: issues with single-cell data?}
-\end{frame}
-
-\begin{frame}{Approach 7: \emph{de novo} discovery}
+\begin{frame}{Approach 6: \emph{de novo} discovery}
   \begin{itemize}
   \item So far: analogous to supervised machine learning, where
     pathways are known in advance
@@ -232,6 +229,14 @@
   \begin{itemize}
   \item Weighted correlation network analysis
   \item Described in Langfelder \& Horvath, 2008
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Issues with single-cell data?}
+  \begin{itemize}
+  \item Often, projections into reduced dimensions.
+  \item Not genes \emph{per se}, but weightings.
+  \item An open issue, with opportunities for new methods!
   \end{itemize}
 \end{frame}
 
@@ -245,6 +250,17 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}{Benchmarks}
+  A recent
+  \href{https://twitter.com/LeviWaldron1/status/1142092301403115521}{tweet}
+  from Levi Waldron provides a nice summary.
+  \begin{itemize}
+  \item \Biocpkg{GSEABenchmarkR} for running benchmarks
+  \item Self-contained tests often call random gene sets significant
+  \item Hypergeometric test performs relatively well!
+  \end{itemize}
+\end{frame}
+
 \begin{frame}{Conclusions}
   Gene set enrichment classifications
   \begin{itemize}
@@ -252,8 +268,8 @@
     scoring; pathway topology
   \item Goemann \& B\"uhlmann: Competitive vs.\ self-contained null
   \end{itemize}
-  \medskip\par 
-  Selected \Bioconductor{} Packages
+  \medskip\par Selected \Bioconductor{} packages (see
+  \href{http://bioconductor.org/packages/release/BiocViews.html\#___GeneSetEnrichment}{biocViews})
   \medskip\par
   \begin{tabular}{ll}
     Approach & Packages \\
@@ -291,8 +307,8 @@
 
 \begin{frame}{Acknowledgments}
   \begin{itemize}
-  \item Core: Valerie Obenchain, Herv\'e Pag\`es,
-    Lori Shepherd, Marcel Ramos, Nitesh Turaga, Daniel van Twisk.
+  \item Core: Qian Liu, Kayla Morrel, Herv\'e Pag\`es, Lori Shepherd,
+    Marcel Ramos, Nitesh Turaga, Daniel van Twisk, Jeifie Wang.
   \item The research reported in this presentation was supported by
     the National Cancer Institute and the National Human Genome
     Research Institute of the National Institutes of Health under
