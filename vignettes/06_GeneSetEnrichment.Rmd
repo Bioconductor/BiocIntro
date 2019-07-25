@@ -24,9 +24,9 @@ options(width = 75)
 
 # Theory
 
-See [slides][]
+See [slides][].
 
-<!-- [slides]: https:// -->
+[slides]: ./06_GeneSetEnrichmentSlides.pdf
 
 ## Benchmarking: a recent tweet...
 
@@ -59,7 +59,7 @@ airway$dex <- relevel(airway$dex, "untrt")
 
 Differential expression analysis
 
-```{r}
+```{r, message = FALSE}
 library(DESeq2)
 des <- DESeqDataSet(airway, design = ~ cell + dex)
 des <- DESeq(des)
@@ -73,8 +73,7 @@ library(dplyr)
 library(tibble)
 tbl <- res %>%
     as.data.frame() %>%
-    rownames_to_column("ENSEMBL") %>%
-    as_tibble()
+    as_tibble(rownames = "ENSEMBL")
 tbl
 ```
 
@@ -89,7 +88,8 @@ tbl <- tbl %>%
         ENTREZID = mapIds(
             org.Hs.eg.db, ENSEMBL, "ENTREZID", "ENSEMBL"
         ) %>% unname()
-    )
+    ) %>%
+    dplyr::select(ENSEMBL, ENTREZID, everything())
 tbl
 ```
 
@@ -107,28 +107,16 @@ tbl
 library(limma)
 go <-
     goana(tbl$ENTREZID[tbl$padj < .05], tbl$ENTREZID, "Hs") %>%
-    as_tibble()
-```
-
-Hmm, `goana()` returns GO terms, but we also need GO identifiers
-
-```{r}
-library(GO.db)
-go <-
-    go %>%
-    mutate(
-        GOID = mapIds(
-            GO.db, .$Term, "GOID", "TERM"
-        ) %>% unname()
-    ) %>%
-    dplyr::select(GOID, everything()) %>%
-    arrange(P.DE)
+    as_tibble(rownames = "GOID")
+go
 ```
 
 Sanity check
 
 ```{r}
-go %>% filter(grepl("glucocorticoid", Term))
+go %>%
+    filter(grepl("glucocorticoid", Term)) %>%
+    arrange(P.DE)
 ```
 
 What genes in set?
@@ -138,7 +126,8 @@ genesets <-
     AnnotationDbi::select(org.Hs.eg.db, tbl$ENTREZID, "GO", "ENTREZID") %>%
     as_tibble() %>%
     dplyr::select(ENTREZID, GO, ONTOLOGY) %>%
-    distinct()
+    distinct() %>%
+    arrange(ONTOLOGY, GO)
 genesets
 ```
 
