@@ -105,11 +105,19 @@ tbl
 library(limma)
 go <-
     goana(tbl$ENTREZID[tbl$padj < .05], tbl$ENTREZID, "Hs") %>%
-    as_tibble(rownames = "GOID")
+    as_tibble(rownames = "GOID") %>%
+    dplyr::select(GOID, Ont, everything())
 go
 ```
 
-Sanity check
+What GO id's are most differentially expressed? (Why do these gene
+sets seem to have a large size, `N`?)
+
+```{r}
+go %>% arrange(P.DE)
+```
+
+Sanity check?
 
 ```{r}
 go %>%
@@ -123,7 +131,7 @@ What genes in set?
 genesets <-
     AnnotationDbi::select(org.Hs.eg.db, tbl$ENTREZID, "GOALL", "ENTREZID") %>%
     as_tibble() %>%
-    dplyr::select(ENTREZID, GOID = GOALL, Ont = ONTOLOGYALL) %>%
+    dplyr::select(GOID = GOALL, Ont = ONTOLOGYALL, ENTREZID) %>%
     distinct() %>%
     arrange(Ont, GOID)
 genesets
