@@ -81,13 +81,11 @@ tbl
 
 Requires ENTREZ identifiers
 
-```{r}
+```{r, message=FALSE}
 library(org.Hs.eg.db)
 tbl <- tbl %>%
     mutate(
-        ENTREZID = mapIds(
-            org.Hs.eg.db, ENSEMBL, "ENTREZID", "ENSEMBL"
-        ) %>% unname()
+        ENTREZID = mapIds(org.Hs.eg.db, ENSEMBL, "ENTREZID", "ENSEMBL")
     ) %>%
     dplyr::select(ENSEMBL, ENTREZID, everything())
 tbl
@@ -121,13 +119,13 @@ go %>%
 
 What genes in set?
 
-```{r}
+```{r, message=FALSE}
 genesets <-
-    AnnotationDbi::select(org.Hs.eg.db, tbl$ENTREZID, "GO", "ENTREZID") %>%
+    AnnotationDbi::select(org.Hs.eg.db, tbl$ENTREZID, "GOALL", "ENTREZID") %>%
     as_tibble() %>%
-    dplyr::select(ENTREZID, GO, ONTOLOGY) %>%
+    dplyr::select(ENTREZID, GOID = GOALL, Ont = ONTOLOGYALL) %>%
     distinct() %>%
-    arrange(ONTOLOGY, GO)
+    arrange(Ont, GOID)
 genesets
 ```
 
