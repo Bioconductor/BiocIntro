@@ -1,0 +1,54 @@
+---
+title: "How To Advance Science Using _Bioconductor_"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Comprehensive Cancer Center, Buffalo, New York
+  email: Martin.Morgan@RoswellPark.org
+package: BiocIntro
+output:
+  BiocStyle::html_document
+abstract: |
+  Now is an incredibly exciting time for you to participate in
+  bioinformatic research, with new methods for generating and
+  analyzing large genomic data sets emerging almost daily. As
+  bioinformaticians, we need a large, comprehensive, current,
+  established, well supported, open source, community developed
+  collection of software to address our leading-edge needs. This
+  presentation describes the _Bioconductor_ project, providing exactly
+  these resources for the _R_ bioinformatics community. We'll learn a
+  little about the history, philosophy, and approach of the
+  _Bioconductor_ project. We then walk through essential steps in
+  getting started with _Bioconductor_, tackling real analytic
+  challenges, and contributing to the _Bioconductor_
+  community. With luck, the presentation will inspire and empower you
+  to tackle new and innovative challenges in your own bioinformatic
+  research.
+vignette: |
+  %\VignetteIndexEntry{How You Can Advance Science Using Bioconductor}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# _Bioconductor_
+
+## Overview
+
+## Scientific domains
+
+## Project history
+
+## Unique features
+
+# You
+
+## Getting started
+
+## Tackling real problems
+
+## Contributing to the community
+
+# Acknowledgements
+
+```{r sessionInfo}
+sessionInfo()
+```

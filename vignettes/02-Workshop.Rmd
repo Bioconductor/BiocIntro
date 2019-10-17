@@ -1,0 +1,22 @@
+---
+title: "FIXME: Workshop Title"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Comprehensive Cancer Center, Buffalo, New York
+  email: Martin.Morgan@RoswellPark.org
+package: packageName
+output:
+  BiocStyle::html_document
+abstract: |
+  FIXME: Workshop Description
+vignette: |
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Acknowledgements
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
