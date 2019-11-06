@@ -1,19 +1,48 @@
 ---
-title: "FIXME: Workshop Title"
+title: "_R_ and _Bioconductor_ for Genomic Analysis"
 author:
 - name: Martin Morgan
   affiliation: Roswell Park Comprehensive Cancer Center, Buffalo, New York
   email: Martin.Morgan@RoswellPark.org
-package: packageName
+package: BiocIntro
 output:
   BiocStyle::html_document
-abstract: |
-  FIXME: Workshop Description
 vignette: |
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{R and Bioconductor for Genomic Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+# Introduction
+
+Description: This workshop will introduce you to the _Bioconductor_
+collection of R packages for statistical analysis and comprehension of
+high-throughput genomic data. The emphasis is on data exploration,
+using RNA-sequence gene expression experiments as a motivating
+example. How can I access common sequence data formats from R? How can
+I use information about gene models or gene annotations in my
+analysis? How do the properties of my data influence the statistical
+analyses I should perform? What common workflows can I perform with R
+and _Bioconductor_? How do I deal with very large data sets in R?
+These are the sorts of questions that will be tackled in this
+workshop.
+
+Requirements: You will need to bring your own laptop. The workshop
+will use cloud-based resources, so your laptop will need a web browser
+and WiFi capabilities. Participants should have used _R_ and _RStudio_ for
+tasks such as those covered in introductory workshops earlier in the
+week. Some knowledge of the biology of gene expression and of concepts
+learned in a first course in statistics will be helpful.
+
+Relevance: This workshop is relevant to anyone eager to explore
+genomic data in _R_. The workshop will help connect ‘core’ _R_ concepts
+for working with data (e.g., data management via data.frame(),
+statistical modelling with lm() or t.test(), visualization usiing
+plot() or ggplot()) to the special challenges of working with large
+genomic data sets. It will be especially helpful to those who have or
+will have their own genomic data, and are interested in more fully
+understanding how to work with it in _R_.
+
 
 # Acknowledgements
 
