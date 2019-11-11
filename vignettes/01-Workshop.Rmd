@@ -1,0 +1,445 @@
+---
+title: "_Bioconductor_ and Beyond: Workshop"
+author:
+- name: Martin Morgan
+  affiliation: Roswell Park Comprehensive Cancer Center, Buffalo, New York
+  email: Martin.Morgan@RoswellPark.org
+package: BiocIntro
+output:
+  BiocStyle::html_document
+vignette: |
+  %\VignetteIndexEntry{How You Can Advance Science Using Bioconductor}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+# Objectives
+
+Abstract: This two-hour workshop is meant to empower Cancer Moonshot
+research labs to tackle their bioinformatic analysis challenges. For
+the first hour and a half, we’ll work through a hands-on workflow for
+single cell assay analysis. We’ll introduce data import, management,
+and interactive visualization using Bioconductor tools like
+iSEE. After seeing how to work with one assay, we’ll briefly explore
+approaches to integrating different assays. In the final ½ hour we’ll
+go beyond Bioconductor tools for single-cell analysis. We’ll assemble
+a panel to discuss possible strategies for data analysis challenges
+submitted (before the workshop) to the organizers.
+
+Goal: Empower Cancer Moonshot Research Labs to tackle their
+bioinformatic analysis challenges
+
+Objectives, this workshop:
+
+1. Learn the basics of _R_ and _Bioconductor_
+2. Participate in the exploration of immuno-oncology relevant data using _R_ /
+   _Bioconductor_
+3. Tour additional directions possible in _R_ / _Bioconductor_
+4. Discuss challenges and opportunities in immuno-oncology bioinformatics.
+
+# _R_ and _Bioconductor_ 101
+
+## _R_
+
+- standard statistical analysis
+- high quality visualizations
+- interactivity
+
+Vectors, variables, and functions
+
+```{r}
+x = rnorm(100)
+mean(x)
+var(x)
+hist(x)
+```
+
+Manageing data: classes and methods
+
+```{r}
+y = x + rnorm(100)
+df = data.frame(x, y)
+plot(y ~ x, df)
+```
+
+Visualization
+
+```{r}
+fit = lm(y ~ x, df)
+anova(fit)
+plot(y ~ x, df)
+abline(fit)
+```
+
+Extending base R: packages
+
+```{r, message=FALSE}
+library(ggplot2)
+ggplot(df, aes(x, y)) + 
+    geom_point() +
+    geom_smooth(method="lm")
+```
+
+CRAN (Comprehensive _R_ Archive Network)
+
+- 15000+ R packages: https://cran.r-project.org/web/packages
+- Task views: https://cran.r-project.org/web/views
+
+## _Bioconductor_
+
+- More than 1800 _R_ packages for statistical analysis and comprehension of
+  high-throughput genomic data
+- Bulk and single-cell RNA-seq, epigenetic and other microarrays, called
+  variants, flow cytometry, proteomics, ...
+- Widely used (>1/2 million unique IP downloads / year), highly cited
+  (>33,000 PubMedCentral citations), well-respected
+- NIH funded -- NHGRI (core), ITCR (multi-assay, annotation- and
+  experiment-hub), IOTN (immuno-oncology data coordinating center)
+
+Resources
+
+- Project: https://bioconductor.org
+- 1823 Packages: https://bioconductor.org/packages
+    - Vignettes (e.g., [DESeq2][])
+    - Software, annotation, and experiment (exemplar) data packages
+- Support: https://support.bioconductor.org
+- [Workflows][], [training material][], [slack][], etc.
+
+[DESeq2]: http://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
+[Workflows]: https://bioconductor.org/packages/release/BiocViews.html#___Workflow
+[training material]: https://bioconductor.org/help/course-materials/
+[slack]: https://bioc-community.herokuapp.com/
+
+Data management
+
+- FIXME: import and operate on standard file formats, e.g. BED, VCF
+
+Domain-specific work flows, e.g., bulk RNA-seq diffrential expression
+
+- Load example data, pre-formatted.
+
+```{r, message = FALSE}
+library(airway)
+data(airway)      # load example data
+airway
+```
+
+- A _Bioconductor_ _SummarizedExperiment_ object, providing coordinated data
+  management
+  
+```{r, echo=FALSE}
+knitr::include_graphics("our_figures/SummarizedExperiment.svg")
+```
+
+- `colData()`: description of samples, especially four cell lines exposed to
+  two dexamethasone treatments
+
+```{r}
+colData(airway)
+```
+
+- `assay()` data: RNA-seq reads overlapping genes (proxy for gene expression)
+
+```{r}
+head(assay(airway))
+```
+
+- Load package implementing domain-specific work flow (i.e., bulk RNA-seq
+  differential expression)
+
+```{r, message=FALSE}
+library(DESeq2)   # 'Software' package -- bulk RNA-seq differential expression
+```
+
+- Fit a linear model describing counts as a function of cell line (blocking
+  variable) and dexamethasone treatment.
+
+```{r}
+dds = DESeqDataSet(airway, ~ cell + dex)
+fit = DESeq(dds)
+```
+
+- Obtain a 'top table' of differentially expressed genes
+
+```{r}
+toptable = results(fit)
+toptable
+```
+
+- Interoperate with other R packages for visualization
+
+    - [tibble][]: like a base _R_ `data.frame()` but with nicer display
+
+```{r, message=FALSE, fig.asp=1}
+library(tibble)
+library(ggplot2)
+toptbl = as_tibble(toptable, rownames="gene")
+ggplot(toptbl, aes(log2FoldChange, -log10(pvalue))) +
+    geom_point()
+```
+
+[tibble]: https://cran.r-project.org/package=tibble
+
+# Immuno-oncology analysis: single-cell RNAseq
+
+An excellent resource
+
+- https://osca.bioconductor.org/
+
+For today's workshop
+
+- Richard, A. C., A. T. L. Lun, W. W. Y. Lau, B. Gottgens, J. C. Marioni, and G.
+  M. Griffiths. 2018. "T cell cytolytic capacity is independent of initial
+  stimulation strength." [Nat. Immunol. 19 (8):849–58][PMC6300116].
+
+[PMC6300116]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6300116/
+
+Goal: reproduce parts of [Figure 1][].
+
+[Figure 1]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6300116/figure/F1/?report=objectonly
+
+```{r, echo=FALSE}
+knitr::include_graphics("our_figures/PMC6300116_fig_1.jpg")
+```
+
+## Filtering, normalization, and selecting subsets-of-interest
+
+Example data set
+
+- Available via ExperimentHub and [scRNAseq][] package
+- Specialized version of SummarizedExperiment
+
+[scRNAseq]: https://bioconductor.org/packages/scRNAseq
+
+```{r, message=FALSE}
+library(scRNAseq)
+tcell = RichardTCellData()
+tcell
+```
+
+Filtering
+
+- 'informative' (often expressed) across cells
+
+```{r}
+## Expression in at least 5% of cells...
+drop_filt <- rowSums(assay(tcell) > 0) >= (ncol(tcell) * 0.05)
+tcell <- tcell[drop_filt,]
+## ...and mean count at least 1
+mean_filt <- rowMeans(assay(tcell)) >= 1
+tcell <- tcell[mean_filt,]
+```
+
+Normalization
+
+- Spike-ins were included in the experiment (and in `tcell`) and are used for
+  normalization
+
+```{r, message=FALSE}
+library(scater)
+tcell <- logNormCounts(tcell)
+hist(logcounts(tcell))
+```
+
+Cells of interest -- time course
+
+- [dplyr][]: implements 'tidy' approach to data analysis, using tibbles and a
+  few well-defined functions (e.g., `filter()`, `select()`, `count()`) for easy 
+  manipulation. Pipe (`%>%`) tibbles from one function to another.
+- identify relevant samples
+
+[dplyr]: https://cran.r-project.org/package=dplyr
+
+```{r, message=FALSE}
+library(tibble)
+library(dplyr)
+tbl = as_tibble(colData(tcell), rownames = "cell")
+tbl %>%
+    dplyr::filter(post.analysis.well.quality == "pass") %>%
+    dplyr::count(individual, stimulus, time)
+```
+
+- Subset `tcell` to contain just the samples of interest, and genes with 
+  non-zero read counts across samples.
+
+```{r}
+cidx = tcell$individual == 2 &
+    tcell$`post-analysis well quality` == "pass" &
+    tcell$stimulus == "OT-I high affinity peptide N4 (SIINFEKL)"
+table(cidx)
+ridx <- rowSums(logcounts(tcell)[,cidx]) != 0
+fig1 <- tcell[ridx , cidx]
+```
+
+- Some basic properties / sanity checks
+
+```{r}
+mean(logcounts(fig1) == 0)         # proportion of 0's
+hist(librarySizeFactors(fig1))     # distribution of library size factors
+```
+
+## Visualization -- 'looking at' the data
+
+Principle components analysis
+
+```{r}
+pc = prcomp(t(logcounts(fig1)), scale = TRUE)
+tbl = as_tibble(pc$x) %>%
+    mutate(time = factor(fig1$time))
+ggplot(tbl, aes(x = PC1, y = PC2, color = time)) + 
+    geom_point()
+```
+
+Our favorite genes
+
+- Use an 'annotation resource' to map between unfriendly Ensembl gene
+  identifiers and more familiar gene symbols
+
+```{r, message=FALSE}
+library(AnnotationHub)
+library(ensembldb)
+```
+
+- Discover and retrieve available resources -- an `EnsDb` (Ensembl data base) 
+  for _Mus musculus_, Ensembl release 98
+
+```{r}
+query(AnnotationHub(), c("EnsDb", "Mus musculus", "98"))
+ensdb <- AnnotationHub()[["AH75036"]]
+```
+
+- Demonstrate how to map to 'SYMBOL' identifiers from Ensembl gene identifiers
+
+```{r}
+## available identifier mappings: columns(ensdb)
+mapIds(ensdb, head(rownames(fig1)), "SYMBOL", "GENEID")
+```
+
+- Map all Ensembl gene identifiers to gene symbol, adding a row annotation to
+  `fig1`
+
+```{r}
+rowData(fig1)$SYMBOL <- mapIds(ensdb, rownames(fig1), "SYMBOL", "GENEID")
+```
+
+- Boxplot of expression in a favorite gene
+
+```{r, fig.asp=1}
+ridx <- rowData(fig1)$SYMBOL %in% "Nr4a1"
+tbl <- tibble(
+    time = factor(fig1$time),
+    Nr4a1 = logcounts(fig1)[ridx,]
+)
+ggplot(tbl, aes(time, Nr4a1, color = time)) +
+    geom_boxplot() +
+    geom_jitter(width = .1)
+```
+
+## Further analysis
+
+Psuedotime
+
+- Appendix I
+
+Differential expression
+
+- Appendix II
+
+https://osca.bioconductor.org
+
+- Quality control
+- Normalization
+- Feature selection
+- Dimensionality reduction
+- Clustering
+- Marker gene detection
+- Cell type annotation
+- Gene set enrichment
+- Etc.!
+
+# Additional directions
+
+## Interactive visualization
+
+- See the [iSEE vignette][]
+
+[iSEE vignette]: https://bioconductor.org/packages/release/bioc/vignettes/iSEE/inst/doc/basic.html
+
+```{r iSEE, eval = FALSE}
+iSEE::iSEE(fig1)
+```
+
+## Multi-omic analysis
+
+- Coordinated management of multiple genetic data types
+- See the [MultiAssayExperiment vignette][] for deails
+
+[MultiAssayExperiment vignette]: https://bioconductor.org/packages/release/bioc/vignettes/MultiAssayExperiment/inst/doc/MultiAssayExperiment.html
+
+- Available data types
+
+```{r, message=FALSE}
+library(MultiAssayExperiment)
+library(curatedTCGAData)
+curatedTCGAData()
+```
+
+- Particular data -- Breast cancer (BRCA) mutation, gene expression, and
+  protein expression data.
+
+```{r, message=FALSE}
+assays = c("Mutation", "RNASeqGene", "RPPAArray")
+brca = curatedTCGAData("BRCA", assays, dry.run = FALSE)
+brca
+```
+
+- Each assay is a 'familiar' object, e.g., a SummarizedExperiment
+
+```{r}
+brca[["BRCA_RNASeqGene-20160128"]]
+```
+
+- Lots of annotations on each sample!
+
+```{r}
+length(colnames(colData(brca)))
+head(colnames(colData(brca)))
+```
+
+- Commands to aid management of overlapping samples across assays
+
+## Computational clouds
+
+# Panel discussion
+
+- Methods for calculating "Cancer Cell Fraction” (CCF) from WGS data
+  bam files or VCF files
+- considerations for calling variants and filtering through them from
+  WGS data
+- how to plot mutations on a 2D gene/protein model.
+
+As for data analysis things, I have mutation data and pathology
+information for multiple samples. I’d like to develop a predictive
+model for the types of mutations associated with increasing levels of
+dysplasia, etc.
+
+One of the challenges we have for single-cell immune analysis is the
+identification and characterization of each cluster. While there are
+some gene matrix for specific subsets that can be used for
+deconvolution, many clusters do not fit the matrix and we would like
+to learn the best way to ID clusters for known and unknown subsets.
+ 
+Hi, I will be attending as a CyTOF analyst and will be there to share
+our experiences or discuss analysis of CyTOF data and workflow.  I am
+not strong in R programming, but do know how to use it.  I will absorb
+and share with my lab analysis experts.  Jim
+
+# Acknowledgements
+
+```{r sessionInfo}
+sessionInfo()
+```
