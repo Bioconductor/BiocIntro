@@ -416,29 +416,31 @@ head(colnames(colData(brca)))
 
 # Panel discussion
 
-- Methods for calculating "Cancer Cell Fraction” (CCF) from WGS data
-  bam files or VCF files
-- considerations for calling variants and filtering through them from
-  WGS data
-- how to plot mutations on a 2D gene/protein model.
+<!-- - Methods for calculating "Cancer Cell Fraction” (CCF) from WGS data -->
+<!--   bam files or VCF files -->
+<!-- - considerations for calling variants and filtering through them from -->
+<!--   WGS data -->
+<!-- - how to plot mutations on a 2D gene/protein model. -->
 
-As for data analysis things, I have mutation data and pathology
-information for multiple samples. I’d like to develop a predictive
-model for the types of mutations associated with increasing levels of
-dysplasia, etc.
+<!-- As for data analysis things, I have mutation data and pathology -->
+<!-- information for multiple samples. I’d like to develop a predictive -->
+<!-- model for the types of mutations associated with increasing levels of -->
+<!-- dysplasia, etc. -->
 
-One of the challenges we have for single-cell immune analysis is the
-identification and characterization of each cluster. While there are
-some gene matrix for specific subsets that can be used for
-deconvolution, many clusters do not fit the matrix and we would like
-to learn the best way to ID clusters for known and unknown subsets.
- 
-Hi, I will be attending as a CyTOF analyst and will be there to share
-our experiences or discuss analysis of CyTOF data and workflow.  I am
-not strong in R programming, but do know how to use it.  I will absorb
-and share with my lab analysis experts.  Jim
+<!-- One of the challenges we have for single-cell immune analysis is the -->
+<!-- identification and characterization of each cluster. While there are -->
+<!-- some gene matrix for specific subsets that can be used for -->
+<!-- deconvolution, many clusters do not fit the matrix and we would like -->
+<!-- to learn the best way to ID clusters for known and unknown subsets. -->
+
+<!-- Hi, I will be attending as a CyTOF analyst and will be there to share -->
+<!-- our experiences or discuss analysis of CyTOF data and workflow.  I am -->
+<!-- not strong in R programming, but do know how to use it.  I will absorb -->
+<!-- and share with my lab analysis experts.  Jim -->
 
 # Acknowledgements
+
+Research reported in this presentation was supported by the NCIA and NHGRI of the National Institutes of Health under award numbers U24CA232979, U41HG004059, and U24CA180996.  The content is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health.
 
 ```{r sessionInfo}
 sessionInfo()
