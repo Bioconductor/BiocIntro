@@ -342,7 +342,7 @@ Cells of interest -- time course
 [dplyr]: https://cran.r-project.org/package=dplyr
 
 ```{r, message=FALSE}
-as_tibble(colData(tcell), rownames = "cell") %>%
+as_tibble(colData(tcell)) %>%
     dplyr::filter(post.analysis.well.quality == "pass") %>%
     dplyr::count(individual, stimulus, time)
 ```
@@ -363,7 +363,7 @@ fig1 <- tcell[expressed_genes, cells_of_interest]
 
 - Some basic properties and manipulations
 
-```{r}
+```{r, collpase = TRUE}
 mean(logcounts(fig1) == 0)         # proportion of 0's
 
 ## update colData -- treat `time` as factor (discrete) rather than continuous
@@ -378,16 +378,18 @@ rowData(fig1)$n_cells <- rowSums(assay(fig1) > 0)
 
 Dimensionality reduction
 
-- ...Or another -- add reduced dimension information to `fig1`
+- Add reduced dimension information to `fig1`
 
 ```{r}
 fig1 <- runPCA(fig1, ncomponents = 4)
 fig1 <- runTSNE(fig1)
 fig1
 ```
+
+- Visualize
+
 ```{r, collapse = TRUE, fig.asp = 1}
 plotPCA(fig1, colour_by = "time", point_size = 4)
-
 plotTSNE(fig1, colour_by = "time", point_size =4)
 ```
 
@@ -415,7 +417,7 @@ rowData(fig1)$SYMBOL <- mapIds(ensdb, rownames(fig1), "SYMBOL", "GENEID")
 ```{r, fig.asp=1}
 rows <- rowData(fig1)$SYMBOL %in% "Nr4a1"
 tbl <- tibble(
-    time = factor(fig1$time),
+    time = fig1$time,
     Nr4a1 = logcounts(fig1)[rows,]
 )
 
@@ -423,6 +425,22 @@ ggplot(tbl, aes(time, Nr4a1, color = time)) +
     geom_boxplot() +
     geom_jitter(width = .1)
 ```
+
+**What we learned**
+
+- Analyses use several different packages from _R_ and
+  _Bioconductor_.
+- Alot of effort is spent organizing data into appropriate formats for
+  input to functions, and reshaping outputs of one function for the
+  next step in the analysis.
+- _Bioconductor_ data structures like `SummarizedExperiment` help
+  substantially with these data managment tasks.
+- Vignettes, resources like [osca][], and well-documented methods in
+  published papers help orient us as we tackle new projects.
+
+[osca]: https://osca.bioconductor.org/
+
+# Next steps
 
 ## Further analysis
 
@@ -441,23 +459,6 @@ https://osca.bioconductor.org
 
 [SingleR]: https://bioconductor.org/packages/SingleR
 [destiny]: https://bioconductor.org/packages/destiny
-
-**What we learned**
-
-- Analyses use several different packages from _R_ and
-  _Bioconductor_.
-- Alot of effort is spent organizing data into appropriate formats for
-  input to functions, and reshaping outputs of one function for the
-  next step in the analysis.
-- _Bioconductor_ data structures like `SummarizedExperiment` and
-  `MultiAssayExperiment` help substantially with these data managment
-  tasks.
-- Vignettes, resources like [osca][], and well-documented methods in
-  published papers help orient us as we tackle new projects.
-
-[osca]: https://osca.bioconductor.org/
-
-# Additional directions
 
 ## Interactive visualization
 
@@ -517,9 +518,10 @@ head(colnames(colData(brca)))
 
 [AnVIL]: https://anvil.terra.bio/
 
-# Next steps
+## Learning more
 
 - https://bioconductor.org
+- https://bioconductor.org/help/course-materials
 - Bioconductor [Asia][] Conference, Sydney, December 5 - 6
 - Bioconductor [Europe][] Conference, Brussels, December 9 - 11.
 - Bioconductor [North America][] Conference, Boston, July 29 - 31.

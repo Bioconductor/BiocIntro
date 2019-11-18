@@ -9,7 +9,7 @@ Description: Vignettes and resources to support introductory R
     training courses.
 Suggests:
     BiocStyle, knitr, ggplot2, airway, DESeq2, tibble, ggplot2,
-    scRNAseq, scater, tibble, dplyr, AnnotationHub, ensembldb,
-    MultiAssayExperiment, curatedTCGAData
+    scRNAseq, scater, destiny, tibble, dplyr, AnnotationHub, ensembldb,
+    MultiAssayExperiment, curatedTCGAData, iSEE
 License: Artistic-2.0
 VignetteBuilder: knitr
