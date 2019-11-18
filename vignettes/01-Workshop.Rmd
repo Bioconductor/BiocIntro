@@ -45,7 +45,15 @@ Objectives, this workshop:
 
 ## _R_
 
-- standard statistical analysis
+**What we will learn**
+
+- Working with _R_ functions, variables, vectors and data structures
+- Using packages to extend base _R_ capabilities
+- Getting help
+
+_R_
+
+- standard and advanced statistical analysis
 - high quality visualizations
 - interactivity
 
@@ -84,12 +92,32 @@ ggplot(df, aes(x, y)) +
     geom_smooth(method="lm")
 ```
 
+Help!
+
+- `?lm`
+- `browseVignettes("ggplot2")`
+
 CRAN (Comprehensive _R_ Archive Network)
 
 - 15000+ R packages: https://cran.r-project.org/web/packages
 - Task views: https://cran.r-project.org/web/views
 
+**What we learned**
+
+- Vectors simplify _R_ expressions
+- Data structures like `data.frame` help manage data
+- Packages provide many different extensions
+- Help is available through `?`, `browseVignettes()` and other means
+
 ## _Bioconductor_
+
+**What we will learn**
+
+- Discover and use _Bioconductor_ packages
+- Working with `SummarizedExperiment` for data management
+- Using annotation packages to map between gene identifiers
+
+_Bioconductor_
 
 - More than 1800 _R_ packages for statistical analysis and comprehension of
   high-throughput genomic data
@@ -116,7 +144,8 @@ Resources
 
 Data management
 
-- FIXME: import and operate on standard file formats, e.g. BED, VCF
+- Extensive resources to import and operate on standard file formats,
+  e.g. BED, VCF, BAM, ...
 
 Domain-specific work flows, e.g., bulk RNA-seq diffrential expression
 
@@ -140,6 +169,8 @@ knitr::include_graphics("our_figures/SummarizedExperiment.svg")
 
 ```{r}
 colData(airway)
+
+airway$cell
 ```
 
 - `assay()` data: RNA-seq reads overlapping genes (proxy for gene expression)
@@ -150,43 +181,66 @@ head(assay(airway))
 
 - Load package implementing domain-specific work flow (i.e., bulk RNA-seq
   differential expression)
-
-```{r, message=FALSE}
-library(DESeq2)   # 'Software' package -- bulk RNA-seq differential expression
-```
-
 - Fit a linear model describing counts as a function of cell line (blocking
   variable) and dexamethasone treatment.
-
-```{r}
-dds = DESeqDataSet(airway, ~ cell + dex)
-fit = DESeq(dds)
-```
-
 - Obtain a 'top table' of differentially expressed genes
 
-```{r}
+```{r, message=FALSE, collapse=TRUE}
+library(DESeq2)   # 'Software' package -- bulk RNA-seq differential expression
+dds = DESeqDataSet(airway, ~ cell + dex)
+fit = DESeq(dds)
 toptable = results(fit)
 toptable
 ```
 
-- Interoperate with other R packages for visualization
+- Find resources to map between identifiers using AnnotationHub
 
-    - [tibble][]: like a base _R_ `data.frame()` but with nicer display
-
-```{r, message=FALSE, fig.asp=1}
-library(tibble)
-library(ggplot2)
-toptbl = as_tibble(toptable, rownames="gene")
-ggplot(toptbl, aes(log2FoldChange, -log10(pvalue))) +
-    geom_point()
+```{r, message = FALSE}
+library(AnnotationHub)
+query(AnnotationHub(), c("EnsDb", "Homo sapiens", "98"))
+ensdb <- AnnotationHub()[["AH75011"]]
 ```
 
-[tibble]: https://cran.r-project.org/package=tibble
+- Map from Ensembl identifiers to gene symbol
+
+```{r, message = FALSE, collapse = TRUE}
+egids <- rownames(toptable)
+toptable$SYMBOL <- mapIds(ensdb, egids, "SYMBOL", "GENEID")
+```
+
+- Most differentially expressed genes
+
+```{r}
+idx <- head( order( toptable$padj), 20 )
+toptable[idx, c("SYMBOL", "padj")]
+```
+
+- Heat map:
+
+```{r}
+heatmap( log1p( assay(airway)[idx,] ))
+```
+
+**What we learned**
+
+- https://bioconductor.org is the entry point for high-throughput
+  genomic analysis in _R_.
+- `SummarizedExperiment` allows easy management of complicated
+  data. Use functions like `colData()`, `assay()`, and `[` for
+  manipulation.
+- AnnotationHub provides resources for mapping between
+  identifiers. Use `query()` to discover common resources.
 
 # Immuno-oncology analysis: single-cell RNAseq
 
-An excellent resource
+**What we will do**
+
+- Recreate figures from a recent paper, illustrating how some ideas in
+  single-cell analysis translate into analysis.
+- Survey other options for single cell and multi-omic analysis
+  available in _R_ / _Bioconductor_
+
+An excellent resource -- osca --
 
 - https://osca.bioconductor.org/
 
@@ -206,17 +260,54 @@ Goal: reproduce parts of [Figure 1][].
 knitr::include_graphics("our_figures/PMC6300116_fig_1.jpg")
 ```
 
+Our part in the big picture (from Amezquita et al., Orchestrating
+Single-Cell Analysis with Bioconductor bioRxiv [590562][])
+
+[590562]: https://doi.org/10.1101/590562
+
+```{r, echo=FALSE}
+knitr::include_graphics("our_figures/F3.large.jpg")
+```
+
 ## Filtering, normalization, and selecting subsets-of-interest
+
+Packages we'll use
+
+- [scRNAseq][]: Access to select scRNA-seq data sets
+- [SingleCellExperiment][]: Data representation
+- [scater][]: Single-cell analysis toolkit -- normalization
+- [AnnotationHub][], [ensembldb][]: Annotation
+- [destiny][]: Psuedotime.
+- [dplyr][]: 'tidy' data management.
+- [ggplot2][]: Visualization
+- Base R: filtering & data management
+
+[scRNAseq]: https://bioconductor.org/packages/scRNAseq
+[SingleCellExperiment]: https://bioconductor.org/packages/SingleCellExperiment
+[scater]: https://bioconductor.org/packages/scater
+[AnnotationHub]: https://bioconductor.org/packages/AnnotationHub
+[ensembldb]: https://bioconductor.org/packages/ensembldb
+[destiny]: https://bioconductor.org/packages/destiny
+[dplyr]: https://cran.r-project.org/package=dplyr
+[ggplot2]: https://cran.r-project.org/package=ggplot2
+
+```{r, message=FALSE}
+library(scRNAseq)
+library(SingleCellExperiment)
+library(scater)
+library(AnnotationHub)
+library(ensembldb)
+library(destiny)
+library(dplyr)
+library(ggplot2)
+```
 
 Example data set
 
 - Available via ExperimentHub and [scRNAseq][] package
 - Specialized version of SummarizedExperiment
 
-[scRNAseq]: https://bioconductor.org/packages/scRNAseq
-
 ```{r, message=FALSE}
-library(scRNAseq)
 tcell = RichardTCellData()
 tcell
 ```
@@ -227,11 +318,12 @@ Filtering
 
 ```{r}
 ## Expression in at least 5% of cells...
-drop_filt <- rowSums(assay(tcell) > 0) >= (ncol(tcell) * 0.05)
-tcell <- tcell[drop_filt,]
+drop_filter <- rowSums(assay(tcell) > 0) >= (ncol(tcell) * 0.05)
+tcell <- tcell[drop_filter,]
+
 ## ...and mean count at least 1
-mean_filt <- rowMeans(assay(tcell)) >= 1
-tcell <- tcell[mean_filt,]
+mean_filter <- rowMeans(assay(tcell)) >= 1
+tcell <- tcell[mean_filter,]
 ```
 
 Normalization
@@ -240,25 +332,17 @@ Normalization
   normalization
 
 ```{r, message=FALSE}
-library(scater)
 tcell <- logNormCounts(tcell)
-hist(logcounts(tcell))
 ```
 
 Cells of interest -- time course
 
-- [dplyr][]: implements 'tidy' approach to data analysis, using tibbles and a
-  few well-defined functions (e.g., `filter()`, `select()`, `count()`) for easy 
-  manipulation. Pipe (`%>%`) tibbles from one function to another.
 - identify relevant samples
 
 [dplyr]: https://cran.r-project.org/package=dplyr
 
 ```{r, message=FALSE}
-library(tibble)
-library(dplyr)
-tbl = as_tibble(colData(tcell), rownames = "cell")
-tbl %>%
+as_tibble(colData(tcell), rownames = "cell") %>%
     dplyr::filter(post.analysis.well.quality == "pass") %>%
     dplyr::count(individual, stimulus, time)
 ```
@@ -267,56 +351,56 @@ tbl %>%
   non-zero read counts across samples.
 
 ```{r}
-cidx = tcell$individual == 2 &
-    tcell$`post-analysis well quality` == "pass" &
-    tcell$stimulus == "OT-I high affinity peptide N4 (SIINFEKL)"
-table(cidx)
-ridx <- rowSums(logcounts(tcell)[,cidx]) != 0
-fig1 <- tcell[ridx , cidx]
+stimulus <- c("OT-I high affinity peptide N4 (SIINFEKL)", "unstimulated")
+cells_of_interest <- 
+    ( tcell$stimulus %in% stimulus ) &
+    ( tcell$`post-analysis well quality` %in% "pass" )
+
+expressed_genes <- rowSums(logcounts(tcell)[, cells_of_interest]) != 0
+
+fig1 <- tcell[expressed_genes, cells_of_interest]
 ```
 
-- Some basic properties / sanity checks
+- Some basic properties and manipulations
 
 ```{r}
 mean(logcounts(fig1) == 0)         # proportion of 0's
-hist(librarySizeFactors(fig1))     # distribution of library size factors
+
+## update colData -- treat `time` as factor (discrete) rather than continuous
+colData(fig1)$time <- factor(colData(fig1)$time)
+
+## Save useful row-wise summaries
+rowData(fig1)$ave_count <- rowMeans(assay(fig1))
+rowData(fig1)$n_cells <- rowSums(assay(fig1) > 0)
 ```
 
 ## Visualization -- 'looking at' the data
 
-Principle components analysis
+Dimensionality reduction
+
+- ...Or another -- add reduced dimension information to `fig1`
 
 ```{r}
-pc = prcomp(t(logcounts(fig1)), scale = TRUE)
-tbl = as_tibble(pc$x) %>%
-    mutate(time = factor(fig1$time))
-ggplot(tbl, aes(x = PC1, y = PC2, color = time)) + 
-    geom_point()
+fig1 <- runPCA(fig1, ncomponents = 4)
+fig1 <- runTSNE(fig1)
+fig1
+```
+```{r, collapse = TRUE, fig.asp = 1}
+plotPCA(fig1, colour_by = "time", point_size = 4)
+
+plotTSNE(fig1, colour_by = "time", point_size =4)
 ```
 
 Our favorite genes
 
 - Use an 'annotation resource' to map between unfriendly Ensembl gene
   identifiers and more familiar gene symbols
-
-```{r, message=FALSE}
-library(AnnotationHub)
-library(ensembldb)
-```
-
 - Discover and retrieve available resources -- an `EnsDb` (Ensembl data base) 
   for _Mus musculus_, Ensembl release 98
 
-```{r}
+```{r, message=FALSE}
 query(AnnotationHub(), c("EnsDb", "Mus musculus", "98"))
 ensdb <- AnnotationHub()[["AH75036"]]
-```
-
-- Demonstrate how to map to 'SYMBOL' identifiers from Ensembl gene identifiers
-
-```{r}
-## available identifier mappings: columns(ensdb)
-mapIds(ensdb, head(rownames(fig1)), "SYMBOL", "GENEID")
 ```
 
 - Map all Ensembl gene identifiers to gene symbol, adding a row annotation to
@@ -329,25 +413,18 @@ rowData(fig1)$SYMBOL <- mapIds(ensdb, rownames(fig1), "SYMBOL", "GENEID")
 - Boxplot of expression in a favorite gene
 
 ```{r, fig.asp=1}
-ridx <- rowData(fig1)$SYMBOL %in% "Nr4a1"
+rows <- rowData(fig1)$SYMBOL %in% "Nr4a1"
 tbl <- tibble(
     time = factor(fig1$time),
-    Nr4a1 = logcounts(fig1)[ridx,]
+    Nr4a1 = logcounts(fig1)[rows,]
 )
+
 ggplot(tbl, aes(time, Nr4a1, color = time)) +
     geom_boxplot() +
     geom_jitter(width = .1)
 ```
 
 ## Further analysis
-
-Psuedotime
-
-- Appendix I
-
-Differential expression
-
-- Appendix II
 
 https://osca.bioconductor.org
 
@@ -357,9 +434,28 @@ https://osca.bioconductor.org
 - Dimensionality reduction
 - Clustering
 - Marker gene detection
-- Cell type annotation
+- Cell type annotation ([SingleR][])
+- Trajectory analysis ([destiny][])
 - Gene set enrichment
 - Etc.!
+
+[SingleR]: https://bioconductor.org/packages/SingleR
+[destiny]: https://bioconductor.org/packages/destiny
+
+**What we learned**
+
+- Analyses use several different packages from _R_ and
+  _Bioconductor_.
+- Alot of effort is spent organizing data into appropriate formats for
+  input to functions, and reshaping outputs of one function for the
+  next step in the analysis.
+- _Bioconductor_ data structures like `SummarizedExperiment` and
+  `MultiAssayExperiment` help substantially with these data managment
+  tasks.
+- Vignettes, resources like [osca][], and well-documented methods in
+  published papers help orient us as we tackle new projects.
+
+[osca]: https://osca.bioconductor.org/
 
 # Additional directions
 
@@ -414,6 +510,24 @@ head(colnames(colData(brca)))
 
 ## Computational clouds
 
+- E.g., the [AnVIL][] NIH / NHGRI cloud resource
+- Access to large scale data resources (1000 genomes, GTEx, CCDG, eMERGE, ...)
+- Hosted computation via notebooks, including R / Bioconductor
+- Coming soon: RStudio!
+
+[AnVIL]: https://anvil.terra.bio/
+
+# Next steps
+
+- https://bioconductor.org
+- Bioconductor [Asia][] Conference, Sydney, December 5 - 6
+- Bioconductor [Europe][] Conference, Brussels, December 9 - 11.
+- Bioconductor [North America][] Conference, Boston, July 29 - 31.
+
+[Asia]: https://bioconductor.github.io/BiocAsia/
+[Europe]: https://eurobioc2019.bioconductor.org/
+[North America]: https://bioc2020.bioconductor.org
+
 # Panel discussion
 
 <!-- - Methods for calculating "Cancer Cell Fraction” (CCF) from WGS data -->
@@ -440,7 +554,11 @@ head(colnames(colData(brca)))
 
 # Acknowledgements
 
-Research reported in this presentation was supported by the NCIA and NHGRI of the National Institutes of Health under award numbers U24CA232979, U41HG004059, and U24CA180996.  The content is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health.
+Research reported in this presentation was supported by the NCIA and
+NHGRI of the National Institutes of Health under award numbers
+U24CA232979, U41HG004059, and U24CA180996.  The content is solely the
+responsibility of the authors and does not necessarily represent the
+official views of the National Institutes of Health.
 
 ```{r sessionInfo}
 sessionInfo()
