@@ -4,6 +4,7 @@ author:
 - name: Martin Morgan
   affiliation: Roswell Park Comprehensive Cancer Center, Buffalo, New York
   email: Martin.Morgan@RoswellPark.org
+date: 18 November 2019
 package: BiocIntro
 output:
   BiocStyle::html_document
@@ -14,7 +15,7 @@ vignette: |
 ---
 
 ```{r, echo=FALSE}
-knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(cache = TRUE, collapse = TRUE)
 ```
 
 # Objectives
@@ -68,7 +69,7 @@ hist(x)
 
 Manageing data: classes and methods
 
-```{r}
+```{r, fig.asp = 1}
 y = x + rnorm(100)
 df = data.frame(x, y)
 plot(y ~ x, df)
@@ -76,7 +77,7 @@ plot(y ~ x, df)
 
 Visualization
 
-```{r}
+```{r, fig.asp = 1}
 fit = lm(y ~ x, df)
 anova(fit)
 plot(y ~ x, df)
@@ -85,27 +86,27 @@ abline(fit)
 
 Extending base R: packages
 
-```{r, message=FALSE}
+```{r, message=FALSE, fig.asp = 1}
 library(ggplot2)
 ggplot(df, aes(x, y)) + 
     geom_point() +
     geom_smooth(method="lm")
 ```
 
-Help!
-
-- `?lm`
-- `browseVignettes("ggplot2")`
-
 CRAN (Comprehensive _R_ Archive Network)
 
 - 15000+ R packages: https://cran.r-project.org/web/packages
 - Task views: https://cran.r-project.org/web/views
 
+Help!
+
+- `?lm`
+- `browseVignettes("ggplot2")` / `vignette(package="ggplot2")`
+
 **What we learned**
 
 - Vectors simplify _R_ expressions
-- Data structures like `data.frame` help manage data
+- Structures like `data.frame` help manage data
 - Packages provide many different extensions
 - Help is available through `?`, `browseVignettes()` and other means
 
@@ -114,8 +115,8 @@ CRAN (Comprehensive _R_ Archive Network)
 **What we will learn**
 
 - Discover and use _Bioconductor_ packages
-- Working with `SummarizedExperiment` for data management
-- Using annotation packages to map between gene identifiers
+- Work with `SummarizedExperiment` for data management
+- Use annotation packages to map between gene identifiers
 
 _Bioconductor_
 
@@ -125,8 +126,8 @@ _Bioconductor_
   variants, flow cytometry, proteomics, ...
 - Widely used (>1/2 million unique IP downloads / year), highly cited
   (>33,000 PubMedCentral citations), well-respected
-- NIH funded -- NHGRI (core), ITCR (multi-assay, annotation- and
-  experiment-hub), IOTN (immuno-oncology data coordinating center)
+- NIH funded -- NHGRI (core, cloud), ITCR (multi-assay, annotation-
+  and experiment-hub), IOTN (immuno-oncology data coordinating center)
 
 Resources
 
@@ -135,12 +136,13 @@ Resources
     - Vignettes (e.g., [DESeq2][])
     - Software, annotation, and experiment (exemplar) data packages
 - Support: https://support.bioconductor.org
-- [Workflows][], [training material][], [slack][], etc.
+- [Workflows][], [training material][], [slack][] ([join][]), etc.
 
 [DESeq2]: http://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
 [Workflows]: https://bioconductor.org/packages/release/BiocViews.html#___Workflow
 [training material]: https://bioconductor.org/help/course-materials/
-[slack]: https://bioc-community.herokuapp.com/
+[slack]: https://community-bioc.slack.com/
+[join]: https://bioc-community.herokuapp.com/
 
 Data management
 
@@ -181,7 +183,7 @@ head(assay(airway))
 
 - Load package implementing domain-specific work flow (i.e., bulk RNA-seq
   differential expression)
-- Fit a linear model describing counts as a function of cell line (blocking
+- Fit a model describing counts as a function of cell line (blocking
   variable) and dexamethasone treatment.
 - Obtain a 'top table' of differentially expressed genes
 
@@ -201,11 +203,13 @@ query(AnnotationHub(), c("EnsDb", "Homo sapiens", "98"))
 ensdb <- AnnotationHub()[["AH75011"]]
 ```
 
-- Map from Ensembl identifiers to gene symbol
+- Map from Ensembl identifiers to gene symbol; add the annotation to
+  both the top table and airway data sets
 
 ```{r, message = FALSE, collapse = TRUE}
 egids <- rownames(toptable)
 toptable$SYMBOL <- mapIds(ensdb, egids, "SYMBOL", "GENEID")
+rowData(airway)$SYMBOL <- toptable$SYMBOL
 ```
 
 - Most differentially expressed genes
@@ -215,10 +219,19 @@ idx <- head( order( toptable$padj), 20 )
 toptable[idx, c("SYMBOL", "padj")]
 ```
 
-- Heat map:
+- Heat map
 
 ```{r}
 heatmap( log1p( assay(airway)[idx,] ))
+```
+
+- More user-friendly heatmap, with Ensembl row namess replaced by
+  symbols.
+
+```{r}
+m <- assay(airway)[idx,]
+rownames(m) <- rowData(airway)$SYMBOL[idx]
+heatmap( log1p( m ))
 ```
 
 **What we learned**
@@ -328,16 +341,13 @@ tcell <- tcell[mean_filter,]
 
 Normalization
 
-- Spike-ins were included in the experiment (and in `tcell`) and are used for
-  normalization
-
 ```{r, message=FALSE}
 tcell <- logNormCounts(tcell)
 ```
 
 Cells of interest -- time course
 
-- identify relevant samples
+- What experimental treatments do we have?
 
 [dplyr]: https://cran.r-project.org/package=dplyr
 
@@ -347,8 +357,8 @@ as_tibble(colData(tcell)) %>%
     dplyr::count(individual, stimulus, time)
 ```
 
-- Subset `tcell` to contain just the samples of interest, and genes with 
-  non-zero read counts across samples.
+- Subset `tcell` to contain only the samples of interest, and
+  expressed genes with non-zero read counts across samples.
 
 ```{r}
 stimulus <- c("OT-I high affinity peptide N4 (SIINFEKL)", "unstimulated")
@@ -390,7 +400,7 @@ fig1
 
 ```{r, collapse = TRUE, fig.asp = 1}
 plotPCA(fig1, colour_by = "time", point_size = 4)
-plotTSNE(fig1, colour_by = "time", point_size =4)
+plotTSNE(fig1, colour_by = "time", point_size = 4)
 ```
 
 Our favorite genes
@@ -440,8 +450,6 @@ ggplot(tbl, aes(time, Nr4a1, color = time)) +
 
 [osca]: https://osca.bioconductor.org/
 
-# Next steps
-
 ## Further analysis
 
 https://osca.bioconductor.org
@@ -452,7 +460,8 @@ https://osca.bioconductor.org
 - Dimensionality reduction
 - Clustering
 - Marker gene detection
-- Cell type annotation ([SingleR][])
+- Cell type annotation ([SingleR][]) (this package has a great
+  vignette!)
 - Trajectory analysis ([destiny][])
 - Gene set enrichment
 - Etc.!
@@ -469,6 +478,8 @@ https://osca.bioconductor.org
 ```{r iSEE, eval = FALSE}
 iSEE::iSEE(fig1)
 ```
+
+# Next steps
 
 ## Multi-omic analysis
 
@@ -500,7 +511,7 @@ brca
 brca[["BRCA_RNASeqGene-20160128"]]
 ```
 
-- Lots of annotations on each sample!
+- Lots of annotations on each sample
 
 ```{r}
 length(colnames(colData(brca)))
@@ -529,30 +540,6 @@ head(colnames(colData(brca)))
 [Asia]: https://bioconductor.github.io/BiocAsia/
 [Europe]: https://eurobioc2019.bioconductor.org/
 [North America]: https://bioc2020.bioconductor.org
-
-# Panel discussion
-
-<!-- - Methods for calculating "Cancer Cell Fraction” (CCF) from WGS data -->
-<!--   bam files or VCF files -->
-<!-- - considerations for calling variants and filtering through them from -->
-<!--   WGS data -->
-<!-- - how to plot mutations on a 2D gene/protein model. -->
-
-<!-- As for data analysis things, I have mutation data and pathology -->
-<!-- information for multiple samples. I’d like to develop a predictive -->
-<!-- model for the types of mutations associated with increasing levels of -->
-<!-- dysplasia, etc. -->
-
-<!-- One of the challenges we have for single-cell immune analysis is the -->
-<!-- identification and characterization of each cluster. While there are -->
-<!-- some gene matrix for specific subsets that can be used for -->
-<!-- deconvolution, many clusters do not fit the matrix and we would like -->
-<!-- to learn the best way to ID clusters for known and unknown subsets. -->
-
-<!-- Hi, I will be attending as a CyTOF analyst and will be there to share -->
-<!-- our experiences or discuss analysis of CyTOF data and workflow.  I am -->
-<!-- not strong in R programming, but do know how to use it.  I will absorb -->
-<!-- and share with my lab analysis experts.  Jim -->
 
 # Acknowledgements
 
