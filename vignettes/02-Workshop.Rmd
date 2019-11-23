@@ -6,7 +6,8 @@ author:
   email: Martin.Morgan@RoswellPark.org
 package: BiocIntro
 output:
-  BiocStyle::html_document
+  BiocStyle::html_document:
+    toc: true
 vignette: |
   %\VignetteIndexEntry{R and Bioconductor for Genomic Analysis}
   %\VignetteEngine{knitr::rmarkdown}
@@ -36,9 +37,9 @@ learned in a first course in statistics will be helpful.
 
 Relevance: This workshop is relevant to anyone eager to explore
 genomic data in _R_. The workshop will help connect ‘core’ _R_ concepts
-for working with data (e.g., data management via data.frame(),
-statistical modelling with lm() or t.test(), visualization usiing
-plot() or ggplot()) to the special challenges of working with large
+for working with data (e.g., data management via `data.frame()`,
+statistical modelling with `lm()` or `t.test()`, visualization usiing
+`plot()` or `ggplot()`) to the special challenges of working with large
 genomic data sets. It will be especially helpful to those who have or
 will have their own genomic data, and are interested in more fully
 understanding how to work with it in _R_.
@@ -49,40 +50,148 @@ knitr::opts_chunk$set(cache = TRUE, collapse = TRUE)
 
 # Our goal
 
+RNA-seq
+
+- Designed experiment, e.g., 8 samples from four cell lines exposed to
+  two treatments (based on Himes et al., PMID: [24926665][]; details
+  in the [airway][] package vignette).
+
+[24926665]: http://www.ncbi.nlm.nih.gov/pubmed/24926665
+[airway]: https://bioconductor.org/packages/airway
+
+```
+              cell   dex
+SRR1039508  N61311 untrt
+SRR1039509  N61311   trt
+SRR1039512 N052611 untrt
+SRR1039513 N052611   trt
+SRR1039516 N080611 untrt
+SRR1039517 N080611   trt
+SRR1039520 N061011 untrt
+SRR1039521 N061011   trt
+```
+
+- Library preparation: mRNA to stable double-stranded DNA
+- DNA sequencing of 'short' fragments
+- Alignment to a reference genome or transcriptome
+- End result: a matrix of 'counts' -- reads aligning to 3 genes across
+  8 samples.
+
+```
+                SRR1039508 SRR1039509 SRR1039512 SRR1039513 SRR1039516
+ENSG00000000003        679        448        873        408       1138
+ENSG00000000005          0          0          0          0          0
+ENSG00000000419        467        515        621        365        587
+...
+                SRR1039517 SRR1039520 SRR1039521
+ENSG00000000003       1047        770        572
+ENSG00000000005          0          0          0
+ENSG00000000419        799        417        508
+...
+```
+
+Research question
+
+- Which genes are most differentially expressed between dexamethasone
+  `untrt` and `trt` experimental treatments?
+- We'll try to understand _how_ to accomplish this, without going into
+  statistical details.
+
+Our goal
+
+- Visualize 20 most differentially expressed genes as a heatmap.
+
 ```{r, echo=FALSE}
 knitr::include_graphics("our_figures/top20_heatmap.png")
 ```
 
 # Data gathering, input, representation, and cleaning
 
-```{r}
+Sample information
+
+- Simple 'tab-separated value' text file, e.g., from Excel export.
+- Input using base _R_ command `read.table()`
+- 'Atomic' vectors, e.g., `integer()`
+- `factor()` and `NA`
+- `data.frame()`: coordinated management
+  - Column access with `$`
+  - Subset with `[ , ]`
+
+```{r samples}
 samples <- read.table("../inst/extdata/samples.tsv")
+samples
+
 samples$dex <- relevel(samples$dex, "untrt")
 ```
 
-```{r}
+Counts
+
+- Another tsv file. Many rows, so use `head()` to view the first few.
+- Row names: gene identifiers. Column names: sample identifiers.
+- All columns are the same (numeric) type; represent as a `matrix()`
+  rather than `data.frame()`
+
+```{r counts}
 counts <- read.table("../inst/extdata/counts.tsv")
+dim(counts)
+head(counts)
+
 counts <- as.matrix(counts)
 ```
+
+Row annotations.
+
+- 'GTF' files contain information about gene models.
+- The GTF file relevant to this experiment -- same organism (_Homo
+  sapiens_), geome (GRCh37) and gene model annotations (Ensembl
+  release-75) as used in the alignment and counting step.
 
 ```{r}
 url <- "ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz"
 ```
 
+- Use `BiocFileCache` to download the resource once to a location
+  that persists across _R_ sessions.
+
 ```{r, message = FALSE}
 library(BiocFileCache)
 ```
 
-```{r}
+- About _Bioconductor_ packages
+
+    - `BiocFileCache` is available from https://bioconductor.org
+    - Discover packages at https://bioconductor.org/packages
+    - Learn about `BiocFileCache` from the [BiocFileCache][] 'landing
+      page'.
+    - Explore the `BiocFileCache` package [vignette][]; access the
+      vignette from within _R_: `browseVignettes("BiocFileCache")`.
+    - Find help on functions with, e.g., `?bfcrpath`.
+    - Ask questions at https://support.bioconductor.org
+
+[BiocFileCache]: https://bioconductor.org/packages/BiocFileCache
+[vignette]: https://bioconductor.org/packages/release/bioc/vignettes/BiocFileCache/inst/doc/BiocFileCache.html
+
+```{r bfcrpath}
 gtfpath <- bfcrpath(rnames = url)
 ```
 
-```{r, message = FALSE}
+- GTF files are plain text files and _could_ be read using
+  `read.table()` or similar, but contain structured information that
+  we want to represent in _R_.
+- Use the [rtracklayer][] package to import the file.
+
+[rtracklayer]: https://bioconductor.org/packages/rtracklayer
+
+```{r import.gtf, message = FALSE}
 library(rtracklayer)
+gtf <- import(gtfpath)
 ```
 
+- Reduce the information to gene-level annotations, keeping only some
+  of the information about each genomic range. Use the `gene_id`
+  column as `names()`.
+
 ```{r}
-gtf <- import(gtfpath)
 rowidx <- gtf$type == "gene"
 colidx <- c("gene_id", "gene_name", "gene_biotype")
 genes <- gtf[rowidx, colidx]
@@ -92,49 +201,157 @@ genes$gene_id <- NULL
 
 # Coordinated data management
 
+Three different data sets
+
+- `counts`: results of the RNAseq workflow
+- `samples`: sample and experimental design information
+- `genes`: information about the genes that we've assayed.
+
+Coordinate our manipulation
+
+- Avoid 'bookkeeping' errors when, e.g., we subset one part of the
+  data in a way different from another.
+- Use the [SummarizedExperiment][] package and data representation.
+
+[SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
+
 ```{r, message = FALSE}
 library(SummarizedExperiment)
 ```
 
-```{r}
+- Make sure the order of the `samples` rows match the order of the
+  samples in the columns of the `counts` matrix, and the order of the
+  `genes` rows match the order of the rows of the `counts` matrix.
+- Create a `SummarizedExperiment` to coordinate our data manipulation.
+
+```{r SummarizedExperiment}
 samples <- samples[colnames(counts),]
 genes <- genes[rownames(counts),]
 se <- SummarizedExperiment(
-  assays = list(counts = counts), 
+  assays = list(counts = counts),
   rowRanges = genes, colData = samples
 )
 ```
 
-# Analysis and visualzation
+# Analysis
+
+Gestalt
+
+- Perform a `t.test()` for each row of the count matrix, asking
+  whether the `trt` samples have on average counts that differ from
+  the `untrt` samples.
+- _Many_ nuanced statistical issues
+
+The [DESeq2][] pacakge
+
+- Implements efficient, 'correct', robust algorithms for performing
+  RNA-seq differential expression analysis of moderate-sized
+  experiments.
+
+[DESeq2]: https://bioconductor.org/packages/DESeq2
 
 ```{r, message = FALSE}
 library(DESeq2)
 ```
 
-```{r}
+- Specify our experimental design, perform the analysis taking account
+  of the nuanced statistical issues, and get a summary of the
+  results. The details of this step are beyond the scope of this
+  workshop.
+
+```{r DESeq2}
 dds <- DESeqDataSet(se, ~ cell + dex)
 fit <- DESeq(dds)
 destats <- results(fit)
 ```
 
+- Add the results to our `SummarizedExperiment`, so that we can
+  manipulate these in a coordianted fashion too.
+
 ```{r}
 rowData(se) <- cbind(rowData(se), destats)
 ```
 
-```{r}
+# Visualization
+
+Heatmap
+
+- Use `order()` and `head()` to identify the row indexes of the top 20
+  most differentially expressed (based on adjusted P-value) genes.
+- Subset the our `SummarizedExperiment` to contain just these rows.
+- Dispaly the `assay()` of our subset as a heatmap
+
+```{r heatmap-1}
 top20idx <- head( order(rowData(se)$padj), 20)
 top20 <- se[top20idx,]
 heatmap(assay(top20))
 ```
 
-```{r}
+Update row labels and adding information about treatment group.
+
+- Extract the top 20 matrix.
+- Update the row names of the matrix with the corresponding gene names.
+- Create a vector of colors, one for each sample, with the color
+  determined by the dexamethasone treatment.
+
+```{r heatmap-2}
 m <- assay(top20)
 rownames(m) <- rowData(top20)$gene_name
 trtcolor <- hcl.colors(2, "Pastel 1")[ colData(top20)$dex ]
 heatmap(m, ColSideColors = trtcolor)
 ```
 
+Volcano plot
+
+- Plots 'statistical significance' on the Y-axis, 'biological
+  significance' on the X-axis.
+- Use `plot()` to create the points
+- Use `text()` to add labels to the two most significant genes.
+
+```{r volcanoplot}
+plot(-log10(pvalue) ~ log2FoldChange, rowData(se))
+text(-log10(pvalue) ~ log2FoldChange, rowData(se),
+     label = ifelse(
+       -log10(rowData(se)$pvalue) > 130,
+       rowData(se)$gene_name,
+       ""
+     ),
+     pos = 4, srt=-15
+)
+```
+
+Top table
+
+- Provide a concise summary of the 20 most differentially expressed
+  genes.
+- Introduce [dplyr][] as a convenient way to display and manipulate
+  strictly tabular data.
+
+[dplyr]: https://cran.r-project.org/package=dplyr
+
+```{r dplyr, message = FALSE}
+library(dplyr)
+```
+
+```{r toptable}
+colidx <- c("gene_name", "baseMean", "log2FoldChange", "padj")
+rowData(se)[top20idx, colidx] %>%
+    as_tibble(rownames = "ensembl_id")
+```
+
+# Summary
+
+What we've learned
+
+Next steps
+
 # Acknowledgements
+
+Research reported in this presentation was supported by the NCI and
+NHGRI of the National Institutes of Health under award numbers
+U24CA232979, U41HG004059, and U24CA180996.  The content is solely the
+responsibility of the authors and does not necessarily represent the
+official views of the National Institutes of Health.
 
 ```{r sessionInfo, echo=FALSE}
 sessionInfo()
