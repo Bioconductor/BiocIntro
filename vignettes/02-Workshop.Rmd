@@ -48,7 +48,7 @@ understanding how to work with it in _R_.
 knitr::opts_chunk$set(cache = TRUE, collapse = TRUE)
 ```
 
-# Our goal
+## Our goal
 
 RNA-seq
 
@@ -113,6 +113,8 @@ knitr::include_graphics("our_figures/top20_heatmap.png")
 
 # Data gathering, input, representation, and cleaning
 
+## Base _R_ data structures
+
 Sample information
 
 - Simple 'tab-separated value' text file, e.g., from Excel export.
@@ -124,7 +126,9 @@ Sample information
   - Subset with `[ , ]`
 
 ```{r samples}
-samples <- read.table("../inst/extdata/samples.tsv")
+samples_file <-
+    system.file(package="BiocIntro", "extdata", "samples.tsv")
+samples <- read.table(samples_file)
 samples
 
 samples$dex <- relevel(samples$dex, "untrt")
@@ -138,12 +142,16 @@ Counts
   rather than `data.frame()`
 
 ```{r counts}
-counts <- read.table("../inst/extdata/counts.tsv")
+counts_file <-
+    system.file(package="BiocIntro", "extdata", "counts.tsv")
+counts <- read.table(counts_file)
 dim(counts)
 head(counts)
 
 counts <- as.matrix(counts)
 ```
+
+## Genomic ranges (`GRanges`)
 
 Row annotations.
 
@@ -216,7 +224,7 @@ names(genes) <- genes$gene_id
 genes$gene_id <- NULL
 ```
 
-# Coordinated data management
+## Coordinated management (`SummarizedExperiment`)
 
 Three different data sets
 
@@ -259,7 +267,9 @@ se <- SummarizedExperiment(
 )
 ```
 
-# Analysis
+# Analysis & visualization
+
+## Differential expression analysis
 
 Gestalt
 
@@ -298,9 +308,7 @@ destats <- results(fit)
 rowData(se) <- cbind(rowData(se), destats)
 ```
 
-# Visualization
-
-Heatmap
+## Heatmap
 
 - Use `order()` and `head()` to identify the row indexes of the top 20
   most differentially expressed (based on adjusted P-value) genes.
@@ -327,7 +335,7 @@ trtcolor <- hcl.colors(2, "Pastel 1")[ colData(top20)$dex ]
 heatmap(m, ColSideColors = trtcolor)
 ```
 
-Volcano plot
+## Volcano plot
 
 - Plots 'statistical significance' on the Y-axis, 'biological
   significance' on the X-axis.
@@ -336,22 +344,35 @@ Volcano plot
 
 ```{r volcanoplot}
 plot(-log10(pvalue) ~ log2FoldChange, rowData(se))
-text(-log10(pvalue) ~ log2FoldChange, rowData(se),
-     label = ifelse(
-       -log10(rowData(se)$pvalue) > 130,
-       rowData(se)$gene_name,
-       ""
-     ),
-     pos = 4, srt=-15
+label <- with(
+    rowData(se),
+    ifelse(-log10(pvalue) > 130, gene_name, "")
+)
+text(
+    -log10(pvalue) ~ log2FoldChange, rowData(se),
+    label = label, pos = 4, srt=-15
 )
 ```
 
-Top table
+## Top table and tidy data
+
+Goal
 
 - Provide a concise summary of the 20 most differentially expressed
   genes.
-- Introduce [dplyr][] as a convenient way to display and manipulate
-  strictly tabular data.
+
+[dplyr][] and 'tidy' data
+
+- A convenient way to display and manipulate strictly tabular data.
+    - 'long form' tables where each row represents an observation and
+      each column an attribute measured on the observations.
+
+- `tibble`: a `data.frame` with better display properties
+- `%>%`, e.g., `mtcars %>% count(cyl)`: a pipe that takes a tibble (or
+  data.frame) `tbl` on the left and uses it as an argument to a small
+  number of functions like `count()` on the right.
+- 'Tidy' functions usually return a `tibble()`, and hence can be
+  chained together.
 
 [dplyr]: https://cran.r-project.org/package=dplyr
 
@@ -359,11 +380,24 @@ Top table
 library(dplyr)
 ```
 
+- Steps below:
+
+    - `as_tibble()`: create a tibble from `rowData(se)`
+    - `select()`: select specific columns.
+    - `arrange()`: arrange all rows from smallest to largest `padj`
+    - `head()`: select the first 20 rows
+
 ```{r toptable}
-colidx <- c("gene_name", "baseMean", "log2FoldChange", "padj")
-rowData(se)[top20idx, colidx] %>%
-    as_tibble(rownames = "ensembl_id")
+rowData(se) %>%
+    as_tibble(rownames = "ensembl_id") %>%
+    select(ensembl_id, gene_name, baseMean, log2FoldChange, padj) %>%
+    arrange(padj) %>%
+    head(n = 20)
 ```
+
+- Check out the [plyranges][] workshop later in BioInfoSummer!
+
+[plyranges]: https://bioconductor.org/packages/plyranges
 
 # Summary
 
@@ -403,6 +437,50 @@ Analysis
   implementing less complete or certain steps in analysis.
 
 ## Next steps
+
+Single-cell RNA-seq: an amazing resource: [Orchestarting Single Cell
+Analysis][osca] with _Bioconductor_, including the [scran][] and
+[scater][] packages.
+
+- Quality control
+- Normalization
+- Feature selection
+- Dimensionality reduction
+- Clustering
+- Marker gene detection
+- Cell type annotation ([SingleR][]) (this package has a great
+  vignette!)
+- Trajectory analysis ([destiny][])
+- Gene set enrichment
+- Etc.!
+
+[osca]: https://osca.bioconductor.org
+[scran]: https://bioconductor.org/packages/scran
+[scater]: https://bioconductor.org/packages/scater
+[SingleR]: https://bioconductor.org/packages/SingleR
+[destiny]: https://bioconductor.org/packages/destiny
+
+Other prominent domains of analysis (check out [biocViews][])
+
+- Microarrays -- epigenomic, classical expression, copy number
+- Annotated variants
+- Gene set enrichment
+- Flow cytometry
+- Proteomics
+
+[biocViews]: https://bioconductor.org/packages
+
+Participate!
+
+- Get help on the [support site][].
+- [Join][join-slack] and [use][use-slack] the slack community.
+- Participate in other conferences (e.g., [BioC2020][] in Boston, July
+  29 - 31, 2020).
+
+[support site]: https://support.bioconductor.org
+[join-slack]: https://bioc-community.herokuapp.com/
+[use-slack]: https://community-bioc.slack.com
+[BioC2020]: https://bioc2020.bioconductor.org/
 
 # Acknowledgements
 
