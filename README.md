@@ -4,6 +4,8 @@
 
 Recent courses:
 
+- [BiocAsia-2019][] - 1 1/2 hour introduction to Bioconductor for genomic analysis.
+- [CMCM-Nov-2019][] - 1 1/2 hour introduction to R and Bioconductor.
 - [UB-CDSE-Apr-2019][] - 2 hour tour of exploring large (cancer-related) data sets.
 - [NURDS-Apr-2019][] - 2 hour Developing robust and efficient code.
 - [BiocAsia-2018][] - 2 two-hour sessions on Annotation resources and package development.
@@ -20,6 +22,8 @@ Recent courses:
 - [Technion-2016][] -- 3 three-hour sessions introducing
   _Bioconductor_ (and _R_).
 
+[BiocAsia-2019]: https://github.com/Bioconductor/BiocIntro/blob/BiocAsia-2019/README.md
+[CMCM-Nov-2019]: https://github.com/Bioconductor/BiocIntro/blob/CMCM-2019/README.md
 [UB-CDSE-Apr-2019]: https://github.com/Bioconductor/BiocIntro/blob/UB-CDSE-Apr-2019/README.md
 [NURDS-Apr-2019]: https://github.com/Bioconductor/BiocIntro/blob/NURDS-Apr-2019/README.md
 [BiocAsia-2018]: https://github.com/Bioconductor/BiocIntro/blob/BiocAsia-2017/README.md
