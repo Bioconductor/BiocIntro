@@ -38,7 +38,7 @@ learned in a first course in statistics will be helpful.
 Relevance: This workshop is relevant to anyone eager to explore
 genomic data in _R_. The workshop will help connect ‘core’ _R_ concepts
 for working with data (e.g., data management via `data.frame()`,
-statistical modelling with `lm()` or `t.test()`, visualization usiing
+statistical modelling with `lm()` or `t.test()`, visualization using
 `plot()` or `ggplot()`) to the special challenges of working with large
 genomic data sets. It will be especially helpful to those who have or
 will have their own genomic data, and are interested in more fully
@@ -74,6 +74,12 @@ SRR1039521 N061011   trt
 - Library preparation: mRNA to stable double-stranded DNA
 - DNA sequencing of 'short' mRNA-derived fragments
 - Alignment to a reference genome or transcriptome
+
+```{r, echo=FALSE}
+knitr::include_graphics("our_figures/RNASeq_workflow.jpeg")
+```
+source: http://bio.lundberg.gu.se/courses/vt13/rnaseq.html
+
 - End result: a matrix of 'counts' -- reads aligning to 3 genes across
   8 samples.
 
