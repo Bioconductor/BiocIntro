@@ -72,7 +72,7 @@ SRR1039521 N061011   trt
 ```
 
 - Library preparation: mRNA to stable double-stranded DNA
-- DNA sequencing of 'short' fragments
+- DNA sequencing of 'short' mRNA-derived fragments
 - Alignment to a reference genome or transcriptome
 - End result: a matrix of 'counts' -- reads aligning to 3 genes across
   8 samples.
@@ -165,6 +165,7 @@ library(BiocFileCache)
       page'.
     - Explore the `BiocFileCache` package [vignette][]; access the
       vignette from within _R_: `browseVignettes("BiocFileCache")`.
+    - Install the package with `BiocManager::install("BiocFileCache")`.
     - Find help on functions with, e.g., `?bfcrpath`.
     - Ask questions at https://support.bioconductor.org
 
@@ -186,6 +187,16 @@ gtfpath <- bfcrpath(rnames = url)
 library(rtracklayer)
 gtf <- import(gtfpath)
 ```
+
+- A `GRanges` object
+
+    - Range-specific information
+    - Annotations on each range
+    - Use functions to access core elements: `seqnames()` (e.g.,
+      chromosome), `start()` / `end()` / `width()`, `strand()`, etc.
+    - Use `$` or `mcols()$` to access annotations on ranges.
+    - _Bioconductor_ conventions: 1-based, closed intervals (like
+      Ensembl) rather than 0-based, 1/2 open intervals (like UCSC).
 
 - Reduce the information to gene-level annotations, keeping only some
   of the information about each genomic range. Use the `gene_id`
@@ -213,6 +224,14 @@ Coordinate our manipulation
   data in a way different from another.
 - Use the [SummarizedExperiment][] package and data representation.
 
+    - Two-dimensional structure, so subset with `[,]`
+    - Use functions to access components: `assay()`, `rowData()`,
+      `rowRanges()`, `colData()`, etc.
+
+```{r, echo=FALSE}
+knitr::include_graphics("our_figures/SummarizedExperiment.svg")
+```
+
 [SummarizedExperiment]: https://bioconductor.org/packages/SummarizedExperiment
 
 ```{r, message = FALSE}
@@ -223,6 +242,7 @@ library(SummarizedExperiment)
   samples in the columns of the `counts` matrix, and the order of the
   `genes` rows match the order of the rows of the `counts` matrix.
 - Create a `SummarizedExperiment` to coordinate our data manipulation.
+
 
 ```{r SummarizedExperiment}
 samples <- samples[colnames(counts),]
@@ -341,9 +361,42 @@ rowData(se)[top20idx, colidx] %>%
 
 # Summary
 
-What we've learned
+## What we've learned
 
-Next steps
+Packages
+
+- Discover at https://bioconductor.org/packages
+- Install with `BiocManager::install("BiocFileCache")`
+- Use with `library(BiocFileCache)`.
+- Get help with `?bfcrpath`
+- Get more help at https://support.bioconductor.org
+
+Data structures
+
+- Represent and coordinate 'complicated' data.
+- Already prevalent in base _R_, e.g., `data.frame()`, `matrix()`.
+- `GRanges` for representing genomic ranges
+
+    - 'Accessor' functions `seqnames()`, `start()`, etc for core
+      components
+    - `$` or `mcols()$` for annotations
+
+- `SummarizedExperiment` for coordinated manipulation of assay data
+  with row and column annotation.
+
+    - `[,]` to subset assay and annoations in a coordinated fashion.
+    - `assay()`, `rowRanges()`, `rowData()`, `colData()` to access
+      components.
+
+Analysis
+
+- Mature packages like [DESeq2][] provide excellent vignettes,
+  well-defined steps in analysis, integration with other workflow
+  steps, and very robust support.
+- Emerging areas are often represented by several packages
+  implementing less complete or certain steps in analysis.
+
+## Next steps
 
 # Acknowledgements
 
