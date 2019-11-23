@@ -43,6 +43,96 @@ genomic data sets. It will be especially helpful to those who have or
 will have their own genomic data, and are interested in more fully
 understanding how to work with it in _R_.
 
+```{r, echo=FALSE}
+knitr::opts_chunk$set(cache = TRUE, collapse = TRUE)
+```
+
+# Our goal
+
+```{r, echo=FALSE}
+knitr::include_graphics("our_figures/top20_heatmap.png")
+```
+
+# Data gathering, input, representation, and cleaning
+
+```{r}
+samples <- read.table("../inst/extdata/samples.tsv")
+samples$dex <- relevel(samples$dex, "untrt")
+```
+
+```{r}
+counts <- read.table("../inst/extdata/counts.tsv")
+counts <- as.matrix(counts)
+```
+
+```{r}
+url <- "ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz"
+```
+
+```{r, message = FALSE}
+library(BiocFileCache)
+```
+
+```{r}
+gtfpath <- bfcrpath(rnames = url)
+```
+
+```{r, message = FALSE}
+library(rtracklayer)
+```
+
+```{r}
+gtf <- import(gtfpath)
+rowidx <- gtf$type == "gene"
+colidx <- c("gene_id", "gene_name", "gene_biotype")
+genes <- gtf[rowidx, colidx]
+names(genes) <- genes$gene_id
+genes$gene_id <- NULL
+```
+
+# Coordinated data management
+
+```{r, message = FALSE}
+library(SummarizedExperiment)
+```
+
+```{r}
+samples <- samples[colnames(counts),]
+genes <- genes[rownames(counts),]
+se <- SummarizedExperiment(
+  assays = list(counts = counts), 
+  rowRanges = genes, colData = samples
+)
+```
+
+# Analysis and visualzation
+
+```{r, message = FALSE}
+library(DESeq2)
+```
+
+```{r}
+dds <- DESeqDataSet(se, ~ cell + dex)
+fit <- DESeq(dds)
+destats <- results(fit)
+```
+
+```{r}
+rowData(se) <- cbind(rowData(se), destats)
+```
+
+```{r}
+top20idx <- head( order(rowData(se)$padj), 20)
+top20 <- se[top20idx,]
+heatmap(assay(top20))
+```
+
+```{r}
+m <- assay(top20)
+rownames(m) <- rowData(top20)$gene_name
+trtcolor <- hcl.colors(2, "Pastel 1")[ colData(top20)$dex ]
+heatmap(m, ColSideColors = trtcolor)
+```
 
 # Acknowledgements
 
