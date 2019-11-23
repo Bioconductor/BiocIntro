@@ -20,7 +20,7 @@ Recent courses:
 - [Technion-2016][] -- 3 three-hour sessions introducing
   _Bioconductor_ (and _R_).
 
-[html]: 
+[html]: http://bioconductor.org/help/course-materials/2019/UB-CDSE/CDSE2019.html
 [rmd]: https://github.com/Bioconductor/BiocIntro/blob/UB-CDSE-Apr-2019/vignettes/CDSE2019.Rmd
 [UB-CDSE-Apr-2019]: https://github.com/Bioconductor/BiocIntro/blob/UB-CDSE-Apr-2019/README.md
 [NURDS-Apr-2019]: https://github.com/Bioconductor/BiocIntro/blob/NURDS-Apr-2019/README.md
