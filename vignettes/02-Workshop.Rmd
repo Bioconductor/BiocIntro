@@ -45,7 +45,10 @@ will have their own genomic data, and are interested in more fully
 understanding how to work with it in _R_.
 
 ```{r, echo=FALSE}
-knitr::opts_chunk$set(cache = TRUE, collapse = TRUE)
+knitr::opts_chunk$set(
+    cache = as.logical(Sys.getenv("KNITR_CACHE", TRUE)),
+    collapse = TRUE
+)
 ```
 
 ## Our goal
@@ -80,26 +83,26 @@ knitr::include_graphics("our_figures/RNASeq_workflow.jpeg")
 ```
 source: http://bio.lundberg.gu.se/courses/vt13/rnaseq.html
 
-- End result: a matrix of 'counts' -- reads aligning to 3 genes across
-  8 samples.
+- End result: a matrix of 'counts' -- reads aligning to genes across
+  samples.
 
 ```
                 SRR1039508 SRR1039509 SRR1039512 SRR1039513 SRR1039516
 ENSG00000000003        679        448        873        408       1138
 ENSG00000000005          0          0          0          0          0
 ENSG00000000419        467        515        621        365        587
-...
+...                    ...        ...        ...        ...        ...
                 SRR1039517 SRR1039520 SRR1039521
 ENSG00000000003       1047        770        572
 ENSG00000000005          0          0          0
 ENSG00000000419        799        417        508
-...
+...                    ...        ...        ...
 ```
 
 Research question
 
-- Which genes are most differentially expressed between dexamethasone
-  `untrt` and `trt` experimental treatments?
+- Which gene counts are most different between dexamethasone `untrt`
+  and `trt` experimental treatments?
 - We'll try to understand _how_ to accomplish this, without going into
   statistical details.
 
@@ -146,6 +149,7 @@ counts_file <-
     system.file(package="BiocIntro", "extdata", "counts.tsv")
 counts <- read.table(counts_file)
 dim(counts)
+
 head(counts)
 
 counts <- as.matrix(counts)
@@ -157,8 +161,8 @@ Row annotations.
 
 - 'GTF' files contain information about gene models.
 - The GTF file relevant to this experiment -- same organism (_Homo
-  sapiens_), geome (GRCh37) and gene model annotations (Ensembl
-  release-75) as used in the alignment and counting step.
+  sapiens_), genome (GRCh37) and gene model annotations (Ensembl
+  release-75) as used in the alignment and counting step -- is
 
 ```{r}
 url <- "ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz"
@@ -177,8 +181,8 @@ library(BiocFileCache)
     - Discover packages at https://bioconductor.org/packages
     - Learn about `BiocFileCache` from the [BiocFileCache][] 'landing
       page'.
-    - Explore the `BiocFileCache` package [vignette][]; access the
-      vignette from within _R_: `browseVignettes("BiocFileCache")`.
+    - Explore the `BiocFileCache` package [vignette][] (access the
+      vignette from within _R_: `browseVignettes("BiocFileCache")`).
     - Install the package with `BiocManager::install("BiocFileCache")`.
     - Find help on functions with, e.g., `?bfcrpath`.
     - Ask questions at https://support.bioconductor.org
@@ -187,19 +191,28 @@ library(BiocFileCache)
 [vignette]: https://bioconductor.org/packages/release/bioc/vignettes/BiocFileCache/inst/doc/BiocFileCache.html
 
 ```{r bfcrpath}
-gtfpath <- bfcrpath(rnames = url)
+gtf_file <- bfcrpath(rnames = url)
 ```
 
 - GTF files are plain text files and _could_ be read using
   `read.table()` or similar, but contain structured information that
   we want to represent in _R_.
+- Common sequence data formats
+
+    - BED, GTF, bigWig: [rtracklayer][]
+    - FASTA (DNA sequence): [Biostrings][]
+    - FASTQ (short reads & quality scores): [ShortRead][]
+    - BAM (aligned reads): [Rsamtools][], [GenomicAlignments][]
+    - VCF (called variants): [VariantAnnotation][],
+      [VariantFiltering][]. MAF: [maftools][]
+
 - Use the [rtracklayer][] package to import the file.
 
 [rtracklayer]: https://bioconductor.org/packages/rtracklayer
 
 ```{r import.gtf, message = FALSE}
 library(rtracklayer)
-gtf <- import(gtfpath)
+gtf <- import(gtf_file)
 ```
 
 - A `GRanges` object
@@ -212,7 +225,15 @@ gtf <- import(gtfpath)
     - _Bioconductor_ conventions: 1-based, closed intervals (like
       Ensembl) rather than 0-based, 1/2 open intervals (like UCSC).
 
-- Reduce the information to gene-level annotations, keeping only some
+[Biostrings]: https://bioconductor.org/packages/Biostrings
+[ShortRead]: https://bioconductor.org/packages/ShortRead
+[Rsamtools]: https://bioconductor.org/packages/Rsamtools
+[GenomicAlignments]: https://bioconductor.org/packages/GenomicAlignments
+[VariantAnnotation]: https://bioconductor.org/packages/VariantAnnotation
+[VariantFiltering]: https://bioconductor.org/packages/VariantFiltering
+[maftools]: https://bioconductor.org/packages/maftools
+
+- Filter the information to gene-level annotations, keeping only some
   of the information about each genomic range. Use the `gene_id`
   column as `names()`.
 
@@ -222,6 +243,8 @@ colidx <- c("gene_id", "gene_name", "gene_biotype")
 genes <- gtf[rowidx, colidx]
 names(genes) <- genes$gene_id
 genes$gene_id <- NULL
+
+genes
 ```
 
 ## Coordinated management (`SummarizedExperiment`)
@@ -265,6 +288,8 @@ se <- SummarizedExperiment(
   assays = list(counts = counts),
   rowRanges = genes, colData = samples
 )
+
+se
 ```
 
 # Analysis & visualization
@@ -299,6 +324,8 @@ library(DESeq2)
 dds <- DESeqDataSet(se, ~ cell + dex)
 fit <- DESeq(dds)
 destats <- results(fit)
+
+destats
 ```
 
 - Add the results to our `SummarizedExperiment`, so that we can
@@ -385,7 +412,7 @@ library(dplyr)
     - `as_tibble()`: create a tibble from `rowData(se)`
     - `select()`: select specific columns.
     - `arrange()`: arrange all rows from smallest to largest `padj`
-    - `head()`: select the first 20 rows
+    - `head()`: filter to the first 20 rows
 
 ```{r toptable}
 rowData(se) %>%
@@ -395,7 +422,7 @@ rowData(se) %>%
     head(n = 20)
 ```
 
-- Check out the [plyranges][] workshop later in BioInfoSummer!
+- Check out the [plyranges][] workshop!
 
 [plyranges]: https://bioconductor.org/packages/plyranges
 
@@ -410,6 +437,8 @@ Packages
 - Use with `library(BiocFileCache)`.
 - Get help with `?bfcrpath`
 - Get more help at https://support.bioconductor.org
+- Mature packages provide access to common sequence analysis data
+  formats, e.g., BED, GTF, FASTQ, BAM, VCF.
 
 Data structures
 
@@ -424,7 +453,7 @@ Data structures
 - `SummarizedExperiment` for coordinated manipulation of assay data
   with row and column annotation.
 
-    - `[,]` to subset assay and annoations in a coordinated fashion.
+    - `[,]` to subset assay and annotaions in a coordinated fashion.
     - `assay()`, `rowRanges()`, `rowData()`, `colData()` to access
       components.
 
