@@ -24,31 +24,104 @@ abstract: |
   to tackle new and innovative challenges in your own bioinformatic
   research.
 vignette: |
-  %\VignetteIndexEntry{How You Can Advance Science Using Bioconductor}
+  %\VignetteIndexEntry{How To Advance Science Using Bioconductor}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(
+    cache = as.logical(Sys.getenv("KNITR_CACHE", TRUE)),
+    collapse = TRUE
+)
+```
 
 # _Bioconductor_
 
 ## Overview
 
+Statistical analysis and comprehension of high-throughput genomic data
+
+- https://bioconductor.org
+- https://support.bioconductor.org
+
+Open source, open development
+
+- Core team supported by US NIH & other funding
+
+Origin, participation, and maintenance
+
+- 1823 software packages (approximately 100 new packages every 6 months)
+- 1/2 million unique IP downloads annually; 33k PubMedCentral citations
+- Global community
+
 ## Scientific domains
 
-## Project history
+Historical development: core
 
+- Microarrays, (bulk) RNA-sequencing, single-cell genomics
+
+Domains
+
+- Differential expression, epigenomics, called variants, flow
+  cytometry, proteomics, metabolomics
+  
 ## Unique features
 
-# You
+Vignettes & reproducible research
+
+Interoperability
+
+- Structured data representation via 'S4' classes
+
+Annotation and experiment data resources
+
+# Getting science done
 
 ## Getting started
 
+_R_ & [BiocManager][]
+
 ## Tackling real problems
+
+Packages, vignettes, and work flows
+
+[OSCA][]: Orchestrating single-cell analysis in _R_ / _Bioconductor_
 
 ## Contributing to the community
 
+Package contributions & the build system
+
+Dissemination and support
+
+Developer resources
+
+- [community-bioc][] slack ([sign-up][])
+
+# Opportunities
+
+Domain-specific
+
+Container and cloud computing
+
+- '[Bioconductor full][]' and other Docker images
+- The [AnVIL][]: cloud computing adjacent to consortium-scale data
+
 # Acknowledgements
+
+Research reported in this presentation was supported by the NCI and
+NHGRI of the National Institutes of Health under award numbers
+U24CA232979, U41HG004059, and U24CA180996.  The content is solely the
+responsibility of the authors and does not necessarily represent the
+official views of the National Institutes of Health.
 
 ```{r sessionInfo}
 sessionInfo()
 ```
+
+[BiocManager]: https://cran.r-project.org/package=BiocManager
+[OSCA]: https://osca.bioconductor.org
+[community-bioc]: https://community-bioc.slack.com
+[sign-up]: https://bioc-community.herokuapp.com/
+[AnVIL]: https://anvil.terra.org
+[Bioconductor full]: https://github.com/Bioconductor/bioconductor_full
