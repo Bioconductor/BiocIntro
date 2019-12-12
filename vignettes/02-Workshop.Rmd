@@ -519,6 +519,9 @@ U24CA232979, U41HG004059, and U24CA180996.  The content is solely the
 responsibility of the authors and does not necessarily represent the
 official views of the National Institutes of Health.
 
+A portion of this work is supported by the Chan Zuckerberg Initiative
+DAF, an advised fund of Silicon Valley Community Foundation.
+
 ```{r sessionInfo, echo=FALSE}
 sessionInfo()
 ```
