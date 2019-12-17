@@ -1,0 +1,24 @@
+Package: SCSimulate
+Title: Simulate single-cell RNA seq data
+Version: 0.0.0.9000
+Authors@R:
+    c(person(
+        given = "Martin",
+        family = "Morgan",
+        role = c("aut", "cre"),
+        email = "Martin.Morgan@RoswellPark.org",
+        comment = c(ORCID = "YOUR-ORCID-ID")
+    ), person(
+        given = "Another",
+        family = "Author",
+        role = "aut"
+    ))
+Description: This package simulates single-cell RNA seq data using a gamma
+    distribution of gene expression values, and negative binomial model of
+    counts per cell. The package also contains functions for preprocessing,
+    including a simple calculation of library scaling factors.
+License: Artistic-2.0
+Imports: stats
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2
