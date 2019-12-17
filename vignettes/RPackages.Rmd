@@ -170,9 +170,23 @@ tests/
 
 Create a package
 
-```{r, cache = FALSE}
-setwd(tempdir())
+```{r, eval = FALSE}
 devtools::create("SCSimulate")
+## ✔ Creating 'SCSimulate/'
+## ✔ Setting active project to '/Users/ma38727/b/github/BiocIntro/vignettes/SCSimulate'
+## ✔ Creating 'R/'
+## ✔ Writing 'DESCRIPTION'
+## Package: SCSimulate
+## Title: What the Package Does (One Line, Title Case)
+## Version: 0.0.0.9000
+## Authors@R (parsed):
+##     * First Last <first.last@example.com> [aut, cre] (YOUR-ORCID-ID)
+## Description: What the package does (one paragraph).
+## License: What license it uses
+## Encoding: UTF-8
+## LazyData: true
+## ✔ Writing 'NAMESPACE'
+## ✔ Setting active project to '<no active project>'
 ```
 
 Edit the DESCRIPTION file (plain text)
@@ -315,6 +329,24 @@ Use `roxygen2` for documentation by adding tagged lines starting with
 `#'` immediatly above each function. Common tags are illustrated
 below.
 
+- `@title` is a one-line description appearing at the top of a help page.
+- `@description` provides a short description of the function,
+  presented after the title. Use `@details` for more extensive
+  description appearing after the 'Usage' section (generated based on
+  the signature of the function after the `@export` tag) of a help
+  page.
+- Document parameter (`@param`) and return (`@return`) values
+  carefully. The `@param` values are used to form the 'Arguments'
+  section of the help page. The `@return` value appears in the
+  'Returns' section of the help page.
+- `@examples` are include in the 'Examples' section of the help page,
+  and must be complete and syntactically correct R code (examples are
+  evaluated when a package is built and checked).
+- Use `@importFrom` to indicate that a particular package provides
+  specific functions used in the current package.
+- For readability, 'wrapped' lines to 80 columns. Use indentation and
+  spacing consistently and generously.
+
 file: `R/simulate.R`
 
 ```{r}
@@ -398,26 +430,6 @@ size_factors <-
 }
 ```
 
-Notes:
-
-- `@title` is a one-line description appearing at the top of a help page.
-- `@description` provides a short description of the function,
-  presented after the title. Use `@details` for more extensive
-  description appearing after the 'Usage' section (generated based on
-  the signature of the function after the `@export` tag) of a help
-  page.
-- Document parameter (`@param`) and return (`@return`) values
-  carefully. The `@param` values are used to form the 'Arguments'
-  section of the help page. The `@return` value appears in the
-  'Returns' section of the help page.
-- `@examples` are include in the 'Examples' section of the help page,
-  and must be complete and syntactically correct R code (examples are
-  evaluated when a package is built and checked).
-- Use `@importFrom` to indicate that a particular package provides
-  specific functions used in the current package.
-- For readability, 'wrapped' lines to 80 columns. Use indentation and
-  spacing consistently and generously.
-  
 ## Update 'NAMESPACE' and 'man' pages
 
 ```{r}
@@ -433,7 +445,7 @@ devtools::document("SCSimulate")
       `.filtered_median()`).
 
 - Transforms the documentation introduced above into stand-alone files
-  
+
     - E.g., `man/simulate.Rd`
     - A plain text file, but with LaTeX-style markup understood by _R_.
 
@@ -451,7 +463,7 @@ SCSimulate
         size_factors.Rd
 ```
 
-The NAMESPACE file is
+The NAMESPACE file has been updated to
 
 ```{r}
 cat(readLines("SCSimulate/NAMESPACE"), sep="\n")
@@ -459,123 +471,123 @@ cat(readLines("SCSimulate/NAMESPACE"), sep="\n")
 
 ## Build & check
 
-- Build (collates) package files into a 'tar' ball,
+- Build (collate) package files into a 'tar' ball,
   `SCSimulate_0.0.0.9000.tar.gz`.
 - Check that the tar ball is complete and correct.
 
-```
-> devtools::check("SCSimulate")
-Updating SCSimulate documentation
-Writing NAMESPACE
-Loading SCSimulate
-Writing NAMESPACE
-Writing size_factors.Rd
-── Building ────────────────────────────────────────────────────── SCSimulate ──
-Setting env vars:
-● CFLAGS    : -Wall -pedantic -fdiagnostics-color=always
-● CXXFLAGS  : -Wall -pedantic -fdiagnostics-color=always
-● CXX11FLAGS: -Wall -pedantic -fdiagnostics-color=always
-────────────────────────────────────────────────────────────────────────────────
-✔  checking for file ‘/Users/ma38727/a/github/BiocIntro/vignettes/SCSimulate/DESCRIPTION’
-─  preparing ‘SCSimulate’:
-✔  checking DESCRIPTION meta-information
-─  checking for LF line-endings in source and make files and shell scripts
-─  checking for empty or unneeded directories
-─  building ‘SCSimulate_0.0.0.9000.tar.gz’
-   
-── Checking ────────────────────────────────────────────────────── SCSimulate ──
-Setting env vars:
-● _R_CHECK_CRAN_INCOMING_USE_ASPELL_: TRUE
-● _R_CHECK_CRAN_INCOMING_REMOTE_    : FALSE
-● _R_CHECK_CRAN_INCOMING_           : FALSE
-● _R_CHECK_FORCE_SUGGESTS_          : FALSE
-── R CMD check ─────────────────────────────────────────────────────────────────
-   Bioconductor version 3.11 (BiocManager 1.30.10), ?BiocManager::install for help
-─  using log directory '/private/var/folders/yn/gmsh_22s2c55v816r6d51fx1tnyl61/T/Rtmp6S4exQ/SCSimulate.Rcheck'
-─  using R Under development (unstable) (2019-12-01 r77489)
-─  using platform: x86_64-apple-darwin17.7.0 (64-bit)
-─  using session charset: UTF-8
-─  using options '--no-manual --as-cran'
-✔  checking for file 'SCSimulate/DESCRIPTION'
-─  this is package 'SCSimulate' version '0.0.0.9000'
-─  package encoding: UTF-8
-✔  checking package namespace information
-✔  checking package dependencies (3.4s)
-✔  checking if this is a source package
-✔  checking if there is a namespace
-✔  checking for executable files
-✔  checking for hidden files and directories
-✔  checking for portable file names
-✔  checking for sufficient/correct file permissions
-✔  checking serialization versions
-✔  checking whether package 'SCSimulate' can be installed (1.8s)
-✔  checking installed package size
-✔  checking package directory
-✔  checking for future file timestamps (505ms)
-✔  checking DESCRIPTION meta-information
-✔  checking top-level files
-✔  checking for left-over files
-✔  checking index information
-✔  checking package subdirectories
-✔  checking R files for non-ASCII characters
-✔  checking R files for syntax errors
-✔  checking whether the package can be loaded
-✔  checking whether the package can be loaded with stated dependencies
-✔  checking whether the package can be unloaded cleanly
-✔  checking whether the namespace can be loaded with stated dependencies
-✔  checking whether the namespace can be unloaded cleanly
-✔  checking loading without being on the library search path
-✔  checking dependencies in R code
-✔  checking S3 generic/method consistency (651ms)
-✔  checking replacement functions
-✔  checking foreign function calls
-✔  checking R code for possible problems (2.1s)
-✔  checking Rd files
-✔  checking Rd metadata
-✔  checking Rd line widths
-✔  checking Rd cross-references
-✔  checking for missing documentation entries
-✔  checking for code/documentation mismatches (407ms)
-✔  checking Rd \usage sections (792ms)
-✔  checking Rd contents
-✔  checking for unstated dependencies in examples
-✔  checking examples (1.7s)
-✔  checking for non-standard things in the check directory
-✔  checking for detritus in the temp directory
-   
-   
-── R CMD check results ────────────────────────────── SCSimulate 0.0.0.9000 ────
-Duration: 14.9s
-
-0 errors ✔ | 0 warnings ✔ | 0 notes ✔
+```{r, eval = FALSE}
+devtools::check("SCSimulate")
+## Updating SCSimulate documentation
+## Writing NAMESPACE
+## Loading SCSimulate
+## Writing NAMESPACE
+## Writing size_factors.Rd
+## ── Building ────────────────────────────────────────────────────── SCSimulate ──
+## Setting env vars:
+## ● CFLAGS    : -Wall -pedantic -fdiagnostics-color=always
+## ● CXXFLAGS  : -Wall -pedantic -fdiagnostics-color=always
+## ● CXX11FLAGS: -Wall -pedantic -fdiagnostics-color=always
+## ────────────────────────────────────────────────────────────────────────────────
+## ✔  checking for file ‘/Users/ma38727/a/github/BiocIntro/vignettes/SCSimulate/DESCRIPTION’
+## ─  preparing ‘SCSimulate’:
+## ✔  checking DESCRIPTION meta-information
+## ─  checking for LF line-endings in source and make files and shell scripts
+## ─  checking for empty or unneeded directories
+## ─  building ‘SCSimulate_0.0.0.9000.tar.gz’
+##
+## ── Checking ────────────────────────────────────────────────────── SCSimulate ──
+## Setting env vars:
+## ● _R_CHECK_CRAN_INCOMING_USE_ASPELL_: TRUE
+## ● _R_CHECK_CRAN_INCOMING_REMOTE_    : FALSE
+## ● _R_CHECK_CRAN_INCOMING_           : FALSE
+## ● _R_CHECK_FORCE_SUGGESTS_          : FALSE
+## ── R CMD check ─────────────────────────────────────────────────────────────────
+##    Bioconductor version 3.11 (BiocManager 1.30.10), ?BiocManager::install for help
+## ─  using log directory '/private/var/folders/yn/gmsh_22s2c55v816r6d51fx1tnyl61/T/Rtmp6S4exQ/SCSimulate.Rcheck'
+## ─  using R Under development (unstable) (2019-12-01 r77489)
+## ─  using platform: x86_64-apple-darwin17.7.0 (64-bit)
+## ─  using session charset: UTF-8
+## ─  using options '--no-manual --as-cran'
+## ✔  checking for file 'SCSimulate/DESCRIPTION'
+## ─  this is package 'SCSimulate' version '0.0.0.9000'
+## ─  package encoding: UTF-8
+## ✔  checking package namespace information
+## ✔  checking package dependencies (3.4s)
+## ✔  checking if this is a source package
+## ✔  checking if there is a namespace
+## ✔  checking for executable files
+## ✔  checking for hidden files and directories
+## ✔  checking for portable file names
+## ✔  checking for sufficient/correct file permissions
+## ✔  checking serialization versions
+## ✔  checking whether package 'SCSimulate' can be installed (1.8s)
+## ✔  checking installed package size
+## ✔  checking package directory
+## ✔  checking for future file timestamps (505ms)
+## ✔  checking DESCRIPTION meta-information
+## ✔  checking top-level files
+## ✔  checking for left-over files
+## ✔  checking index information
+## ✔  checking package subdirectories
+## ✔  checking R files for non-ASCII characters
+## ✔  checking R files for syntax errors
+## ✔  checking whether the package can be loaded
+## ✔  checking whether the package can be loaded with stated dependencies
+## ✔  checking whether the package can be unloaded cleanly
+## ✔  checking whether the namespace can be loaded with stated dependencies
+## ✔  checking whether the namespace can be unloaded cleanly
+## ✔  checking loading without being on the library search path
+## ✔  checking dependencies in R code
+## ✔  checking S3 generic/method consistency (651ms)
+## ✔  checking replacement functions
+## ✔  checking foreign function calls
+## ✔  checking R code for possible problems (2.1s)
+## ✔  checking Rd files
+## ✔  checking Rd metadata
+## ✔  checking Rd line widths
+## ✔  checking Rd cross-references
+## ✔  checking for missing documentation entries
+## ✔  checking for code/documentation mismatches (407ms)
+## ✔  checking Rd \usage sections (792ms)
+## ✔  checking Rd contents
+## ✔  checking for unstated dependencies in examples
+## ✔  checking examples (1.7s)
+## ✔  checking for non-standard things in the check directory
+## ✔  checking for detritus in the temp directory
+##
+##
+## ── R CMD check results ────────────────────────────── SCSimulate 0.0.0.9000 ────
+## Duration: 14.9s
+##
+## 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 ```
 
 ## Install
 
-```
-> devtools::install("SCSimulate")
-✔  checking for file ‘/Users/ma38727/a/github/BiocIntro/vignettes/SCSimulate/DESCRIPTION’
-─  preparing ‘SCSimulate’:
-✔  checking DESCRIPTION meta-information
-─  checking for LF line-endings in source and make files and shell scripts
-─  checking for empty or unneeded directories
-─  building ‘SCSimulate_0.0.0.9000.tar.gz’
-   
-Running /Users/ma38727/bin/R-devel/bin/R CMD INSTALL \
-  /var/folders/yn/gmsh_22s2c55v816r6d51fx1tnyl61/T//Rtmp6S4exQ/SCSimulate_0.0.0.9000.tar.gz \
-  --install-tests 
-* installing to library ‘/Users/ma38727/Library/R/4.0/Bioc/3.11/library’
-* installing *source* package ‘SCSimulate’ ...
-** using staged installation
-** R
-** byte-compile and prepare package for lazy loading
-** help
-*** installing help indices
-** building package indices
-** testing if installed package can be loaded from temporary location
-** testing if installed package can be loaded from final location
-** testing if installed package keeps a record of temporary installation path
-* DONE (SCSimulate)
+```{r, eval = FALSE}
+devtools::install("SCSimulate")
+## ✔  checking for file ‘/Users/ma38727/a/github/BiocIntro/vignettes/SCSimulate/DESCRIPTION’
+## ─  preparing ‘SCSimulate’:
+## ✔  checking DESCRIPTION meta-information
+## ─  checking for LF line-endings in source and make files and shell scripts
+## ─  checking for empty or unneeded directories
+## ─  building ‘SCSimulate_0.0.0.9000.tar.gz’
+##
+## Running /Users/ma38727/bin/R-devel/bin/R CMD INSTALL \
+##   /var/folders/yn/gmsh_22s2c55v816r6d51fx1tnyl61/T//Rtmp6S4exQ/SCSimulate_0.0.0.9000.tar.gz \
+##   --install-tests
+## * installing to library ‘/Users/ma38727/Library/R/4.0/Bioc/3.11/library’
+## * installing *source* package ‘SCSimulate’ ...
+## ** using staged installation
+## ** R
+## ** byte-compile and prepare package for lazy loading
+## ** help
+## *** installing help indices
+## ** building package indices
+## ** testing if installed package can be loaded from temporary location
+## ** testing if installed package can be loaded from final location
+## ** testing if installed package keeps a record of temporary installation path
+## * DONE (SCSimulate)
 ```
 
 ## Use!
