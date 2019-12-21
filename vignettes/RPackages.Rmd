@@ -51,6 +51,37 @@ domain-specific channels such as _Bioconductor_.
 
 ## Measuring gene expression on single cells: single-cell RNA seq
 
+The 'central dogma' of molecular biology: genes encoded in DNA
+(chromosomes) are transcribed to mRNA and then translated to protiens.
+
+![](our_figures/2b597889d05bc601803a3b4d9ec5ccd5e7b8d3af.png)
+
+- https://cdn.kastatic.org/ka-perseus-images/2b597889d05bc601803a3b4d9ec5ccd5e7b8d3af.png
+  All Khan Academy content is available for free at
+  www.khanacademy.org
+
+RNA-sequencing (bulk RNA-seq)
+
+- Isolate mRNA from a large sample of cells
+- Reverse transcibe to cDNA, fragment, and sequence
+- Align sequenced fragments to reference genome
+- More fragments aligned interpretted as higher gene expression.
+
+![](our_figures/rna4.JPG.jpg)
+
+- http://bio.lundberg.gu.se/courses/vt13/rnaseq.html
+
+Single-cell RNA-seq
+
+- Isolate individual cells
+- Associate each cell with bar-coded beads
+- Sequence bar-coded cDNA
+- Most current methods lead to very sparse 'coverage'
+
+![](our_figures/microfluidics.png)
+
+- Hwang et al., 2018 https://doi.org/10.1038/s12276-018-0071-8 
+
 ## Simulated data
 
 Parameters:
